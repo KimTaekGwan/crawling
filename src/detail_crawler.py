@@ -2,28 +2,35 @@
 Module for crawling detailed information from previously crawled URLs.
 """
 
-import csv
 import os
 import re
 import time
+import logging
 import concurrent.futures
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
+from urllib.parse import urlparse, urlunparse, parse_qs, unquote
+import sqlite3
 from playwright.sync_api import sync_playwright, Page
 import src.config as config
 from src.scraper import initialize_browser, close_browser
-from src.storage import ensure_data_dir
 from src.db_storage import (
     initialize_db,
     get_processed_urls as get_processed_urls_db,
     save_to_db,
     read_urls_from_db,
+    normalize_field_name,
+    get_db_connection,
 )
+import argparse
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # 병렬 처리 수 설정
 _parallel_count = 4
-
-# 데이터베이스 파일명 설정
-_db_filename = "crawler_data.db"
 
 
 def set_parallel_count(count=4):
@@ -35,50 +42,236 @@ def set_parallel_count(count=4):
     """
     global _parallel_count
     _parallel_count = max(1, count)  # 최소 1 이상
-    print(f"병렬 처리 수가 {_parallel_count}로 설정되었습니다.")
+    logger.info(f"병렬 처리 수가 {_parallel_count}로 설정되었습니다.")
 
 
-def read_urls_from_csv(filename: str) -> List[Dict[str, str]]:
-    """
-    CSV 파일에서 이전에 크롤링한 URL 및 정보를 읽어옵니다.
-    (CSV 호환성을 위해 유지)
-
-    Args:
-        filename: 읽을 CSV 파일 이름
-
-    Returns:
-        URL 정보가 담긴 딕셔너리 리스트
-    """
-    urls = []
-    filepath = os.path.join(config.DATA_DIR, filename)
-
-    if not os.path.exists(filepath):
-        print(f"파일이 존재하지 않습니다: {filepath}")
-        return urls
-
-    try:
-        with open(filepath, "r", encoding="utf-8", newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                urls.append(row)
-    except Exception as e:
-        print(f"파일 읽기 오류: {e}")
-
-    return urls
-
-
-def get_processed_urls(output_filename: str) -> Set[str]:
+def get_processed_urls(db_filename: str) -> Set[str]:
     """
     이미 처리된 URL 목록을 가져옵니다.
     (SQLite DB에서 읽습니다)
 
     Args:
-        output_filename: 결과 CSV 파일명 (레거시 호환성 유지, 무시됨)
+        db_filename: 데이터베이스 파일명
 
     Returns:
         이미 처리된 URL 집합 (Set)
     """
-    return get_processed_urls_db(_db_filename)
+    return get_processed_urls_db(db_filename)
+
+
+def extract_modoo_url(url: str) -> Optional[str]:
+    """
+    네이버 인플로우 URL에서 modoo.at 도메인 URL을 추출합니다.
+
+    Args:
+        url: 원본 URL
+
+    Returns:
+        추출된 modoo.at URL 또는 None
+    """
+    if not url:
+        return None
+
+    try:
+        # 네이버 인플로우 URL인지 확인
+        if "inflow.pay.naver.com" in url:
+            # URL 파싱
+            parsed = urlparse(url)
+            # 쿼리 파라미터 파싱
+            query_params = parse_qs(parsed.query)
+
+            # retUrl 파라미터가 있는지 확인
+            if "retUrl" in query_params:
+                encoded_url = query_params["retUrl"][0]
+                # URL 디코딩
+                decoded_url = unquote(encoded_url)
+
+                # modoo.at 도메인이 포함되어 있는지 확인
+                if "modoo.at" in decoded_url:
+                    logger.info(f"모두 URL 추출: {decoded_url} (원본: {url})")
+                    return decoded_url
+
+        # modoo.at 도메인인지 직접 확인
+        parsed = urlparse(url)
+        if "modoo.at" in parsed.netloc:
+            return url
+
+        return None
+    except Exception as e:
+        logger.error(f"모두 URL 추출 중 오류: {url} - {e}")
+        return None
+
+
+def normalize_url(url: str) -> str:
+    """
+    URL을 정규화합니다 - 쿼리 파라미터와 프래그먼트를 제거합니다.
+    네이버 인플로우 URL에서 modoo.at URL을 추출합니다.
+
+    Args:
+        url: 정규화할 URL
+
+    Returns:
+        정규화된 URL 또는 빈 문자열
+    """
+    if not url:
+        return ""
+
+    try:
+        # 네이버 인플로우 URL에서 모두 URL 추출 시도
+        modoo_url = extract_modoo_url(url)
+        if modoo_url:
+            url = modoo_url
+
+        # URL 파싱
+        parsed = urlparse(url)
+
+        # 쿼리 파라미터와 프래그먼트 제거
+        normalized = urlunparse(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                "",  # params
+                "",  # query
+                "",  # fragment
+            )
+        )
+
+        # 경로가 비어있으면 '/'를 추가
+        if parsed.netloc and not normalized.endswith("/"):
+            normalized += "/"
+
+        return normalized
+    except Exception as e:
+        logger.error(f"URL 정규화 중 오류: {url} - {e}")
+        return url
+
+
+def clean_database_urls(db_filename: str) -> int:
+    """
+    데이터베이스의 URL을 정규화하고 중복을 제거합니다.
+    또한 모두(modoo.at) 도메인 URL만 유지하고 나머지는 삭제합니다.
+
+    Args:
+        db_filename: 데이터베이스 파일명
+
+    Returns:
+        처리된 URL 수
+    """
+    logger.info("데이터베이스 URL 정규화 및 중복 제거 시작...")
+
+    conn = get_db_connection(db_filename)
+    if not conn:
+        logger.error("데이터베이스 연결 실패")
+        return 0
+
+    try:
+        cursor = conn.cursor()
+
+        # 모든 URL 가져오기
+        cursor.execute("SELECT url FROM websites")
+        rows = cursor.fetchall()
+
+        if not rows:
+            logger.info("처리할 URL이 없습니다.")
+            return 0
+
+        logger.info(f"총 {len(rows)}개의 URL을 처리합니다.")
+
+        # URL 정규화 및 중복 확인을 위한 딕셔너리
+        normalized_urls = {}  # {normalized_url: original_url}
+        duplicate_urls = []  # 중복으로 제거할 URL 목록
+        update_pairs = []  # 업데이트할 (original_url, normalized_url) 쌍
+        delete_urls = []  # 삭제할 URL 목록 (modoo.at이 아닌 URL)
+
+        # 모든 URL을 정규화하고 중복 확인
+        for row in rows:
+            original_url = row["url"]
+
+            # URL 정규화 (모두 URL 추출 포함)
+            normalized_url = normalize_url(original_url)
+
+            # modoo.at URL 확인
+            modoo_url = extract_modoo_url(original_url)
+
+            # modoo.at URL이 아니면 삭제 목록에 추가
+            if not modoo_url and "modoo.at" not in original_url:
+                delete_urls.append(original_url)
+                logger.debug(f"모두 URL이 아님 (삭제 예정): {original_url}")
+                continue
+
+            # 정규화된 URL이 비어있으면 건너뜀
+            if not normalized_url:
+                delete_urls.append(original_url)
+                logger.debug(f"정규화 후 빈 URL (삭제 예정): {original_url}")
+                continue
+
+            # 이미 같은 정규화된 URL이 있는지 확인
+            if normalized_url in normalized_urls:
+                # 중복으로 표시
+                duplicate_urls.append(original_url)
+                logger.debug(f"중복 URL 발견: {original_url} -> {normalized_url}")
+            else:
+                # 새로운 정규화된 URL 추가
+                normalized_urls[normalized_url] = original_url
+                # 원본 URL과 정규화된 URL이 다르면 업데이트 목록에 추가
+                if original_url != normalized_url:
+                    update_pairs.append((original_url, normalized_url))
+
+        # URL 정규화 및 데이터 이동
+        processed_count = 0
+
+        # 트랜잭션 시작
+        conn.execute("BEGIN TRANSACTION")
+
+        # modoo.at이 아닌 URL 삭제
+        for url in delete_urls:
+            cursor.execute("DELETE FROM websites WHERE url = ?", (url,))
+            processed_count += 1
+            logger.debug(f"모두 URL이 아니어서 삭제: {url}")
+
+        # 정규화된 URL로 업데이트 (중복이 아닌 URL만)
+        for original_url, new_url in update_pairs:
+            if original_url not in duplicate_urls:
+                # 새 URL이 이미 존재하는지 확인
+                cursor.execute("SELECT 1 FROM websites WHERE url = ?", (new_url,))
+                if cursor.fetchone():
+                    # 이미 존재하면 원본 삭제
+                    cursor.execute(
+                        "DELETE FROM websites WHERE url = ?", (original_url,)
+                    )
+                    logger.debug(f"삭제: {original_url} (이미 {new_url}이 존재함)")
+                else:
+                    # 존재하지 않으면 URL 업데이트
+                    cursor.execute(
+                        "UPDATE websites SET url = ? WHERE url = ?",
+                        (new_url, original_url),
+                    )
+                    logger.debug(f"업데이트: {original_url} -> {new_url}")
+                processed_count += 1
+
+        # 중복 URL 제거
+        for url in duplicate_urls:
+            cursor.execute("DELETE FROM websites WHERE url = ?", (url,))
+            processed_count += 1
+            logger.debug(f"중복 삭제: {url}")
+
+        # 트랜잭션 커밋
+        conn.commit()
+
+        logger.info(f"URL 정규화 및 중복 제거 완료: {processed_count}개 처리됨")
+        logger.info(f"- URL 업데이트: {len(update_pairs)}개")
+        logger.info(f"- 중복 URL 제거: {len(duplicate_urls)}개")
+        logger.info(f"- 모두 URL이 아니어서 삭제: {len(delete_urls)}개")
+
+        return processed_count
+
+    except Exception as e:
+        logger.error(f"URL 정규화 및 중복 제거 중 오류: {e}")
+        conn.rollback()
+        return 0
+    finally:
+        conn.close()
 
 
 def extract_footer_info(page: Page) -> Dict[str, str]:
@@ -91,7 +284,7 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
     Returns:
         추출된 기업 정보가 담긴 딕셔너리
     """
-    info = {"Company": "", "PhoneNumber": "", "Email": "", "Address": ""}
+    info = {"company": "", "phone_number": "", "email": "", "address": ""}
 
     try:
         # 푸터 영역이 존재하는지 확인
@@ -99,13 +292,13 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
             "#main > div.footer._footer > div.section_footer > div > div.area_info"
         )
         if not page.query_selector(footer_selector):
-            print("푸터 영역을 찾을 수 없습니다.")
+            logger.debug("푸터 영역을 찾을 수 없습니다.")
             return info
 
         # 정보 목록 확인
         list_items = page.query_selector_all(f"{footer_selector} ul.list_info > li")
         if not list_items:
-            print("푸터 정보 목록을 찾을 수 없습니다.")
+            logger.debug("푸터 정보 목록을 찾을 수 없습니다.")
             return info
 
         # 각 항목 처리
@@ -116,7 +309,7 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
             if "전화번호" in text:
                 phone_match = re.search(r"전화번호\s*:?\s*([0-9\-]+)", text)
                 if phone_match:
-                    info["PhoneNumber"] = phone_match.group(1)
+                    info["phone_number"] = phone_match.group(1)
 
             # 이메일 추출
             elif "이메일" in text:
@@ -125,7 +318,7 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
                     text,
                 )
                 if email_match:
-                    info["Email"] = email_match.group(1)
+                    info["email"] = email_match.group(1)
 
             # 주소 추출 (주소 형태를 가진 텍스트로 판단)
             elif (
@@ -136,19 +329,19 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
                 or "구 " in text
             ):
                 if "사업자등록번호" not in text and "연락처" not in text:
-                    info["Address"] = text
+                    info["address"] = text
 
             # 기업명 추출 (첫 번째 항목으로 가정)
             elif (
-                info["Company"] == ""
+                info["company"] == ""
                 and "사업자등록번호" not in text
                 and "대표" not in text
             ):
                 if len(text) < 30:  # 길이 제한으로 주소가 아닌 항목 구분
-                    info["Company"] = text
+                    info["company"] = text
 
     except Exception as e:
-        print(f"푸터 정보 추출 중 오류: {e}")
+        logger.error(f"푸터 정보 추출 중 오류: {e}")
 
     return info
 
@@ -185,7 +378,7 @@ def extract_talk_link(page: Page) -> str:
                 talk_link = matches[0].split("'")[0].split('"')[0].split("?")[0]
 
     except Exception as e:
-        print(f"톡톡 링크 추출 중 오류: {e}")
+        logger.error(f"톡톡 링크 추출 중 오류: {e}")
 
     return talk_link
 
@@ -201,12 +394,12 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         추출된 상세 정보가 담긴 딕셔너리
     """
     details = {
-        "URL": url,
-        "Company": "",
-        "PhoneNumber": "",
-        "Email": "",
-        "Address": "",
-        "TalkLink": "",
+        "url": url,
+        "company": "",
+        "phone_number": "",
+        "email": "",
+        "address": "",
+        "talk_link": "",
     }
 
     # 브라우저 초기화
@@ -214,7 +407,7 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
 
     try:
         # URL로 이동
-        print(f"URL 접속 중: {url}")
+        logger.info(f"URL 접속 중: {url}")
         page.goto(url, timeout=30000)
 
         # 페이지 로딩 대기
@@ -225,17 +418,17 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         details.update(footer_info)
 
         # 톡톡 링크 추출
-        details["TalkLink"] = extract_talk_link(page)
+        details["talk_link"] = extract_talk_link(page)
 
-        print(f"크롤링 완료: {url}")
-        print(f"- 기업명: {details['Company']}")
-        print(f"- 전화번호: {details['PhoneNumber']}")
-        print(f"- 이메일: {details['Email']}")
-        print(f"- 주소: {details['Address']}")
-        print(f"- 톡톡링크: {details['TalkLink']}")
+        logger.info(f"크롤링 완료: {url}")
+        logger.debug(f"- 기업명: {details['company']}")
+        logger.debug(f"- 전화번호: {details['phone_number']}")
+        logger.debug(f"- 이메일: {details['email']}")
+        logger.debug(f"- 주소: {details['address']}")
+        logger.debug(f"- 톡톡링크: {details['talk_link']}")
 
     except Exception as e:
-        print(f"상세 페이지 크롤링 중 오류: {url} - {e}")
+        logger.error(f"상세 페이지 크롤링 중 오류: {url} - {e}")
 
     finally:
         # 브라우저 종료
@@ -244,264 +437,380 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
     return details
 
 
-def save_intermediate_results(
-    results: List[Dict[str, str]], output_filename: str, headers: List[str] = None
-) -> None:
+def save_intermediate_results(results: List[Dict[str, str]], db_filename: str) -> None:
     """
-    중간 결과를 저장합니다. (SQLite DB에 저장)
+    중간 결과를 데이터베이스에 저장합니다.
 
     Args:
-        results: 저장할 결과 데이터
-        output_filename: 저장할 파일명 (레거시 호환성 유지, CSV 파일도 생성)
-        headers: CSV 헤더 (없으면 results의 키를 사용)
+        results: 저장할 결과 목록
+        db_filename: 데이터베이스 파일명
     """
     if not results:
-        print("저장할 결과가 없습니다.")
+        logger.warning("저장할 중간 결과가 없습니다.")
         return
 
-    # SQLite DB에 저장
-    saved_count = save_to_db(results, _db_filename)
-    print(f"중간 결과 {saved_count}개 항목이 SQLite 데이터베이스에 저장되었습니다.")
-
-    # 이전 버전과의 호환성을 위해 CSV도 생성
-    if headers is None:
-        headers = list(results[0].keys())
-
-    # 파일을 덮어쓰기 모드로 직접 저장
-    ensure_data_dir()
-    filepath = os.path.join(config.DATA_DIR, output_filename)
-
     try:
-        with open(filepath, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=headers)
-            writer.writeheader()
-            writer.writerows(results)
-
-        print(
-            f"중간 결과 {len(results)}개 항목이 {output_filename}에도 백업되었습니다."
-        )
+        # 데이터베이스에 중간 결과 저장
+        saved_count = save_to_db(results, db_filename)
+        logger.info(f"중간 결과 {saved_count}개를 데이터베이스에 저장했습니다.")
     except Exception as e:
-        print(f"CSV 결과 저장 중 오류 발생: {e}")
+        logger.error(f"중간 결과 저장 중 오류: {e}")
 
 
 def process_url(item, i, total_items):
     """
-    단일 URL에 대한 처리를 수행합니다.
-    병렬 처리를 위해 분리된 함수입니다.
+    단일 URL을 처리하고 결과를 반환합니다.
 
     Args:
-        item: 처리할 항목 정보
-        i: 항목 인덱스
-        total_items: 전체 항목 수
+        item: 처리할 URL 정보
+        i: 인덱스
+        total_items: 전체 URL 수
 
     Returns:
-        Dict: 상세 정보를 포함한 결과 딕셔너리
+        처리된 URL 상세 정보
     """
-    print(f"\n항목 {i+1}/{total_items} 처리 중...")
-    url = item["URL"]
+    # URL 추출
+    url = item.get("url", "")
+    if not url:
+        logger.warning(f"[{i+1}/{total_items}] URL이 누락된 항목을 건너뜁니다.")
+        return None
 
-    # 기존 정보 복사
-    detail_item = item.copy()
+    # Name 정보가 있으면 함께 저장
+    name = item.get("name", "")
 
-    # 상세 정보 크롤링
-    start_time = time.time()
-    details = crawl_detail_page(url)
-    elapsed_time = time.time() - start_time
+    # 상세 정보 크롤링 결과 키워드 추가
+    try:
+        logger.info(f"[{i+1}/{total_items}] 처리 중: {url}")
+        details = crawl_detail_page(url)
 
-    # 기존 정보와 병합
-    detail_item.update(details)
+        # Name 필드 추가
+        if name:
+            details["name"] = name
 
-    # 처리 결과 로그
-    print(f"항목 {i+1}/{total_items} 완료 (소요시간: {elapsed_time:.1f}초)")
-    print(f"- 기업명: {detail_item['Company']}")
-    print(f"- 전화번호: {detail_item['PhoneNumber']}")
-    print(f"- 이메일: {detail_item['Email']}")
+        # Keyword 필드가 있으면 추가
+        keyword = item.get("keyword", "")
+        if keyword:
+            details["keyword"] = keyword
 
-    # 과도한 요청 방지를 위한 딜레이
-    time.sleep(3)
+        return details
+    except Exception as e:
+        logger.error(f"URL 처리 중 오류: {url} - {e}")
+        return None
 
-    return detail_item
 
-
-def crawl_details_from_csv(
-    input_filename: str,
-    output_filename: str,
-    save_interval: int = 10,
-    resume: bool = True,
-):
+def filter_urls_by_keywords(
+    items: List[Dict[str, str]],
+    include_keywords: List[str] = None,
+    exclude_keywords: List[str] = None,
+    case_sensitive: bool = False,
+) -> Tuple[List[Dict[str, str]], int, int, int]:
     """
-    CSV 파일에서 URL 목록을 읽어와 각 URL의 상세 정보를 크롤링합니다.
-    결과는 SQLite DB에 저장됩니다.
+    키워드 조건에 맞는 URL만 필터링합니다.
 
     Args:
-        input_filename: 입력 CSV 파일명
-        output_filename: 결과를 저장할 CSV 파일명 (백업용)
-        save_interval: 중간 저장 간격 (기본값: 10개 URL마다)
-        resume: 이전에 처리된 URL은 건너뛸지 여부 (기본값: True)
-    """
-    print(f"CSV 파일에서 URL 읽기: {input_filename}")
-    items = read_urls_from_csv(input_filename)
+        items: 필터링할 URL 항목 목록
+        include_keywords: 포함해야 하는 키워드 리스트 (OR 조건)
+        exclude_keywords: 제외해야 하는 키워드 리스트 (OR 조건)
+        case_sensitive: 대소문자 구분 여부
 
+    Returns:
+        필터링된 URL 목록과 통계 정보 (필터링된 항목 수, 포함 키워드로 필터링된 수, 제외 키워드로 필터링된 수)
+    """
     if not items:
-        print("크롤링할 URL이 없습니다.")
+        return [], 0, 0, 0
+
+    # 키워드 리스트가 모두 비어있으면 필터링하지 않음
+    if not include_keywords and not exclude_keywords:
+        return items, 0, 0, 0
+
+    # 키워드 리스트 정규화
+    include_keywords = include_keywords or []
+    exclude_keywords = exclude_keywords or []
+
+    # 대소문자 구분이 없는 경우 모든 키워드를 소문자로 변환
+    if not case_sensitive:
+        include_keywords = [kw.lower() for kw in include_keywords]
+        exclude_keywords = [kw.lower() for kw in exclude_keywords]
+
+    filtered_items = []
+    include_filtered_count = 0
+    exclude_filtered_count = 0
+    both_filtered_count = 0
+
+    for item in items:
+        # URL과 키워드 가져오기
+        url = item.get("url", "")
+        keyword = item.get("keyword", "")
+        name = item.get("name", "")
+
+        # 검색 문자열 (URL, 키워드, 이름 포함)
+        search_text = f"{url} {keyword} {name}"
+        if not case_sensitive:
+            search_text = search_text.lower()
+
+        # 포함 키워드 확인
+        has_include_keyword = False
+        if not include_keywords:
+            has_include_keyword = True  # 포함 키워드가 없으면 항상 True
+        else:
+            for kw in include_keywords:
+                if kw in search_text:
+                    has_include_keyword = True
+                    break
+
+        # 제외 키워드 확인
+        has_exclude_keyword = False
+        for kw in exclude_keywords:
+            if kw in search_text:
+                has_exclude_keyword = True
+                break
+
+        # 조건에 따른 필터링:
+        # 1. 포함 키워드가 있고 제외 키워드가 없는 경우
+        # 2. 포함 키워드가 없고 제외 키워드가 있는 경우에는 제외 키워드가 없는 항목만 포함
+        if has_include_keyword and not has_exclude_keyword:
+            filtered_items.append(item)
+        elif not include_keywords and not has_exclude_keyword:
+            filtered_items.append(item)
+        else:
+            # 필터링 통계
+            if has_include_keyword and has_exclude_keyword:
+                both_filtered_count += 1
+            elif has_include_keyword:
+                include_filtered_count += 1
+            elif has_exclude_keyword:
+                exclude_filtered_count += 1
+
+    total_filtered = len(items) - len(filtered_items)
+    logger.info(
+        f"키워드 필터링 결과: 총 {len(items)}개 중 {len(filtered_items)}개 선택 ({total_filtered}개 필터링됨)"
+    )
+    logger.info(f"- 포함 키워드: {include_keywords if include_keywords else '없음'}")
+    logger.info(f"- 제외 키워드: {exclude_keywords if exclude_keywords else '없음'}")
+
+    return (
+        filtered_items,
+        total_filtered,
+        include_filtered_count,
+        exclude_filtered_count,
+    )
+
+
+def crawl_details_from_db(
+    db_filename: str,
+    save_interval: int = 10,
+    resume: bool = True,
+    include_keywords: List[str] = None,
+    exclude_keywords: List[str] = None,
+    case_sensitive: bool = False,
+):
+    """
+    SQLite 데이터베이스에서 URL을 읽어와 상세 정보를 크롤링합니다.
+    결과는 SQLite 데이터베이스에 저장됩니다.
+
+    Args:
+        db_filename: 데이터베이스 파일명
+        save_interval: 중간 저장 간격
+        resume: 이어서 작업할지 여부
+        include_keywords: 포함해야 하는 키워드 리스트
+        exclude_keywords: 제외해야 하는 키워드 리스트
+        case_sensitive: 키워드 대소문자 구분 여부
+    """
+    # 데이터베이스 초기화
+    initialize_db(db_filename)
+
+    # 입력 데이터 가져오기 (DB에서)
+    items = read_urls_from_db(db_filename)
+    if not items:
+        logger.error(
+            f"처리할 URL이 없습니다. {db_filename} 데이터베이스를 확인해주세요."
+        )
         return
 
-    # 데이터베이스 초기화
-    initialize_db(_db_filename)
+    # 키워드 필터링 적용
+    if include_keywords or exclude_keywords:
+        items, total_filtered, include_filtered, exclude_filtered = (
+            filter_urls_by_keywords(
+                items, include_keywords, exclude_keywords, case_sensitive
+            )
+        )
+        if not items:
+            logger.info("키워드 필터링 후 처리할 URL이 없습니다.")
+            return
 
-    # 이미 처리된 URL 목록 가져오기
+    # 이미 상세 정보가 있는 URL 목록 가져오기
     processed_urls = set()
     if resume:
-        processed_urls = get_processed_urls(_db_filename)
+        # 상세 필드 중 하나라도 값이 있는 URL 찾기
+        conn = get_db_connection(db_filename)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT url FROM websites 
+                WHERE company != '' OR phone_number != '' OR 
+                      email != '' OR address != '' OR talk_link != ''
+                """
+            )
+            rows = cursor.fetchall()
+            for row in rows:
+                if row["url"]:
+                    processed_urls.add(row["url"])
+            logger.info(f"이미 상세 정보가 있는 URL: {len(processed_urls)}개")
+        except Exception as e:
+            logger.error(f"상세 정보가 있는 URL 조회 중 오류: {e}")
+        finally:
+            conn.close()
 
-    # 처리해야 할 URL 필터링
-    items_to_process = []
+    # 처리할 URL 필터링
+    filtered_items = []
     for item in items:
-        if "URL" in item and item["URL"]:
-            if not resume or item["URL"] not in processed_urls:
-                items_to_process.append(item)
+        url = item.get("url", "")
+        if not url:
+            continue
+        if resume and url in processed_urls:
+            logger.debug(f"이미 상세 정보가 있는 URL 건너뜀: {url}")
+            continue
+        filtered_items.append(item)
 
-    total_items = len(items_to_process)
-    print(f"총 {total_items}개의 URL에 대해 상세 정보 크롤링을 시작합니다.")
-    print(f"병렬 처리 수: {_parallel_count}")
+    total_items = len(filtered_items)
+    logger.info(f"처리할 URL: {total_items}개")
 
-    if not items_to_process:
-        print("처리할 URL이 없습니다. 종료합니다.")
+    if not filtered_items:
+        logger.info("모든 URL이 이미 처리되었습니다.")
         return
 
-    # 기존 결과를 URL을 키로 하는 딕셔너리로 변환
-    results_dict = {}
-    if resume and processed_urls:
-        existing_results = read_urls_from_db(_db_filename)
-        for item in existing_results:
-            if "url" in item and item["url"]:
-                # SQLite에서는 컬럼명이 소문자로 저장되므로 일관성을 위해 변환
-                item_with_uppercase_url = item.copy()
-                item_with_uppercase_url["URL"] = item["url"]
-                results_dict[item["url"]] = item_with_uppercase_url
+    # 병렬 처리
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=_parallel_count) as executor:
+        # 작업 제출
+        future_to_url = {
+            executor.submit(process_url, item, i, total_items): (i, item)
+            for i, item in enumerate(filtered_items)
+        }
 
-    # 크롤링 시작 시간 기록
-    start_time = time.time()
+        # 결과 처리
+        for i, future in enumerate(concurrent.futures.as_completed(future_to_url)):
+            idx, item = future_to_url[future]
+            url = item.get("url", "")
 
-    # 중간 저장을 위한 동기화 변수
-    completed_count = 0
-    all_processed_items = 0
+            try:
+                details = future.result()
+                if details:
+                    results.append(details)
+                    logger.info(f"[{i+1}/{total_items}] 완료: {url}")
+                else:
+                    logger.warning(f"[{i+1}/{total_items}] 실패: {url}")
+            except Exception as e:
+                logger.error(f"[{i+1}/{total_items}] 오류: {url} - {e}")
 
-    # 스레드 안전한 카운터 및 락 생성
-    from threading import Lock
+            # 중간 저장
+            if (i + 1) % save_interval == 0 or (i + 1) == total_items:
+                save_intermediate_results(results, db_filename)
+                # 저장 후 리스트 비우기
+                results = []
 
-    result_lock = Lock()
-
-    try:
-        # 병렬 처리 시작
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=_parallel_count
-        ) as executor:
-            # 작업 제출
-            futures = {
-                executor.submit(process_url, item, i, total_items): i
-                for i, item in enumerate(items_to_process)
-            }
-
-            # 작업 완료 대기 및 결과 수집
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    # 결과 수집
-                    result = future.result()
-                    url = result["URL"]
-
-                    # 스레드 안전하게 결과 추가
-                    with result_lock:
-                        results_dict[url] = result
-                        completed_count += 1
-                        all_processed_items += 1
-
-                        # 일정 간격마다 중간 결과 저장
-                        if (
-                            completed_count % save_interval == 0
-                            or all_processed_items == total_items
-                        ):
-                            # 딕셔너리에서 리스트로 변환하여 저장
-                            results_list = list(results_dict.values())
-                            headers = (
-                                list(results_list[0].keys()) if results_list else []
-                            )
-                            save_intermediate_results(
-                                results_list, output_filename, headers
-                            )
-
-                            # 진행 상황 및 예상 완료 시간 계산
-                            elapsed_time = time.time() - start_time
-                            avg_time_per_item = elapsed_time / all_processed_items
-                            remaining_items = total_items - all_processed_items
-                            estimated_remaining_time = (
-                                avg_time_per_item * remaining_items
-                            )
-
-                            print(f"\n===== 중간 저장 완료 =====")
-                            print(
-                                f"진행 상황: {all_processed_items}/{total_items} ({all_processed_items/total_items*100:.1f}%)"
-                            )
-                            print(f"경과 시간: {elapsed_time/60:.1f}분")
-                            print(
-                                f"예상 남은 시간: {estimated_remaining_time/60:.1f}분"
-                            )
-                            print(f"현재까지 총 {len(results_dict)}개 URL 정보 저장됨")
-                            print(f"===========================\n")
-
-                            # 완료된 항목 카운터 초기화 (save_interval 단위로만 사용됨)
-                            completed_count = 0
-
-                except Exception as e:
-                    print(f"URL 처리 중 오류 발생: {e}")
-
-    except KeyboardInterrupt:
-        print("\n사용자에 의해 크롤링이 중단되었습니다.")
-        # 중단된 시점까지의 결과 저장
-        if results_dict:
-            results_list = list(results_dict.values())
-            headers = list(results_list[0].keys()) if results_list else []
-            save_intermediate_results(results_list, output_filename, headers)
-
-    except Exception as e:
-        print(f"\n크롤링 중 오류 발생: {e}")
-        # 오류 발생 시점까지의 결과 저장
-        if results_dict:
-            results_list = list(results_dict.values())
-            headers = list(results_list[0].keys()) if results_list else []
-            save_intermediate_results(results_list, output_filename, headers)
-
-    # 최종 결과 출력
-    total_time = time.time() - start_time
-    total_processed = all_processed_items
-    print(f"\n크롤링 완료: {total_processed}/{total_items} 항목 처리됨.")
-    print(f"총 소요 시간: {total_time:.1f}초 ({total_time/60:.1f}분)")
-    if results_dict:
-        print(
-            f"결과가 SQLite DB와 {output_filename}에 저장되었습니다. 총 {len(results_dict)}개 URL 정보"
-        )
+    logger.info("모든 URL 처리가 완료되었습니다.")
 
 
 def main():
-    """메인 함수"""
-    # 모든 검색어에 대한 통합 파일에서 URL 읽기
-    input_filename = config.ALL_DATA_FILE_NAME
-    output_filename = "details_" + config.ALL_DATA_FILE_NAME
-
-    # 기본 중간 저장 간격 (10 항목마다)
-    save_interval = 10
-
-    # 작업 모드 선택
-    resume_mode = True
-
-    # 작업 모드 출력
-    mode_description = "이어서 작업" if resume_mode else "처음부터 작업"
-    print(
-        f"상세 정보 크롤링을 {mode_description}합니다. 중간 저장 간격: {save_interval}개 URL마다"
+    """모듈 테스트용 메인 함수"""
+    parser = argparse.ArgumentParser(description="URL 상세 정보 크롤링 도구")
+    parser.add_argument("--db", default="crawler_data.db", help="데이터베이스 파일명")
+    parser.add_argument("--interval", type=int, default=10, help="중간 저장 간격")
+    parser.add_argument("--new", action="store_true", help="처음부터 다시 크롤링")
+    parser.add_argument("--parallel", type=int, default=4, help="병렬 처리 수")
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="로깅 레벨",
     )
+    parser.add_argument(
+        "--skip-url-cleaning",
+        action="store_true",
+        help="URL 정규화 및 중복 제거 건너뛰기",
+    )
+    parser.add_argument(
+        "--test-url", help="URL 추출 및 정규화 테스트를 위한 URL (테스트 모드)"
+    )
+    parser.add_argument(
+        "--include",
+        nargs="+",
+        help="포함해야 하는 키워드 리스트 (여러 개 지정 가능, 공백으로 구분)",
+    )
+    parser.add_argument(
+        "--exclude",
+        nargs="+",
+        help="제외해야 하는 키워드 리스트 (여러 개 지정 가능, 공백으로 구분)",
+    )
+    parser.add_argument(
+        "--case-sensitive", action="store_true", help="키워드 대소문자 구분 사용"
+    )
+    args = parser.parse_args()
+
+    # 로그 레벨 설정
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
+
+    # URL 테스트 모드
+    if args.test_url:
+        test_url = args.test_url
+        print(f"\n===== URL 테스트 모드 =====")
+        print(f"원본 URL: {test_url}")
+
+        # 모두 URL 추출 테스트
+        modoo_url = extract_modoo_url(test_url)
+        print(f"모두 URL 추출 결과: {modoo_url}")
+
+        # URL 정규화 테스트
+        normalized_url = normalize_url(test_url)
+        print(f"URL 정규화 결과: {normalized_url}")
+        print("=========================\n")
+        return
+
+    # 병렬 처리 수 설정
+    set_parallel_count(args.parallel)
+
+    # 데이터베이스 초기화
+    initialize_db(args.db)
+
+    # URL 정규화 및 중복 제거 (선택적으로 건너뛸 수 있음)
+    if not args.skip_url_cleaning:
+        clean_database_urls(args.db)
+
+    # 키워드 필터링 옵션 처리
+    # config.py에서 기본값 가져오기
+    include_keywords = config.DETAIL_INCLUDE_KEYWORDS
+    exclude_keywords = config.DETAIL_EXCLUDE_KEYWORDS
+    case_sensitive = config.DETAIL_CASE_SENSITIVE
+
+    # 명령행 인자로 기본값 재정의
+    if args.include:
+        include_keywords = args.include
+    if args.exclude:
+        exclude_keywords = args.exclude
+    if args.case_sensitive:
+        case_sensitive = True
+
+    # 키워드 필터링 옵션 출력
+    if include_keywords or exclude_keywords:
+        logger.info("키워드 필터링 옵션 설정:")
+        if include_keywords:
+            logger.info(f"- 포함 키워드: {include_keywords}")
+        if exclude_keywords:
+            logger.info(f"- 제외 키워드: {exclude_keywords}")
+        if case_sensitive:
+            logger.info("- 대소문자 구분: 사용")
 
     # 크롤링 시작
-    crawl_details_from_csv(input_filename, output_filename, save_interval, resume_mode)
+    crawl_details_from_db(
+        args.db,
+        args.interval,
+        not args.new,
+        include_keywords,
+        exclude_keywords,
+        case_sensitive,
+    )
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import os
 import sqlite3
 from typing import Dict, List, Set, Optional
 import src.config as config
+import logging
 
 
 def ensure_db_dir():
@@ -58,7 +59,8 @@ def initialize_db(db_filename: str, schema: Optional[List[str]] = None) -> None:
                 phone_number TEXT,
                 email TEXT,
                 address TEXT,
-                talk_link TEXT
+                talk_link TEXT,
+                name TEXT
             )
             """
         ]
@@ -75,6 +77,36 @@ def initialize_db(db_filename: str, schema: Optional[List[str]] = None) -> None:
         conn.close()
 
 
+def normalize_field_name(field_name: str) -> str:
+    """
+    필드 이름을 정규화합니다. CSV와 SQLite 간의 일관성을 유지하기 위함입니다.
+
+    Args:
+        field_name: 원본 필드 이름
+
+    Returns:
+        정규화된 필드 이름
+    """
+    # 대소문자 구분 없이 필드 이름 매핑
+    field_mapping = {
+        "url": "url",
+        "name": "name",
+        "keyword": "keyword",
+        "title": "title",
+        "description": "description",
+        "category": "category",
+        "content": "content",
+        "company": "company",
+        "phonenumber": "phone_number",
+        "email": "email",
+        "address": "address",
+        "talklink": "talk_link",
+    }
+
+    normalized = field_name.lower().replace(" ", "_")
+    return field_mapping.get(normalized, normalized)
+
+
 def save_to_db(data: List[Dict[str, str]], db_filename: str) -> int:
     """
     Save data to the SQLite database, replacing existing records with the same URL.
@@ -87,7 +119,7 @@ def save_to_db(data: List[Dict[str, str]], db_filename: str) -> int:
         Number of records saved
     """
     if not data:
-        print(f"No data to save to {db_filename}")
+        logging.warning(f"No data to save to {db_filename}")
         return 0
 
     conn = get_db_connection(db_filename)
@@ -96,28 +128,39 @@ def save_to_db(data: List[Dict[str, str]], db_filename: str) -> int:
         saved_count = 0
 
         for item in data:
-            # Get all fields from the item
-            url = item.get("URL", "")
+            # 필드 정규화
+            normalized_item = {}
+            for key, value in item.items():
+                normalized_key = normalize_field_name(key)
+                normalized_item[normalized_key] = value
+
+            # URL 필드가 없으면 건너뜀
+            url = normalized_item.get("url", "")
             if not url:
+                logging.warning(f"항목에 URL이 없어 저장을 건너뜁니다: {item}")
                 continue
 
-            # Build the insert or replace query dynamically based on available fields
-            fields = list(item.keys())
+            # 정규화된 필드 이름으로 쿼리 작성
+            fields = list(normalized_item.keys())
             placeholders = ", ".join(["?" for _ in fields])
             field_names = ", ".join([f'"{f}"' for f in fields])
 
             query = f"INSERT OR REPLACE INTO websites ({field_names}) VALUES ({placeholders})"
-            values = [item.get(field, "") for field in fields]
+            values = [normalized_item.get(field, "") for field in fields]
 
-            cursor.execute(query, values)
-            saved_count += 1
+            try:
+                cursor.execute(query, values)
+                saved_count += 1
+                logging.debug(f"데이터 저장 성공: {url}")
+            except sqlite3.Error as e:
+                logging.error(f"항목 저장 중 오류: {url} - {e}")
 
         conn.commit()
-        print(f"Successfully saved {saved_count} records to {db_filename}")
+        logging.info(f"데이터베이스 {db_filename}에 {saved_count}개 레코드 저장 완료")
         return saved_count
 
     except sqlite3.Error as e:
-        print(f"Database save error: {e}")
+        logging.error(f"데이터베이스 저장 오류: {e}")
         conn.rollback()
         return 0
     finally:

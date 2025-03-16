@@ -5,6 +5,7 @@ Main module to orchestrate the Naver search result scraping process.
 import time
 import itertools
 import os
+import logging
 import concurrent.futures
 from typing import List, Dict, Optional, Tuple
 import src.config as config
@@ -15,6 +16,13 @@ from src.scraper import (
     scrape_search_results,
 )
 from src.storage import save_page_data
+from src.db_storage import initialize_db, get_db_connection
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # 강제 실행 여부 플래그
 _force_run = False
@@ -23,7 +31,10 @@ _force_run = False
 _skip_existing = True
 
 # 병렬 처리 수 설정
-_parallel_count = 4
+_parallel_count = 6
+
+# 데이터베이스 파일명
+DB_FILENAME = config.DEFAULT_DB_FILENAME
 
 
 def set_force_run(force=False):
@@ -36,7 +47,7 @@ def set_force_run(force=False):
     global _force_run
     _force_run = force
     if _force_run:
-        print(
+        logger.info(
             "강제 실행 모드가 활성화되었습니다. 작업 이력이 없어도 크롤링을 실행합니다."
         )
 
@@ -51,7 +62,7 @@ def set_skip_existing(skip=True):
     global _skip_existing
     _skip_existing = skip
     if not _skip_existing:
-        print(
+        logger.info(
             "모든 키워드 재크롤링 모드가 활성화되었습니다. 이미 크롤링된 키워드도 다시 크롤링합니다."
         )
 
@@ -65,7 +76,7 @@ def set_parallel_count(count=4):
     """
     global _parallel_count
     _parallel_count = max(1, count)  # 최소 1 이상
-    print(f"병렬 처리 수가 {_parallel_count}로 설정되었습니다.")
+    logger.info(f"병렬 처리 수가 {_parallel_count}로 설정되었습니다.")
 
 
 def generate_keyword_combinations():
@@ -127,6 +138,7 @@ def generate_keyword_combinations():
 def combine_keywords(keyword_combo):
     """
     키워드 조합을 하나의 검색어로 만듭니다.
+    중복되는 키워드는 제거합니다.
 
     Args:
         keyword_combo: 조합할 키워드 튜플의 리스트 [(타입1, 값1), (타입2, 값2), ...]
@@ -140,8 +152,30 @@ def combine_keywords(keyword_combo):
     # 키워드 값만 추출
     values = [item[1] for item in keyword_combo]
 
+    # 중복 키워드 제거 (대소문자 구분 없이)
+    unique_values = []
+    seen_lower = set()
+
+    for value in values:
+        # 공백 제거 후 소문자로 변환하여 비교
+        value_lower = value.strip().lower()
+
+        # 이미 처리된 키워드인지 확인
+        if value_lower in seen_lower:
+            logger.debug(f"중복 키워드 제거: {value}")
+            continue
+
+        # 새로운 키워드 추가
+        seen_lower.add(value_lower)
+        unique_values.append(value)
+
+    # 로그 출력 (중복이 있는 경우)
+    if len(unique_values) < len(values):
+        logger.debug(f"원본 키워드: {values}")
+        logger.debug(f"중복 제거 후: {unique_values}")
+
     # config의 SEARCH_JOINER를 사용하여 키워드 조합
-    combined = config.SEARCH_JOINER.join(values)
+    combined = config.SEARCH_JOINER.join(unique_values)
 
     # 접미사 추가
     if config.SEARCH_SUFFIX:
@@ -175,7 +209,7 @@ def scrape_page(page, search_query: str, page_num: int):
     Returns:
         bool: Success status
     """
-    print(f"Scraping page {page_num} for query '{search_query}'...")
+    logger.info(f"Scraping page {page_num} for query '{search_query}'...")
 
     try:
         # Navigate to the page
@@ -188,16 +222,20 @@ def scrape_page(page, search_query: str, page_num: int):
             # Save the data
             save_page_data(search_query, page_num, results)
 
-            print(
+            logger.info(
                 f"Completed scraping page {page_num} for query '{search_query}', found {len(results)} results."
             )
             return True
         else:
-            print(f"Failed to navigate to page {page_num} for query '{search_query}'")
+            logger.warning(
+                f"Failed to navigate to page {page_num} for query '{search_query}'"
+            )
             return False
 
     except Exception as e:
-        print(f"Error processing page {page_num} for query '{search_query}': {e}")
+        logger.error(
+            f"Error processing page {page_num} for query '{search_query}': {e}"
+        )
         return False
 
 
@@ -209,30 +247,51 @@ def scrape_all_pages_for_query(search_query: str):
     Args:
         search_query: The search query to use
     """
-    print(f"Starting to scrape Naver search results for '{search_query}'")
-    print(f"Pages to scrape: {config.START_PAGE} to {config.END_PAGE}")
+    logger.info(f"Starting to scrape Naver search results for '{search_query}'")
+    logger.info(f"Pages to scrape: {config.START_PAGE} to {config.END_PAGE}")
 
     # 하나의 브라우저 인스턴스 초기화
     playwright, browser, context, page = initialize_browser()
 
     try:
+        # 연속 실패 감지를 위한 변수
+        consecutive_failures = 0
+        max_consecutive_failures = 2  # 연속 2번 실패하면 중단
+
         for page_num in range(config.START_PAGE, config.END_PAGE + 1):
             # 페이지 스크래핑
             success = scrape_page(page, search_query, page_num)
 
-            # 페이지 간 딜레이
-            if page_num < config.END_PAGE and success:
-                print(f"Waiting 2 seconds before next page...")
-                time.sleep(2)
+            if success:
+                # 성공 시 연속 실패 카운트 초기화
+                consecutive_failures = 0
+
+                # 페이지 간 딜레이
+                if page_num < config.END_PAGE:
+                    logger.info(f"Waiting 2 seconds before next page...")
+                    time.sleep(2)
+            else:
+                # 실패 시 연속 실패 카운트 증가
+                consecutive_failures += 1
+                logger.warning(
+                    f"페이지 {page_num} 크롤링 실패. 연속 실패: {consecutive_failures}/{max_consecutive_failures}"
+                )
+
+                # 연속 실패 횟수가 임계값을 초과하면 중단
+                if consecutive_failures >= max_consecutive_failures:
+                    logger.warning(
+                        f"검색어 '{search_query}'에 대한 결과가 더 이상 없는 것으로 판단됩니다. 다음 키워드로 넘어갑니다."
+                    )
+                    break
 
     except Exception as e:
-        print(f"Error during scraping process for query '{search_query}': {e}")
+        logger.error(f"Error during scraping process for query '{search_query}': {e}")
 
     finally:
         # 작업 완료 후 브라우저 종료
         close_browser(playwright, browser, context)
 
-    print(f"Scraping process completed for query '{search_query}'.")
+    logger.info(f"Scraping process completed for query '{search_query}'.")
 
 
 def process_keyword_combo(i, keyword_combo, total_combos):
@@ -258,12 +317,12 @@ def process_keyword_combo(i, keyword_combo, total_combos):
         return f"[{i+1}/{total_combos}] 검색어 '{search_query}'({format_combo_for_display(keyword_combo)}) - 이미 크롤링됨, 건너뜀"
 
     # 시작 로그
-    print(f"\n{'='*50}")
-    print(
+    logger.info(f"{'='*50}")
+    logger.info(
         f"[{i+1}/{total_combos}] 검색어 조합: {format_combo_for_display(keyword_combo)}"
     )
-    print(f"변환된 검색어: {search_query}")
-    print(f"{'='*50}\n")
+    logger.info(f"변환된 검색어: {search_query}")
+    logger.info(f"{'='*50}")
 
     # 해당 검색어로 모든 페이지 크롤링
     start_time = time.time()
@@ -275,13 +334,16 @@ def process_keyword_combo(i, keyword_combo, total_combos):
 
 def main():
     """Main entry point for the scraper."""
+    # 데이터베이스 초기화
+    initialize_db(DB_FILENAME)
+
     # 모든 키워드 조합 생성
     keyword_combinations = generate_keyword_combinations()
 
     # 조합 수 출력
     total_combos = len(keyword_combinations)
-    print(f"총 {total_combos}개의 검색어 조합이 생성되었습니다.")
-    print(f"병렬 처리 수: {_parallel_count}")
+    logger.info(f"총 {total_combos}개의 검색어 조합이 생성되었습니다.")
+    logger.info(f"병렬 처리 수: {_parallel_count}")
 
     # 크롤링할 키워드 목록 준비
     tasks = []
@@ -293,7 +355,7 @@ def main():
 
         # 이미 작업된 경우 건너뜀 (여기서는 메시지만 출력)
         if check_keyword_work_history(search_query) and not _force_run:
-            print(
+            logger.info(
                 f"[{i+1}/{total_combos}] 검색어 '{search_query}' - 이미 크롤링됨, 건너뜀"
             )
             continue
@@ -302,10 +364,10 @@ def main():
         tasks.append((i, keyword_combo, total_combos))
 
     # 실제 크롤링할 작업 수 출력
-    print(f"실제 크롤링할 검색어: {len(tasks)}개")
+    logger.info(f"실제 크롤링할 검색어: {len(tasks)}개")
 
     if not tasks:
-        print("크롤링할 검색어가 없습니다. 종료합니다.")
+        logger.info("크롤링할 검색어가 없습니다. 종료합니다.")
         return
 
     # 병렬 처리 실행
@@ -322,54 +384,20 @@ def main():
         for future in concurrent.futures.as_completed(futures):
             try:
                 result = future.result()
-                print(result)
+                logger.info(result)
             except Exception as e:
-                print(f"작업 처리 중 오류 발생: {e}")
+                logger.error(f"작업 처리 중 오류 발생: {e}")
 
     # 실행 시간 계산
     total_time = time.time() - start_time
-    print(f"\n모든 검색어 조합에 대한 크롤링이 완료되었습니다.")
-    print(f"총 소요 시간: {total_time:.1f}초 ({total_time/60:.1f}분)")
-
-
-def check_work_history():
-    """
-    크롤링 작업 이력이 있는지 확인합니다.
-    이 함수는 하위 호환성을 위해 유지됩니다.
-
-    Returns:
-        bool: 작업 이력이 있으면 True, 없으면 False
-    """
-    # 강제 실행 모드인 경우 이력 확인 없이 실행
-    global _force_run
-    if _force_run:
-        print("강제 실행 모드: 작업 이력 확인을 건너뜁니다.")
-        return True
-
-    # 모든 키워드 조합을 생성해서 적어도 하나의 파일이 있는지 확인
-    try:
-        keyword_combinations = generate_keyword_combinations()
-        for keyword_combo in keyword_combinations:
-            search_query = combine_keywords(keyword_combo)
-            if check_keyword_work_history(search_query):
-                print("일부 키워드에 대한 작업 이력이 확인되었습니다.")
-                return True
-    except Exception as e:
-        print(f"작업 이력 확인 중 오류 발생: {e}")
-
-    # 데이터 디렉토리 존재 여부 확인
-    data_dir = config.DATA_DIR
-    if not os.path.exists(data_dir):
-        print(f"데이터 디렉토리가 존재하지 않습니다: {data_dir}")
-        return False
-
-    print("작업 이력이 없습니다.")
-    return False
+    logger.info(f"모든 검색어 조합에 대한 크롤링이 완료되었습니다.")
+    logger.info(f"총 소요 시간: {total_time:.1f}초 ({total_time/60:.1f}분)")
 
 
 def check_keyword_work_history(search_query):
     """
     특정 키워드에 대한 크롤링 작업 이력이 있는지 확인합니다.
+    SQLite 데이터베이스에서 검색어로 조회합니다.
 
     Args:
         search_query: 확인할 검색어
@@ -377,43 +405,28 @@ def check_keyword_work_history(search_query):
     Returns:
         bool: 해당 키워드에 대한 작업 이력이 있으면 True, 없으면 False
     """
-    # 강제 실행 모드인 경우 항상 False 반환 (모든 키워드 재크롤링)
-    global _force_run, _skip_existing
-
     # 기존 키워드 건너뛰기 옵션이 비활성화된 경우
     if not _skip_existing:
         return False
 
-    # 데이터 디렉토리 경로
-    data_dir = config.DATA_DIR
-
-    # 데이터 디렉토리가 없는 경우
-    if not os.path.exists(data_dir):
-        return False
-
-    # 키워드별 파일명 생성
-    output_filename = config.OUTPUT_FILE_NAME_TEMPLATE.format(
-        search_query.replace("@", "")
-    )
-    keyword_file = os.path.join(data_dir, output_filename)
-
-    # 파일 존재 여부 확인
-    if not os.path.exists(keyword_file):
-        return False
-
-    # 파일은 있지만 내용이 비어있는지 확인
+    # 데이터베이스에서 해당 키워드 검색
+    conn = get_db_connection(DB_FILENAME)
     try:
-        with open(keyword_file, "r", encoding="utf-8") as f:
-            # 첫 줄은 헤더이므로 두 줄 이상 있어야 데이터가 있는 것으로 간주
-            lines = f.readlines()
-            if len(lines) <= 1:  # 헤더만 있거나 비어있는 경우
-                return False
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT COUNT(*) as count FROM websites WHERE keyword = ?", (search_query,)
+        )
+        result = cursor.fetchone()
 
-        return True
+        # 결과가 있으면 작업 이력이 있는 것으로 간주
+        return result and result["count"] > 0
 
     except Exception as e:
-        print(f"파일 확인 중 오류 발생: {e}")
+        logger.error(f"키워드 작업 이력 확인 중 오류: {e}")
         return False
+
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":

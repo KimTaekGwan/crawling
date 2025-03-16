@@ -1,0 +1,9 @@
+#!/bin/sh
+# 네이버 웹페이지 상세 정보 크롤링 실행 스크립트
+
+# 현재 디렉토리 저장
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+cd "$SCRIPT_DIR"
+
+# 실행
+python -m src.detail_crawler "$@"

@@ -1,11 +1,40 @@
 [project]
-name = "crawling"
-version = "0.1.0"
-description = "Add your description here"
+name = "naver-crawler"
+version = "0.2.0"
+description = "네이버 검색 결과 크롤링 및 상세 정보 수집 도구"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "playwright>=1.50.0",
-    "pytest>=8.3.5",
-    "pytest-playwright>=0.7.0",
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
 ]
+
+dependencies = [
+    "playwright>=1.39.0",
+    "pytest>=7.4.0",
+    "pytest-playwright>=0.4.0",
+    "fastapi>=0.95.1",
+    "uvicorn>=0.22.0",
+    "sqlalchemy>=2.0.13",
+    "pydantic>=1.10.7",
+    "aiofiles>=23.1.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.scripts]
+naver-scraper = "src.main:main"
+naver-details = "src.detail_crawler:main"
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/naver-crawler"
+"Bug Tracker" = "https://github.com/yourusername/naver-crawler/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
