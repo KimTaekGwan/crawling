@@ -1,0 +1,9 @@
+#!/bin/sh
+# 네이버 톡톡 메시지 전송 스크립트
+
+# 현재 디렉토리 결정
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# 앱 실행
+python -m src.talktalk_sender "$@" 

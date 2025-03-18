@@ -4,7 +4,7 @@ Module for storing crawled data in SQLite database.
 
 import os
 import sqlite3
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set, Optional, Tuple
 import src.config as config
 import logging
 
@@ -60,7 +60,9 @@ def initialize_db(db_filename: str, schema: Optional[List[str]] = None) -> None:
                 email TEXT,
                 address TEXT,
                 talk_link TEXT,
-                name TEXT
+                name TEXT,
+                talk_message_status INTEGER DEFAULT 0,
+                talk_message_date TIMESTAMP
             )
             """
         ]
@@ -71,10 +73,65 @@ def initialize_db(db_filename: str, schema: Optional[List[str]] = None) -> None:
             conn.execute(statement)
         conn.commit()
         print(f"Database {db_filename} initialized successfully")
+
+        # 스키마 마이그레이션 실행
+        migrate_db_schema(conn)
     except sqlite3.Error as e:
         print(f"Database initialization error: {e}")
     finally:
         conn.close()
+
+
+def migrate_db_schema(conn: sqlite3.Connection) -> None:
+    """
+    데이터베이스 스키마를 마이그레이션합니다.
+    필요한 컬럼이 없는 경우 추가합니다.
+
+    Args:
+        conn: 데이터베이스 연결 객체
+    """
+    try:
+        cursor = conn.cursor()
+
+        # 현재 websites 테이블의 컬럼 목록 조회
+        cursor.execute("PRAGMA table_info(websites)")
+        columns = [row["name"] for row in cursor.fetchall()]
+
+        # 필요한 컬럼이 없으면 추가
+        migrations = []
+
+        if "talk_message_status" not in columns:
+            migrations.append(
+                "ALTER TABLE websites ADD COLUMN talk_message_status INTEGER DEFAULT 0"
+            )
+            print("Adding talk_message_status column to the websites table...")
+
+        if "talk_message_date" not in columns:
+            migrations.append(
+                "ALTER TABLE websites ADD COLUMN talk_message_date TIMESTAMP"
+            )
+            print("Adding talk_message_date column to the websites table...")
+
+        if "email_status" not in columns:
+            migrations.append(
+                "ALTER TABLE websites ADD COLUMN email_status INTEGER DEFAULT 0"
+            )
+            print("Adding email_status column to the websites table...")
+
+        if "email_date" not in columns:
+            migrations.append("ALTER TABLE websites ADD COLUMN email_date TIMESTAMP")
+            print("Adding email_date column to the websites table...")
+
+        # 마이그레이션 실행
+        for migration in migrations:
+            cursor.execute(migration)
+
+        if migrations:
+            conn.commit()
+            print("Database schema migration completed successfully")
+    except sqlite3.Error as e:
+        print(f"Database migration error: {e}")
+        conn.rollback()
 
 
 def normalize_field_name(field_name: str) -> str:
@@ -242,3 +299,70 @@ def read_urls_from_db(db_filename: str) -> List[Dict[str, str]]:
         return urls
     finally:
         conn.close()
+
+
+def filter_urls_by_keywords(
+    items: List[Dict[str, str]],
+    include_keywords: List[str] = None,
+    exclude_keywords: List[str] = None,
+    case_sensitive: bool = False,
+) -> Tuple[List[Dict[str, str]], int, int, int]:
+    """
+    키워드 기반으로 URL 항목들을 필터링합니다.
+
+    Args:
+        items: 필터링할 항목 리스트 (딕셔너리 형태)
+        include_keywords: 포함해야 할 키워드 리스트
+        exclude_keywords: 제외해야 할 키워드 리스트
+        case_sensitive: 대소문자 구분 여부
+
+    Returns:
+        필터링된 항목 리스트, 포함된 항목 수, 제외된 항목 수, 총 항목 수의 튜플
+    """
+    if not items:
+        return [], 0, 0, 0
+
+    # 키워드 리스트가 없으면 모든 항목 반환
+    if not include_keywords and not exclude_keywords:
+        return items, len(items), 0, len(items)
+
+    filtered_items = []
+    included_count = 0
+    excluded_count = 0
+    total_count = len(items)
+
+    # 필터링 함수 정의
+    def contains_keywords(text: str, keywords: List[str]) -> bool:
+        if not text or not keywords:
+            return False
+
+        if not case_sensitive:
+            text = text.lower()
+            keywords = [k.lower() for k in keywords if k]
+
+        for keyword in keywords:
+            if keyword and keyword in text:
+                return True
+        return False
+
+    # 각 항목 검사
+    for item in items:
+        # 검색 대상 텍스트 준비 (모든 필드 값을 공백으로 연결)
+        search_text = " ".join(str(v) for v in item.values() if v)
+
+        # 제외 키워드 검사
+        if exclude_keywords and contains_keywords(search_text, exclude_keywords):
+            excluded_count += 1
+            continue
+
+        # 포함 키워드 검사
+        if include_keywords:
+            if contains_keywords(search_text, include_keywords):
+                included_count += 1
+                filtered_items.append(item)
+        else:
+            # 포함 키워드가 없으면 제외 키워드만 적용
+            included_count += 1
+            filtered_items.append(item)
+
+    return filtered_items, included_count, excluded_count, total_count
