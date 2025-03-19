@@ -55,9 +55,6 @@ DB_FILENAME = config.DEFAULT_DB_FILENAME
 # 병렬 처리 수 설정
 _parallel_count = config.EMAIL_PARALLEL_COUNT
 
-# 강제 실행 여부 플래그
-_force_run = False
-
 # 전송된 메일 개수 카운터
 _sent_count = 0
 _error_count = 0
@@ -70,21 +67,6 @@ _counter_lock = threading.Lock()
 
 # 종료 플래그
 _terminate = False
-
-
-def set_force_run(force=False):
-    """
-    강제 실행 여부를 설정합니다.
-
-    Args:
-        force: 강제 실행 활성화 여부
-    """
-    global _force_run
-    _force_run = force
-    if _force_run:
-        logger.info(
-            "강제 실행 모드가 활성화되었습니다. 이미 전송된 이메일도 다시 전송합니다."
-        )
 
 
 def set_parallel_count(count=4):
@@ -111,6 +93,11 @@ def update_email_status(
         status: 새 상태 코드
         commit: 커밋 여부 (기본값: True)
     """
+    # conn이 None이면 새 연결 생성 (스레드 안전성을 위해)
+    thread_local_conn = conn is None
+    if thread_local_conn:
+        conn = get_db_connection(DB_FILENAME)
+
     try:
         # websites 테이블에 email_status 및 email_date 컬럼이 없으면 추가
         cursor = conn.cursor()
@@ -143,6 +130,10 @@ def update_email_status(
         logger.error(f"데이터베이스 업데이트 오류: {e}")
         if commit:
             conn.rollback()
+    finally:
+        # 이 함수 내에서 생성한 연결이면 여기서 닫음
+        if thread_local_conn and conn:
+            conn.close()
 
 
 def send_email(
@@ -217,6 +208,7 @@ def send_email(
 def process_email_for_url(conn: sqlite3.Connection, url: str) -> int:
     """
     URL에 해당하는 웹사이트의 이메일로 메시지를 전송합니다.
+    이미 성공적으로 전송된 이메일(email_status=1)은 항상 건너뜁니다.
 
     Args:
         conn: 데이터베이스 연결 객체
@@ -229,9 +221,18 @@ def process_email_for_url(conn: sqlite3.Connection, url: str) -> int:
 
     # 종료 신호 확인
     if _terminate:
-        return config.EMAIL_STATUS["ERROR"]
+        # 취소 시 미전송 상태로 처리 (오류가 아닌 미전송으로 변경)
+        return config.EMAIL_STATUS["NOT_SENT"]
+
+    # conn이 None이면 새 연결 생성 (스레드 안전성을 위해)
+    thread_local_conn = conn is None
+    if thread_local_conn:
+        conn = get_db_connection(DB_FILENAME)
 
     try:
+        # 각 스레드에서 row_factory 설정
+        conn.row_factory = sqlite3.Row
+
         # URL에 대한 정보 조회
         cursor = conn.cursor()
         cursor.execute("SELECT email, email_status FROM websites WHERE url = ?", (url,))
@@ -241,15 +242,31 @@ def process_email_for_url(conn: sqlite3.Connection, url: str) -> int:
             logger.warning(f"URL {url}에 대한 정보를 찾을 수 없습니다.")
             return config.EMAIL_STATUS["ERROR"]
 
-        email_address = row["email"]
-        current_status = row.get("email_status", 0)  # 컬럼이 없을 경우 0(NOT_SENT) 반환
+        # Email 값 추출
+        email_address = row["email"] if "email" in row.keys() else ""
 
-        # 이미 전송된 경우 (강제 실행 모드가 아닌 경우)
-        if not _force_run and current_status == config.EMAIL_STATUS["SENT"]:
+        # email_status 값 추출 (컬럼이 존재하지 않거나 NULL인 경우 기본값 0 사용)
+        try:
+            # 딕셔너리 변환 후 get 메서드 사용
+            row_dict = dict(row)
+            current_status = row_dict.get("email_status", 0)
+            logger.debug(
+                f"URL: {url}, 현재 이메일 상태: {current_status} (SENT={config.EMAIL_STATUS['SENT']})"
+            )
+        except Exception as e:
+            logger.debug(f"email_status 열 접근 실패, 기본값 0 사용: {e}")
+            current_status = 0  # 기본값 NOT_SENT
+
+        # 이미 성공적으로 전송된 경우 (항상 건너뜀)
+        if current_status == config.EMAIL_STATUS["SENT"]:
             with _counter_lock:
                 _already_sent_count += 1
-            logger.info(f"URL {url}에 대한 이메일은 이미 전송되었습니다.")
+            logger.info(
+                f"URL {url}의 이메일은 이미 성공적으로 전송되었습니다. 건너뜁니다."
+            )
             return config.EMAIL_STATUS["ALREADY_SENT"]
+
+        logger.debug(f"URL: {url}, Email: {email_address}, Status: {current_status}")
 
         # 이메일 주소가 없는 경우
         if not email_address:
@@ -281,21 +298,30 @@ def process_email_for_url(conn: sqlite3.Connection, url: str) -> int:
             _error_count += 1
         logger.error(f"URL {url} 처리 중 오류 발생: {e}")
         return config.EMAIL_STATUS["ERROR"]
+    finally:
+        # 이 함수 내에서 생성한 연결이면 여기서 닫음
+        if thread_local_conn and conn:
+            conn.close()
 
 
-def process_email_thread(conn: sqlite3.Connection, url: str) -> None:
+def process_email_thread(url: str) -> None:
     """
     스레드에서 실행될 URL 처리 함수입니다.
 
     Args:
-        conn: 데이터베이스 연결 객체
         url: 처리할 URL
     """
-    status = process_email_for_url(conn, url)
-    update_email_status(conn, url, status)
+    # 각 스레드에서 고유한 데이터베이스 연결 생성
+    thread_conn = get_db_connection(DB_FILENAME)
+    try:
+        status = process_email_for_url(thread_conn, url)
+        update_email_status(thread_conn, url, status)
 
-    # 처리 사이에 약간의 딜레이 추가
-    time.sleep(config.EMAIL_BETWEEN_DELAY)
+        # 처리 사이에 약간의 딜레이 추가
+        time.sleep(config.EMAIL_BETWEEN_DELAY)
+    finally:
+        # 연결 종료 확실히 처리
+        thread_conn.close()
 
 
 def process_url_batch(urls: List[str]) -> None:
@@ -307,17 +333,15 @@ def process_url_batch(urls: List[str]) -> None:
     """
     global _total_count, _terminate
 
-    # 로컬 데이터베이스 연결 (각 스레드에서 별도의 연결 사용)
-    conn = get_db_connection(DB_FILENAME)
-
     try:
         # 병렬 처리를 위한 스레드 풀 생성
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=_parallel_count
         ) as executor:
             # 각 URL에 대해 이메일 전송 함수 실행
+            # 메인 데이터베이스 연결을 공유하지 않고 각 스레드가 자체 연결 생성
             future_to_url = {
-                executor.submit(process_email_thread, conn, url): url for url in urls
+                executor.submit(process_email_thread, url): url for url in urls
             }
 
             # 완료된 작업 처리
@@ -347,9 +371,8 @@ def process_url_batch(urls: List[str]) -> None:
                     logger.info("종료 요청을 받았습니다. URL 처리를 중단합니다.")
                     break
 
-    finally:
-        # 데이터베이스 연결 종료
-        conn.close()
+    except Exception as e:
+        logger.error(f"URL 배치 처리 중 오류 발생: {e}")
 
 
 def signal_handler(sig, frame):
@@ -362,11 +385,87 @@ def signal_handler(sig, frame):
     _terminate = True
 
 
+def display_email_summary(
+    urls: List[str],
+    email_details: List[Dict],
+    emails_with_no_address: List[str],
+    already_sent_count: int,
+) -> bool:
+    """
+    이메일 발송 요약 정보를 표시하고 사용자 확인을 요청합니다.
+
+    Args:
+        urls: 처리할 URL 목록
+        email_details: 이메일 상세 정보 목록
+        emails_with_no_address: 이메일 주소가 없는 URL 목록
+        already_sent_count: 이미 전송된 이메일 수
+
+    Returns:
+        사용자가 발송을 확인했는지 여부 (True/False)
+    """
+    # 발송 예정 이메일 수
+    total_emails_to_send = len(email_details)
+
+    # 도메인별 통계 계산
+    domain_counts = {}
+    for detail in email_details:
+        domain = detail["domain"]
+        domain_counts[domain] = domain_counts.get(domain, 0) + 1
+
+    # 발송 요약 정보 표시
+    print("\n" + "=" * 60)
+    print("📧 이메일 발송 요약 정보 (이미 전송된 항목 제외)")
+    print("=" * 60)
+
+    # 전체 처리 URL 수 (urls는 SQL 쿼리에서 이미 필터링된 URL 목록)
+    total_processed_urls = len(urls) + already_sent_count
+    print(f"전체 처리 대상 URL 수: {total_processed_urls}개")
+
+    if already_sent_count > 0:
+        print(
+            f"이미 전송된 이메일(SENT/ALREADY_SENT): {already_sent_count}개 (발송 대상에서 제외됨)"
+        )
+
+    print(f"발송 대상 URL 수: {len(urls)}개")
+    print(f"이메일 주소가 없는 URL 수: {len(emails_with_no_address)}개")
+    print(f"실제 발송 예정 이메일 수: {total_emails_to_send}개")
+
+    # 도메인별 통계
+    print("\n📊 도메인별 발송 통계:")
+    for domain, count in sorted(
+        domain_counts.items(), key=lambda x: x[1], reverse=True
+    ):
+        percent = (
+            (count / total_emails_to_send) * 100 if total_emails_to_send > 0 else 0
+        )
+        print(f"  - {domain}: {count}개 ({percent:.1f}%)")
+
+    # 이메일 샘플 표시 (처음 5개)
+    if email_details:
+        print("\n📋 발송 예정 이메일 샘플 (처음 5개):")
+        for i, detail in enumerate(email_details[:5], 1):
+            print(f"  {i}. {detail['url']} -> {detail['email']}")
+
+        # 마지막 5개 (중복되지 않는 경우에만)
+        if len(email_details) > 10:
+            print("\n  ...")
+            print("\n📋 발송 예정 이메일 샘플 (마지막 5개):")
+            for i, detail in enumerate(email_details[-5:], len(email_details) - 4):
+                print(f"  {i}. {detail['url']} -> {detail['email']}")
+
+    print("\n" + "=" * 60)
+
+    # 사용자 확인 요청
+    confirm = input("\n위 정보로 이메일을 발송하시겠습니까? (y/n): ")
+    return confirm.lower() in ("y", "yes")
+
+
 def send_emails_for_websites(
     db_filename: str = None, email_filter: Dict = None, batch_size: int = 100
 ) -> None:
     """
     데이터베이스의 웹사이트 정보를 기반으로 이메일을 전송합니다.
+    이미 성공적으로 전송된 이메일(email_status=1)은 처리 대상에서 제외됩니다.
 
     Args:
         db_filename: 데이터베이스 파일 경로 (None인 경우 기본값 사용)
@@ -413,24 +512,140 @@ def send_emails_for_websites(
             logger.info("데이터베이스 스키마 마이그레이션 완료")
 
         # 처리할 URL 목록 가져오기
+        already_sent_count = 0
+
         if email_filter:
+            # 키워드 필터링된 URL 목록 가져오기
             urls = filter_urls_by_keywords(conn, email_filter)
-            logger.info(f"필터링된 {len(urls)}개의 URL을 처리합니다.")
-        else:
-            # email이 있는 모든 URL 가져오기
+            logger.info(f"키워드 필터링으로 {len(urls)}개의 URL을 찾았습니다.")
+
+            # 전체 URL 수 기록
+            total_found_urls = len(urls)
+
+            # 이미 성공적으로 전송된 이메일은 제외
             cursor.execute(
                 """
                 SELECT url FROM websites 
-                WHERE email IS NOT NULL AND email != ''
+                WHERE url IN ({}) AND (email_status IS NULL OR (email_status != ? AND email_status != ?)) 
+                AND email IS NOT NULL AND email != ''
                 ORDER BY url
+                """.format(
+                    ",".join(["?"] * len(urls))
+                ),
+                urls
+                + [config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"]],
+            )
+
+            filtered_urls = [row["url"] for row in cursor.fetchall()]
+            already_sent_count = len(urls) - len(filtered_urls)
+            urls = filtered_urls
+
+            logger.info(f"필터링된 {len(urls)}개의 URL을 처리합니다.")
+            if already_sent_count > 0:
+                logger.info(
+                    f"{already_sent_count}개의 URL은 이미 성공적으로 이메일을 전송하여 제외되었습니다."
+                )
+        else:
+            # 전체 이메일 주소가 있는 URL 수 먼저 확인
+            cursor.execute(
+                """
+                SELECT COUNT(*) as total FROM websites 
+                WHERE email IS NOT NULL AND email != ''
                 """
             )
+            row = cursor.fetchone()
+            total_email_urls = row["total"] if row else 0
+
+            # email이 있고 아직 성공적으로 전송되지 않은 URL만 가져오기
+            cursor.execute(
+                """
+                SELECT url FROM websites 
+                WHERE email IS NOT NULL AND email != '' 
+                AND (email_status IS NULL OR (email_status != ? AND email_status != ?))
+                ORDER BY url
+                """,
+                (config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"]),
+            )
             urls = [row["url"] for row in cursor.fetchall()]
-            logger.info(f"총 {len(urls)}개의 URL을 처리합니다.")
+            already_sent_count = total_email_urls - len(urls)
+
+            logger.info(f"이메일 주소가 있는 URL: 총 {total_email_urls}개")
+            logger.info(
+                f"이미 전송 완료된 URL: {already_sent_count}개 (SENT 또는 ALREADY_SENT 상태)"
+            )
+            logger.info(
+                f"발송 대상 URL: {len(urls)}개 (이미 성공적으로 전송된 이메일은 제외)"
+            )
 
         if not urls:
-            logger.warning("처리할 URL이 없습니다.")
+            logger.warning(
+                "처리할 URL이 없습니다. 모든 이메일이 이미 성공적으로 전송되었거나 이메일 주소가 없습니다."
+            )
             return
+
+        # 이메일 주소 분석 및 발송 요약 정보 생성
+        email_details = []
+        emails_with_no_address = []
+
+        # 상세 이메일 정보 수집
+        for url in urls:
+            try:
+                cursor.execute(
+                    "SELECT url, email, email_status FROM websites WHERE url = ?",
+                    (url,),
+                )
+                row = cursor.fetchone()
+
+                # 이메일이 있고 ALREADY_SENT, SENT 상태가 아닌 경우만 처리
+                if (
+                    row
+                    and row["email"]
+                    and (
+                        row["email_status"] is None
+                        or (
+                            row["email_status"] != config.EMAIL_STATUS["SENT"]
+                            and row["email_status"]
+                            != config.EMAIL_STATUS["ALREADY_SENT"]
+                        )
+                    )
+                ):
+                    email_address = row["email"]
+                    email_domain = (
+                        email_address.split("@")[1]
+                        if "@" in email_address
+                        else "unknown"
+                    )
+
+                    # 이메일 상세 정보 추가
+                    email_details.append(
+                        {"url": url, "email": email_address, "domain": email_domain}
+                    )
+                else:
+                    if (
+                        row
+                        and row["email"]
+                        and (
+                            row["email_status"] == config.EMAIL_STATUS["SENT"]
+                            or row["email_status"]
+                            == config.EMAIL_STATUS["ALREADY_SENT"]
+                        )
+                    ):
+                        # 이미 전송된 이메일 카운트 증가
+                        already_sent_count += 1
+                    else:
+                        emails_with_no_address.append(url)
+            except Exception as e:
+                logger.error(f"URL {url}의 이메일 분석 중 오류 발생: {e}")
+                emails_with_no_address.append(url)
+
+        # 발송 요약 정보 표시 및 사용자 확인
+        if not display_email_summary(
+            urls, email_details, emails_with_no_address, already_sent_count
+        ):
+            logger.info("사용자가 이메일 발송을 취소했습니다. 프로그램을 종료합니다.")
+            return
+
+        logger.info("사용자 확인 완료. 이메일 발송을 시작합니다.")
 
         # URL을 배치로 나누기
         batches = [urls[i : i + batch_size] for i in range(0, len(urls), batch_size)]
@@ -520,9 +735,6 @@ def main():
         description="네이버 메일을 통한 이메일 자동 전송 도구"
     )
     parser.add_argument(
-        "--force", action="store_true", help="이미 전송된 이메일도 다시 전송합니다."
-    )
-    parser.add_argument(
         "--db",
         type=str,
         default=DB_FILENAME,
@@ -592,8 +804,10 @@ def main():
     # 로그 레벨 설정
     logging.getLogger().setLevel(getattr(logging, args.log_level))
 
-    # 강제 실행 설정
-    set_force_run(args.force)
+    logger.info("이미 성공적으로 전송된 이메일은 항상 건너뛰는 모드로 실행합니다.")
+    logger.info(
+        f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']})"
+    )
 
     # 병렬 처리 수 설정
     set_parallel_count(args.parallel)
