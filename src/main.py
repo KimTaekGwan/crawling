@@ -373,6 +373,17 @@ def main():
     # 병렬 처리 실행
     start_time = time.time()
 
+    # 중간 요약 정보
+    logger.info(f"총 {total_combos}개의 검색어 조합이 생성되었습니다.")
+    logger.info(f"병렬 처리 수: {_parallel_count}")
+    logger.info(f"실제 크롤링할 검색어: {len(tasks)}개")
+
+    # 사용자 입력 받기
+    user_input = input("계속 진행하시겠습니까? (y/n): ")
+    if user_input != "y":
+        logger.info("프로그램을 종료합니다.")
+        return
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=_parallel_count) as executor:
         # 작업 제출
         futures = [

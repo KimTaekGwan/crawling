@@ -1,0 +1,1554 @@
+2025-03-26 10:28:30,695 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:28:30,695 - WARNING - 사이트 목록이 제공되지 않아 예시 사이트를 사용합니다.
+2025-03-26 10:28:30,695 - INFO - 총 2개 사이트의 이름을 추출합니다...
+2025-03-26 10:28:32,836 - INFO - 사이트명 추출 완료: https://example.com -> Example Domain
+2025-03-26 10:28:34,824 - INFO - 사이트명 추출 완료: https://example.org -> Example Domain
+2025-03-26 10:28:35,865 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:28:35,865 - INFO - 총 2개 사이트 크롤링 시작 (병렬 처리 수: 4)
+2025-03-26 10:28:35,969 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:28:35,969 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:28:35,971 - ERROR - 사이트 처리 중 오류 발생: https://example.com - 'PlaywrightContextManager' object has no attribute '_playwright'
+2025-03-26 10:28:35,971 - INFO - 사이트 처리 완료: Example Domain, 성공: 0, 실패: 0
+2025-03-26 10:28:35,971 - ERROR - 사이트 처리 중 오류 발생: https://example.org - 'PlaywrightContextManager' object has no attribute '_playwright'
+2025-03-26 10:28:35,971 - INFO - 사이트 처리 완료: Example Domain, 성공: 0, 실패: 0
+2025-03-26 10:28:35,976 - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-24' coro=<Connection.run.<locals>.init() done, defined at /Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:276> exception=Exception('Connection.init: Connection closed while reading from the driver')>
+Traceback (most recent call last):
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 277, in init
+    self.playwright_future.set_result(await self._root_object.initialize())
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 219, in initialize
+    await self._channel.send(
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 61, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 528, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Exception: Connection.init: Connection closed while reading from the driver
+2025-03-26 10:28:35,976 - ERROR - Task exception was never retrieved
+future: <Task finished name='Task-25' coro=<Connection.run.<locals>.init() done, defined at /Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:276> exception=Exception('Connection.init: Connection closed while reading from the driver')>
+Traceback (most recent call last):
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 277, in init
+    self.playwright_future.set_result(await self._root_object.initialize())
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 219, in initialize
+    await self._channel.send(
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 61, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ktg/Desktop/crawling/.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py", line 528, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+Exception: Connection.init: Connection closed while reading from the driver
+2025-03-26 10:28:50,324 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:28:50,324 - WARNING - 사이트 목록이 제공되지 않아 예시 사이트를 사용합니다.
+2025-03-26 10:28:50,324 - INFO - 총 2개 사이트의 이름을 추출합니다...
+2025-03-26 10:28:52,144 - INFO - 사이트명 추출 완료: https://example.com -> Example Domain
+2025-03-26 10:28:54,308 - INFO - 사이트명 추출 완료: https://example.org -> Example Domain
+2025-03-26 10:28:55,352 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:28:55,352 - INFO - 총 2개 사이트 크롤링 시작 (병렬 처리 수: 4)
+2025-03-26 10:28:55,803 - INFO - 사이트 방문: https://example.com (사이트명: Example Domain)
+2025-03-26 10:28:55,803 - INFO - 사이트 방문: https://example.org (사이트명: Example Domain)
+2025-03-26 10:29:00,116 - INFO - 총 0개의 링크 추출 완료
+2025-03-26 10:29:00,933 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_Example Domain/main_Example Domain.png
+2025-03-26 10:29:00,956 - INFO - 사이트 처리 완료: Example Domain, 성공: 1, 실패: 0
+2025-03-26 10:29:01,733 - INFO - 총 0개의 링크 추출 완료
+2025-03-26 10:29:02,307 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_Example Domain/main_Example Domain.png
+2025-03-26 10:29:02,332 - INFO - 사이트 처리 완료: Example Domain, 성공: 1, 실패: 0
+2025-03-26 10:29:02,333 - INFO - 크롤링 완료: 총 2개 사이트, 성공: 2, 실패: 0
+2025-03-26 10:29:02,333 - INFO - 처리된 페이지: 2, 실패한 페이지: 0
+2025-03-26 10:31:15,536 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:31:15,536 - INFO - URL 리스트 파일에서 11개의 사이트 로드 완료
+2025-03-26 10:31:15,536 - INFO - 총 11개 사이트의 이름을 추출합니다...
+2025-03-26 10:31:17,964 - INFO - 사이트명 추출 완료: https://cestlaviehair.modoo.at/ -> 셀라비헤어
+2025-03-26 10:31:20,376 - INFO - 사이트명 추출 완료: https://hellenbhair.modoo.at/ -> HelleN.B HAIR
+2025-03-26 10:31:22,982 - INFO - 사이트명 추출 완료: https://serahair.modoo.at/ -> 세라헤어샵
+2025-03-26 10:31:25,300 - INFO - 사이트명 추출 완료: https://today1hair.modoo.at/ -> 봉천동미용실 오늘도원헤어
+2025-03-26 10:31:27,873 - INFO - 사이트명 추출 완료: https://azithair.modoo.at/ -> 도봉구 쌍문동 헤어샵 아지트
+2025-03-26 10:31:30,236 - INFO - 사이트명 추출 완료: https://toryhair4736766.modoo.at/ -> 토리헤어 암사역점
+2025-03-26 10:31:33,065 - INFO - 사이트명 추출 완료: https://choihairgood.modoo.at/ -> 중화동헤어샵 초이헤어
+2025-03-26 10:31:35,982 - INFO - 사이트명 추출 완료: https://thenewall.modoo.at/ -> 더뉴올 네일/스킨
+2025-03-26 10:31:37,977 - INFO - 사이트명 추출 완료: https://ok9.modoo.at/ -> 폴라리스
+2025-03-26 10:31:40,627 - INFO - 사이트명 추출 완료: https://knkmori.modoo.at/ -> 김나경머리쟁이
+2025-03-26 10:31:42,945 - INFO - 사이트명 추출 완료: https://hssale.modoo.at/ -> 미용실점판전문
+2025-03-26 10:31:44,006 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:31:44,006 - INFO - 총 11개 사이트 크롤링 시작 (병렬 처리 수: 4)
+2025-03-26 10:31:44,809 - INFO - 사이트 방문: https://serahair.modoo.at/ (사이트명: 세라헤어샵)
+2025-03-26 10:31:44,810 - INFO - 사이트 방문: https://cestlaviehair.modoo.at/ (사이트명: 셀라비헤어)
+2025-03-26 10:31:44,810 - INFO - 사이트 방문: https://hellenbhair.modoo.at/ (사이트명: HelleN.B HAIR)
+2025-03-26 10:31:44,813 - INFO - 사이트 방문: https://today1hair.modoo.at/ (사이트명: 봉천동미용실 오늘도원헤어)
+2025-03-26 10:31:46,594 - INFO - 총 8개의 링크 추출 완료
+2025-03-26 10:31:47,228 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:31:47,274 - INFO - 총 8개의 링크 추출 완료
+2025-03-26 10:31:47,357 - INFO - 총 9개의 링크 추출 완료
+2025-03-26 10:31:47,867 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/main_셀라비헤어.png
+2025-03-26 10:31:49,107 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_셀라비헤어_cestlaviehair.modoo.at.png
+2025-03-26 10:31:49,462 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/main_HelleN.B HAIR.png
+2025-03-26 10:31:49,516 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/main_세라헤어샵.png
+2025-03-26 10:31:49,601 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/main_봉천동미용실 오늘도원헤어.png
+2025-03-26 10:31:51,788 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_소개(인사말)_cestlaviehair.modoo.at.png
+2025-03-26 10:31:51,854 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_홈_serahair.modoo.at.png
+2025-03-26 10:31:51,957 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/depth1_HelleN.B HAIR_홈_hellenbhair.modoo.at.png
+2025-03-26 10:31:52,039 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_홈_today1hair.modoo.at.png
+2025-03-26 10:32:11,877 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_가격표_cestlaviehair.modoo.at.png
+2025-03-26 10:32:12,057 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_소개_serahair.modoo.at.png
+2025-03-26 10:32:13,727 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/depth1_HelleN.B HAIR_전후사진_hellenbhair.modoo.at.png
+2025-03-26 10:32:14,503 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_헤어샵내부_serahair.modoo.at.png
+2025-03-26 10:32:15,756 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/depth1_HelleN.B HAIR_쿠폰_hellenbhair.modoo.at.png
+2025-03-26 10:32:16,297 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_영업시간_serahair.modoo.at.png
+2025-03-26 10:32:17,500 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_내외부시설_today1hair.modoo.at.png
+2025-03-26 10:32:17,685 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/depth1_HelleN.B HAIR_오시는길_hellenbhair.modoo.at.png
+2025-03-26 10:32:18,171 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_포토앨범_cestlaviehair.modoo.at.png
+2025-03-26 10:32:18,245 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_쿠폰_이벤트_serahair.modoo.at.png
+2025-03-26 10:32:19,384 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_요금안내_today1hair.modoo.at.png
+2025-03-26 10:32:20,257 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_스케줄_serahair.modoo.at.png
+2025-03-26 10:32:20,498 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_HelleN.B HAIR/depth1_HelleN.B HAIR_스타일사진_hellenbhair.modoo.at.png
+2025-03-26 10:32:20,880 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_영화예매_cestlaviehair.modoo.at.png
+2025-03-26 10:32:21,545 - INFO - 사이트 처리 완료: HelleN.B HAIR, 성공: 6, 실패: 0
+2025-03-26 10:32:21,955 - INFO - 사이트 방문: https://azithair.modoo.at/ (사이트명: 도봉구 쌍문동 헤어샵 아지트)
+2025-03-26 10:32:22,029 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_스타일_today1hair.modoo.at.png
+2025-03-26 10:32:22,219 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_예약문의_serahair.modoo.at.png
+2025-03-26 10:32:22,877 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_게시판_cestlaviehair.modoo.at.png
+2025-03-26 10:32:24,122 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_세라헤어샵/depth1_세라헤어샵_오시는길_serahair.modoo.at.png
+2025-03-26 10:32:24,384 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth2_봉천동미용실 오늘도원헤어_여자머리_today1hair.modoo.at.png
+2025-03-26 10:32:24,883 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_공지사항_cestlaviehair.modoo.at.png
+2025-03-26 10:32:25,153 - INFO - 사이트 처리 완료: 세라헤어샵, 성공: 9, 실패: 0
+2025-03-26 10:32:25,486 - INFO - 총 13개의 링크 추출 완료
+2025-03-26 10:32:25,494 - INFO - 사이트 방문: https://toryhair4736766.modoo.at/ (사이트명: 토리헤어 암사역점)
+2025-03-26 10:32:26,852 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth2_봉천동미용실 오늘도원헤어_남자머리_today1hair.modoo.at.png
+2025-03-26 10:32:26,857 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_셀라비헤어/depth1_셀라비헤어_오시는길_cestlaviehair.modoo.at.png
+2025-03-26 10:32:27,690 - INFO - 총 6개의 링크 추출 완료
+2025-03-26 10:32:27,813 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/main_도봉구 쌍문동 헤어샵 아지트.png
+2025-03-26 10:32:27,894 - INFO - 사이트 처리 완료: 셀라비헤어, 성공: 9, 실패: 0
+2025-03-26 10:32:28,360 - INFO - 사이트 방문: https://choihairgood.modoo.at/ (사이트명: 중화동헤어샵 초이헤어)
+2025-03-26 10:32:28,859 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_예약문의_today1hair.modoo.at.png
+2025-03-26 10:32:29,320 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/main_토리헤어 암사역점.png
+2025-03-26 10:32:30,068 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth1_도봉구 쌍문동 헤어샵 아지트_AZIT_azithair.modoo.at.png
+2025-03-26 10:32:30,899 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_게시판_today1hair.modoo.at.png
+2025-03-26 10:32:30,983 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:32:31,073 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_홈_toryhair4736766.modoo.at.png
+2025-03-26 10:32:32,119 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth1_도봉구 쌍문동 헤어샵 아지트_아지트 안내_azithair.modoo.at.png
+2025-03-26 10:32:32,772 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_중화동헤어샵 초이헤어/main_중화동헤어샵 초이헤어.png
+2025-03-26 10:32:32,916 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_봉천동미용실 오늘도원헤어/depth1_봉천동미용실 오늘도원헤어_오시는길_today1hair.modoo.at.png
+2025-03-26 10:32:33,515 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_시설안내_toryhair4736766.modoo.at.png
+2025-03-26 10:32:33,959 - INFO - 사이트 처리 완료: 봉천동미용실 오늘도원헤어, 성공: 10, 실패: 0
+2025-03-26 10:32:34,100 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth1_도봉구 쌍문동 헤어샵 아지트_아티스트_azithair.modoo.at.png
+2025-03-26 10:32:34,483 - INFO - 사이트 방문: https://thenewall.modoo.at/ (사이트명: 더뉴올 네일/스킨)
+2025-03-26 10:32:34,485 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_중화동헤어샵 초이헤어/depth1_중화동헤어샵 초이헤어_홈_choihairgood.modoo.at.png
+2025-03-26 10:32:35,476 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_토리헤어 소개_toryhair4736766.modoo.at.png
+2025-03-26 10:32:37,629 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth1_도봉구 쌍문동 헤어샵 아지트_스타일추천_azithair.modoo.at.png
+2025-03-26 10:32:39,107 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_서비스_요금_toryhair4736766.modoo.at.png
+2025-03-26 10:32:39,484 - INFO - 총 131개의 링크 추출 완료
+2025-03-26 10:32:40,629 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth2_도봉구 쌍문동 헤어샵 아지트_남자_azithair.modoo.at.png
+2025-03-26 10:32:40,944 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_SNS_toryhair4736766.modoo.at.png
+2025-03-26 10:32:42,035 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_더뉴올 네일_스킨/main_더뉴올 네일/스킨.png
+2025-03-26 10:32:42,957 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토리헤어 암사역점/depth1_토리헤어 암사역점_오시는 길_toryhair4736766.modoo.at.png
+2025-03-26 10:32:44,006 - INFO - 사이트 처리 완료: 토리헤어 암사역점, 성공: 7, 실패: 0
+2025-03-26 10:32:44,488 - INFO - 사이트 방문: https://ok9.modoo.at/ (사이트명: 폴라리스)
+2025-03-26 10:32:44,530 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_더뉴올 네일_스킨/depth1_더뉴올 네일_스킨_홈_thenewall.modoo.at.png
+2025-03-26 10:32:46,411 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth2_도봉구 쌍문동 헤어샵 아지트_여자_azithair.modoo.at.png
+2025-03-26 10:32:47,069 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_더뉴올 네일_스킨/depth1_더뉴올 네일_스킨_공지사항_thenewall.modoo.at.png
+2025-03-26 10:32:49,329 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_더뉴올 네일_스킨/depth1_더뉴올 네일_스킨_이벤트_thenewall.modoo.at.png
+2025-03-26 10:32:49,411 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_도봉구 쌍문동 헤어샵 아지트/depth2_도봉구 쌍문동 헤어샵 아지트_애기_azithair.modoo.at.png
+2025-03-26 10:32:51,650 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_더뉴올 네일_스킨/depth2_더뉴올 네일_스킨_이벤트_thenewall.modoo.at.png
+2025-03-26 10:32:54,502 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:32:54,558 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:32:54,602 - ERROR - 메뉴 링크 추출 중 오류 발생: ElementHandle.query_selector: Target page, context or browser has been closed
+2025-03-26 10:32:54,614 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 10:32:54,614 - ERROR - 스크린샷 캡처 중 오류: https://azithair.modoo.at/?link=n6u696qq - Page.screenshot: Target page, context or browser has been closed
+Call log:
+  - taking page screenshot
+  -   - waiting for fonts to load...
+  -   - fonts loaded
+
+2025-03-26 10:32:54,615 - ERROR - 스크린샷 캡처 중 오류: https://choihairgood.modoo.at/?link=bzv2sy0s - Page.screenshot: Connection closed while reading from the driver
+2025-03-26 10:32:54,615 - ERROR - 스크린샷 캡처 중 오류: https://ok9.modoo.at/ - Page.goto: Connection closed while reading from the driver
+2025-03-26 10:32:55,816 - ERROR - 스크린샷 캡처 중 오류: https://azithair.modoo.at/?link=ekgc2p0t - Page.goto: Connection closed while reading from the driver
+2025-03-26 10:32:55,897 - ERROR - 스크린샷 캡처 중 오류: https://thenewall.modoo.at/?link=11rs7oh8 - Page.screenshot: Connection closed while reading from the driver
+2025-03-26 10:32:57,235 - ERROR - 스크린샷 캡처 중 오류: https://thenewall.modoo.at/?link=9eef6v4l - Page.goto: Connection closed while reading from the driver
+2025-03-26 10:33:13,748 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:33:13,783 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:33:46,640 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:33:46,665 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:33:47,801 - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed\nCall log:\n  - taking page screenshot\n  -   - waiting for fonts to load...\n  -   - fonts loaded\n')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+Call log:
+  - taking page screenshot
+  -   - waiting for fonts to load...
+  -   - fonts loaded
+
+2025-03-26 10:36:46,683 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:36:46,683 - INFO - URL 리스트 파일에서 11개의 사이트 로드 완료
+2025-03-26 10:36:46,683 - INFO - 총 11개 사이트의 이름을 추출합니다...
+2025-03-26 10:36:49,532 - INFO - 사이트명 추출 완료: https://cestlaviehair.modoo.at/ -> 셀라비헤어
+2025-03-26 10:36:52,111 - INFO - 사이트명 추출 완료: https://hellenbhair.modoo.at/ -> HelleN.B HAIR
+2025-03-26 10:36:55,140 - INFO - 사이트명 추출 완료: https://serahair.modoo.at/ -> 세라헤어샵
+2025-03-26 10:36:57,801 - INFO - 사이트명 추출 완료: https://today1hair.modoo.at/ -> 봉천동미용실 오늘도원헤어
+2025-03-26 10:37:00,366 - INFO - 사이트명 추출 완료: https://azithair.modoo.at/ -> 도봉구 쌍문동 헤어샵 아지트
+2025-03-26 10:37:02,709 - INFO - 사이트명 추출 완료: https://toryhair4736766.modoo.at/ -> 토리헤어 암사역점
+2025-03-26 10:37:05,136 - INFO - 사이트명 추출 완료: https://choihairgood.modoo.at/ -> 중화동헤어샵 초이헤어
+2025-03-26 10:37:08,141 - INFO - 사이트명 추출 완료: https://thenewall.modoo.at/ -> 더뉴올 네일/스킨
+2025-03-26 10:37:10,184 - INFO - 사이트명 추출 완료: https://ok9.modoo.at/ -> 폴라리스
+2025-03-26 10:37:12,964 - INFO - 사이트명 추출 완료: https://knkmori.modoo.at/ -> 김나경머리쟁이
+2025-03-26 10:37:15,080 - INFO - 사이트명 추출 완료: https://hssale.modoo.at/ -> 미용실점판전문
+2025-03-26 10:37:16,130 - INFO - 병렬 처리 수가 4로 설정되었습니다.
+2025-03-26 10:37:16,130 - INFO - 총 11개 사이트 크롤링 시작 (병렬 처리 수: 4)
+2025-03-26 10:37:16,732 - INFO - 사이트 방문: https://serahair.modoo.at/ (사이트명: 세라헤어샵)
+2025-03-26 10:37:16,732 - INFO - 사이트 방문: https://hellenbhair.modoo.at/ (사이트명: HelleN.B HAIR)
+2025-03-26 10:37:16,733 - INFO - 사이트 방문: https://today1hair.modoo.at/ (사이트명: 봉천동미용실 오늘도원헤어)
+2025-03-26 10:37:16,733 - INFO - 사이트 방문: https://cestlaviehair.modoo.at/ (사이트명: 셀라비헤어)
+2025-03-26 10:37:19,515 - INFO - 메뉴 항목 17개 발견 (list_sitemenu)
+2025-03-26 10:37:19,601 - INFO - 총 8개의 링크 추출 완료
+2025-03-26 10:37:20,191 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:37:20,249 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:37:20,264 - INFO - 메뉴 항목 17개 발견 (list_sitemenu)
+2025-03-26 10:37:20,299 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/
+2025-03-26 10:37:20,348 - INFO - 총 8개의 링크 추출 완료
+2025-03-26 10:37:21,179 - INFO - 메뉴 항목 15개 발견 (list_sitemenu)
+2025-03-26 10:37:21,242 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/
+2025-03-26 10:37:21,265 - INFO - 총 9개의 링크 추출 완료
+2025-03-26 10:37:21,369 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/
+2025-03-26 10:37:22,385 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/
+2025-03-26 10:37:24,792 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:24,919 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:25,778 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/?link=dmpbvfxs
+2025-03-26 10:37:25,864 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:25,934 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:25,940 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=1zcewu45
+2025-03-26 10:37:26,581 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=etk3utc8
+2025-03-26 10:37:27,042 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=d6o7jnrl
+2025-03-26 10:37:29,326 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/?link=dmpbvfxs - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:29,489 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=1zcewu45 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:30,590 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=d6o7jnrl - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:31,198 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=3xk349kp
+2025-03-26 10:37:31,283 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/?link=2lcb73o2
+2025-03-26 10:37:32,159 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=etk3utc8 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:32,313 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=62ys2o19
+2025-03-26 10:37:33,874 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=ex9kpebo
+2025-03-26 10:37:36,780 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=3xk349kp - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:36,849 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/?link=2lcb73o2 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:37,889 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=62ys2o19 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:38,510 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=796q8fqn
+2025-03-26 10:37:38,588 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/?link=7v6ov59t
+2025-03-26 10:37:39,445 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=ex9kpebo - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:39,620 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=4958uxt5
+2025-03-26 10:37:41,177 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=4z2p4zed
+2025-03-26 10:37:44,092 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=796q8fqn - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:44,147 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/?link=7v6ov59t - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:45,203 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=4958uxt5 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:46,078 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=qkw65vci
+2025-03-26 10:37:46,188 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/?link=szn78imc
+2025-03-26 10:37:46,741 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=4z2p4zed - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:47,022 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=u7vd15mp
+2025-03-26 10:37:48,467 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=9cgqqkox
+2025-03-26 10:37:51,650 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=qkw65vci - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:51,764 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/?link=szn78imc - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:52,601 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=u7vd15mp - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:53,414 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=u6tce6fn
+2025-03-26 10:37:53,670 - INFO - 페이지 최하단으로 스크롤 중: https://hellenbhair.modoo.at/?link=320ce65l
+2025-03-26 10:37:54,049 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=9cgqqkox - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:54,377 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=u7vd15mp
+2025-03-26 10:37:55,761 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=ne1jeiqi
+2025-03-26 10:37:58,985 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=u6tce6fn - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:59,241 - ERROR - 스크린샷 캡처 중 오류: https://hellenbhair.modoo.at/?link=320ce65l - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:37:59,953 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=u7vd15mp - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:00,271 - INFO - 사이트 처리 완료: HelleN.B HAIR, 성공: 0, 실패: 6
+2025-03-26 10:38:00,659 - INFO - 사이트 방문: https://azithair.modoo.at/ (사이트명: 도봉구 쌍문동 헤어샵 아지트)
+2025-03-26 10:38:00,927 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=g14mnd87
+2025-03-26 10:38:01,344 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=ne1jeiqi - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:01,818 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=2mhmbzem
+2025-03-26 10:38:03,277 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=1lxriuf0
+2025-03-26 10:38:04,056 - INFO - 메뉴 항목 21개 발견 (list_sitemenu)
+2025-03-26 10:38:04,177 - INFO - 총 13개의 링크 추출 완료
+2025-03-26 10:38:05,483 - INFO - 페이지 최하단으로 스크롤 중: https://azithair.modoo.at/
+2025-03-26 10:38:06,488 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=g14mnd87 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:07,375 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=2mhmbzem - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:08,362 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=eiasmo79
+2025-03-26 10:38:08,853 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=1lxriuf0 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:09,025 - ERROR - 스크린샷 캡처 중 오류: https://azithair.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:09,294 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=584h9yxl
+2025-03-26 10:38:10,272 - INFO - 페이지 최하단으로 스크롤 중: https://azithair.modoo.at/?link=96lufeib
+2025-03-26 10:38:10,740 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=5zummduf
+2025-03-26 10:38:13,821 - ERROR - 스크린샷 캡처 중 오류: https://azithair.modoo.at/?link=96lufeib - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:13,932 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=eiasmo79 - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:14,858 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=584h9yxl - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:15,569 - INFO - 페이지 최하단으로 스크롤 중: https://azithair.modoo.at/?link=ef0d2k57
+2025-03-26 10:38:15,673 - INFO - 페이지 최하단으로 스크롤 중: https://serahair.modoo.at/?link=7gmu4fux
+2025-03-26 10:38:16,336 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=5zummduf - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:38:16,767 - INFO - 페이지 최하단으로 스크롤 중: https://today1hair.modoo.at/?link=9zk17t7w
+2025-03-26 10:38:18,152 - INFO - 페이지 최하단으로 스크롤 중: https://cestlaviehair.modoo.at/?link=d797u8yk
+2025-03-26 10:38:19,303 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:38:19,303 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:38:19,332 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=9zk17t7w - Page.evaluate: Target page, context or browser has been closed
+2025-03-26 10:38:19,614 - ERROR - 스크린샷 캡처 중 오류: https://azithair.modoo.at/?link=ef0d2k57 - Page.evaluate: Connection closed while reading from the driver
+2025-03-26 10:38:19,712 - ERROR - 스크린샷 캡처 중 오류: https://serahair.modoo.at/?link=7gmu4fux - Page.evaluate: Connection closed while reading from the driver
+2025-03-26 10:38:20,183 - ERROR - 스크린샷 캡처 중 오류: https://cestlaviehair.modoo.at/?link=d797u8yk - Page.evaluate: Connection closed while reading from the driver
+2025-03-26 10:38:20,335 - ERROR - 스크린샷 캡처 중 오류: https://today1hair.modoo.at/?link=e89y6isy - Page.goto: Connection closed while reading from the driver
+2025-03-26 10:41:37,268 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 10:41:37,343 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:41:37,343 - INFO - URL 처리 시작: ID=23022, URL=https://solarterrace.modoo.at/
+2025-03-26 10:41:38,123 - INFO - 사이트 방문: https://solarterrace.modoo.at/
+2025-03-26 10:41:41,453 - INFO - 페이지 최하단으로 스크롤 중: https://solarterrace.modoo.at/
+2025-03-26 10:41:44,986 - ERROR - 스크린샷 캡처 중 오류: https://solarterrace.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:41:45,015 - INFO - URL ID 23022의 스크린샷 상태를 -1로 업데이트했습니다.
+2025-03-26 10:41:45,015 - ERROR - URL 처리 실패: 스크린샷 캡처 실패
+2025-03-26 10:41:45,015 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 10:41:45,015 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:41:50,082 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:41:50,082 - INFO - URL 처리 시작: ID=20054, URL=https://drrheuma.modoo.at/
+2025-03-26 10:41:50,449 - INFO - 사이트 방문: https://drrheuma.modoo.at/
+2025-03-26 10:41:53,172 - INFO - 페이지 최하단으로 스크롤 중: https://drrheuma.modoo.at/
+2025-03-26 10:41:58,711 - ERROR - 스크린샷 캡처 중 오류: https://drrheuma.modoo.at/ - Page.evaluate: SyntaxError: Unexpected identifier 'smoothScroll'
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:234:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+2025-03-26 10:41:58,733 - INFO - URL ID 20054의 스크린샷 상태를 -1로 업데이트했습니다.
+2025-03-26 10:41:58,733 - ERROR - URL 처리 실패: 스크린샷 캡처 실패
+2025-03-26 10:41:58,733 - INFO - URL 처리 완료: 2번째 URL
+2025-03-26 10:41:58,733 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:42:03,798 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:42:03,798 - INFO - URL 처리 시작: ID=25749, URL=https://moosool.modoo.at/
+2025-03-26 10:42:04,183 - INFO - 사이트 방문: https://moosool.modoo.at/
+2025-03-26 10:42:07,919 - INFO - 페이지 최하단으로 스크롤 중: https://moosool.modoo.at/
+2025-03-26 10:42:11,113 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:42:11,113 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:42:11,120 - ERROR - 브라우저 리소스 정리 중 오류: BrowserContext.close: Target page, context or browser has been closed
+2025-03-26 10:42:11,121 - INFO - 데이터베이스 연결 종료
+2025-03-26 10:42:11,121 - INFO - 총 2개의 URL을 처리했습니다.
+2025-03-26 10:42:43,120 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 10:42:43,188 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:42:43,188 - INFO - URL 처리 시작: ID=20303, URL=https://chamnari.modoo.at/
+2025-03-26 10:42:43,953 - INFO - 사이트 방문: https://chamnari.modoo.at/
+2025-03-26 10:42:48,574 - INFO - 페이지 최하단으로 스크롤 중: https://chamnari.modoo.at/
+2025-03-26 10:42:55,919 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_참나리사회서비스센터/main_참나리사회서비스센터_20303.png
+2025-03-26 10:42:55,919 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_참나리사회서비스센터/main_참나리사회서비스센터_20303.png
+2025-03-26 10:42:55,931 - INFO - 메뉴 항목 19개 발견 (list_sitemenu)
+2025-03-26 10:42:56,037 - INFO - 총 11개의 링크 추출 완료
+2025-03-26 10:42:56,070 - INFO - URL ID 20303의 스크린샷 상태를 1로 업데이트했습니다.
+2025-03-26 10:42:56,070 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 10:42:56,070 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:43:01,140 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:43:01,140 - INFO - URL 처리 시작: ID=15005, URL=https://hairbygavin.modoo.at/
+2025-03-26 10:43:01,549 - INFO - 사이트 방문: https://hairbygavin.modoo.at/
+2025-03-26 10:43:04,924 - INFO - 페이지 최하단으로 스크롤 중: https://hairbygavin.modoo.at/
+2025-03-26 10:43:12,587 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_울산미용실 HAIRby가빈/main_울산미용실 HAIRby가빈_15005.png
+2025-03-26 10:43:12,587 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_울산미용실 HAIRby가빈/main_울산미용실 HAIRby가빈_15005.png
+2025-03-26 10:43:12,595 - INFO - 메뉴 항목 13개 발견 (list_sitemenu)
+2025-03-26 10:43:12,657 - INFO - 총 6개의 링크 추출 완료
+2025-03-26 10:43:12,685 - INFO - URL ID 15005의 스크린샷 상태를 1로 업데이트했습니다.
+2025-03-26 10:43:12,685 - INFO - URL 처리 완료: 2번째 URL
+2025-03-26 10:43:12,685 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:43:17,755 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:43:17,755 - INFO - URL 처리 시작: ID=2383, URL=https://bmtgroup.modoo.at/
+2025-03-26 10:43:18,128 - INFO - 사이트 방문: https://bmtgroup.modoo.at/
+2025-03-26 10:43:21,669 - INFO - 페이지 최하단으로 스크롤 중: https://bmtgroup.modoo.at/
+2025-03-26 10:43:29,299 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_울산 옥외광고 비엠티/main_울산 옥외광고 비엠티_2383.png
+2025-03-26 10:43:29,299 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_울산 옥외광고 비엠티/main_울산 옥외광고 비엠티_2383.png
+2025-03-26 10:43:29,308 - INFO - 메뉴 항목 21개 발견 (list_sitemenu)
+2025-03-26 10:43:29,499 - INFO - 총 25개의 링크 추출 완료
+2025-03-26 10:43:29,522 - INFO - URL ID 2383의 스크린샷 상태를 1로 업데이트했습니다.
+2025-03-26 10:43:29,522 - INFO - URL 처리 완료: 3번째 URL
+2025-03-26 10:43:29,522 - INFO - 최대 크롤링 횟수 3회에 도달했습니다.
+2025-03-26 10:43:29,523 - INFO - 데이터베이스 연결 종료
+2025-03-26 10:43:29,523 - INFO - 총 3개의 URL을 처리했습니다.
+2025-03-26 10:47:32,873 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 10:47:32,970 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:47:32,970 - INFO - URL 처리 시작: ID=20771, URL=https://01076112301.modoo.at/
+2025-03-26 10:47:33,718 - INFO - 사이트 방문: https://01076112301.modoo.at/
+2025-03-26 10:47:36,460 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/
+2025-03-26 10:47:43,665 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/main_명가재가복지센터_20771.png
+2025-03-26 10:47:43,665 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/main_명가재가복지센터_20771.png
+2025-03-26 10:47:43,674 - INFO - 메뉴 항목 13개 발견 (list_sitemenu)
+2025-03-26 10:47:43,735 - INFO - 총 6개의 링크 추출 완료
+2025-03-26 10:47:43,735 - INFO - 총 6개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:47:43,735 - INFO - 서브페이지 처리 중 (1/6): 홈 - https://01076112301.modoo.at/?link=6ck6nq5b
+2025-03-26 10:47:44,952 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=6ck6nq5b
+2025-03-26 10:47:52,119 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_홈_01076112301.modoo.at.png
+2025-03-26 10:47:52,119 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:47:53,120 - INFO - 서브페이지 처리 중 (2/6): 소개 - https://01076112301.modoo.at/?link=erhk9dhg
+2025-03-26 10:47:53,923 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=erhk9dhg
+2025-03-26 10:48:02,862 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_소개_01076112301.modoo.at.png
+2025-03-26 10:48:02,862 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 10:48:03,864 - INFO - 서브페이지 처리 중 (3/6): 방문요양 - https://01076112301.modoo.at/?link=4h42ejdb
+2025-03-26 10:48:04,772 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=4h42ejdb
+2025-03-26 10:48:13,657 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_방문요양_01076112301.modoo.at.png
+2025-03-26 10:48:13,657 - INFO - 서브페이지 캡처 성공: 방문요양
+2025-03-26 10:48:14,660 - INFO - 서브페이지 처리 중 (4/6): 방문목욕 - https://01076112301.modoo.at/?link=44mfa8k2
+2025-03-26 10:48:15,759 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=44mfa8k2
+2025-03-26 10:48:24,676 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_방문목욕_01076112301.modoo.at.png
+2025-03-26 10:48:24,676 - INFO - 서브페이지 캡처 성공: 방문목욕
+2025-03-26 10:48:25,680 - INFO - 서브페이지 처리 중 (5/6): 장기요양등급 서비스 - https://01076112301.modoo.at/?link=7mxaq3li
+2025-03-26 10:48:26,474 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=7mxaq3li
+2025-03-26 10:48:35,400 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_장기요양등급 서비스_01076112301.modoo.at.png
+2025-03-26 10:48:35,401 - INFO - 서브페이지 캡처 성공: 장기요양등급 서비스
+2025-03-26 10:48:36,403 - INFO - 서브페이지 처리 중 (6/6): 오시는길 - https://01076112301.modoo.at/?link=1fzbowaw
+2025-03-26 10:48:37,183 - INFO - 페이지 최하단으로 스크롤 중: https://01076112301.modoo.at/?link=1fzbowaw
+2025-03-26 10:48:46,099 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_명가재가복지센터/depth1_명가재가복지센터_오시는길_01076112301.modoo.at.png
+2025-03-26 10:48:46,099 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:48:47,102 - INFO - 서브페이지 캡처 완료. 성공: 6개, 실패: 0개
+2025-03-26 10:48:47,143 - INFO - URL ID 20771의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 7, 실패한 페이지: 0
+2025-03-26 10:48:47,144 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 10:48:47,144 - INFO - 최대 크롤링 횟수 1회에 도달했습니다.
+2025-03-26 10:48:47,144 - INFO - 데이터베이스 연결 종료
+2025-03-26 10:48:47,144 - INFO - 총 1개의 URL을 처리했습니다.
+2025-03-26 10:51:09,979 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:51:10,029 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:51:10,769 - INFO - 
+크롤링이 중단되었습니다. 리소스를 정리합니다...
+2025-03-26 10:51:10,803 - INFO - 정리 완료. 프로그램을 종료합니다.
+2025-03-26 10:51:49,462 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 10:51:49,676 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:51:49,676 - INFO - URL 처리 시작: ID=14656, URL=https://koreahwarang.modoo.at/
+2025-03-26 10:51:50,476 - INFO - 사이트 방문: https://koreahwarang.modoo.at/
+2025-03-26 10:51:56,036 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/main_신한국화랑_14656.png
+2025-03-26 10:51:56,037 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/main_신한국화랑_14656.png
+2025-03-26 10:51:56,046 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:51:56,098 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:51:56,099 - INFO - 총 5개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:51:56,099 - INFO - 서브페이지 처리 중 (1/5): 메인 - https://koreahwarang.modoo.at/?link=p7ys3wo6
+2025-03-26 10:51:59,181 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/depth1_신한국화랑_메인_koreahwarang.modoo.at.png
+2025-03-26 10:51:59,181 - INFO - 서브페이지 캡처 성공: 메인
+2025-03-26 10:52:00,186 - INFO - 서브페이지 처리 중 (2/5): 소개 - https://koreahwarang.modoo.at/?link=jmlk6nwj
+2025-03-26 10:52:03,208 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/depth1_신한국화랑_소개_koreahwarang.modoo.at.png
+2025-03-26 10:52:03,209 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 10:52:04,214 - INFO - 서브페이지 처리 중 (3/5): 이용안내 - https://koreahwarang.modoo.at/?link=njd520s7
+2025-03-26 10:52:07,062 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/depth1_신한국화랑_이용안내_koreahwarang.modoo.at.png
+2025-03-26 10:52:07,062 - INFO - 서브페이지 캡처 성공: 이용안내
+2025-03-26 10:52:08,062 - INFO - 서브페이지 처리 중 (4/5): 갤러리 - https://koreahwarang.modoo.at/?link=6s3icywz
+2025-03-26 10:52:11,548 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/depth1_신한국화랑_갤러리_koreahwarang.modoo.at.png
+2025-03-26 10:52:11,549 - INFO - 서브페이지 캡처 성공: 갤러리
+2025-03-26 10:52:12,551 - INFO - 서브페이지 처리 중 (5/5): 오시는길 - https://koreahwarang.modoo.at/?link=7niv9o7e
+2025-03-26 10:52:15,505 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_신한국화랑/depth1_신한국화랑_오시는길_koreahwarang.modoo.at.png
+2025-03-26 10:52:15,505 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:52:16,510 - INFO - 서브페이지 캡처 완료. 성공: 5개, 실패: 0개
+2025-03-26 10:52:16,556 - INFO - URL ID 14656의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 6, 실패한 페이지: 0
+2025-03-26 10:52:16,556 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 10:52:16,556 - INFO - 최대 크롤링 횟수 1회에 도달했습니다.
+2025-03-26 10:52:16,556 - INFO - 데이터베이스 연결 종료
+2025-03-26 10:52:16,556 - INFO - 총 1개의 URL을 처리했습니다.
+2025-03-26 10:52:30,295 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 10:52:30,515 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:52:30,515 - INFO - URL 처리 시작: ID=31928, URL=https://bhcnc.modoo.at/
+2025-03-26 10:52:31,145 - INFO - 사이트 방문: https://bhcnc.modoo.at/
+2025-03-26 10:52:36,665 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/main_동백미술학원 [백현씨앤씨]_31928.png
+2025-03-26 10:52:36,666 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/main_동백미술학원 [백현씨앤씨]_31928.png
+2025-03-26 10:52:36,676 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:52:36,724 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:52:36,724 - INFO - 총 5개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:52:36,724 - INFO - 서브페이지 처리 중 (1/5): 홈 - https://bhcnc.modoo.at/?link=by84d7vx
+2025-03-26 10:52:39,959 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/depth1_동백미술학원 [백현씨앤씨]_홈_bhcnc.modoo.at.png
+2025-03-26 10:52:39,959 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:52:40,964 - INFO - 서브페이지 처리 중 (2/5): SNS - https://bhcnc.modoo.at/?link=mlih08f9
+2025-03-26 10:52:44,425 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/depth1_동백미술학원 [백현씨앤씨]_SNS_bhcnc.modoo.at.png
+2025-03-26 10:52:44,425 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 10:52:45,430 - INFO - 서브페이지 처리 중 (3/5): 문의하기 - https://bhcnc.modoo.at/?link=jmfp47l8
+2025-03-26 10:52:48,624 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/depth1_동백미술학원 [백현씨앤씨]_문의하기_bhcnc.modoo.at.png
+2025-03-26 10:52:48,625 - INFO - 서브페이지 캡처 성공: 문의하기
+2025-03-26 10:52:49,630 - INFO - 서브페이지 처리 중 (4/5): 오시는길 - https://bhcnc.modoo.at/?link=2dw0sq63
+2025-03-26 10:52:52,705 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/depth1_동백미술학원 [백현씨앤씨]_오시는길_bhcnc.modoo.at.png
+2025-03-26 10:52:52,705 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:52:53,710 - INFO - 서브페이지 처리 중 (5/5): 페이지 - https://bhcnc.modoo.at/?link=dyps83fq
+2025-03-26 10:52:56,661 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_동백미술학원 [백현씨앤씨]/depth1_동백미술학원 [백현씨앤씨]_페이지_bhcnc.modoo.at.png
+2025-03-26 10:52:56,661 - INFO - 서브페이지 캡처 성공: 페이지
+2025-03-26 10:52:57,666 - INFO - 서브페이지 캡처 완료. 성공: 5개, 실패: 0개
+2025-03-26 10:52:57,708 - INFO - URL ID 31928의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 6, 실패한 페이지: 0
+2025-03-26 10:52:57,708 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 10:52:57,708 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:53:02,929 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:53:02,929 - INFO - URL 처리 시작: ID=28312, URL=https://washmonster.modoo.at/
+2025-03-26 10:53:03,300 - INFO - 사이트 방문: https://washmonster.modoo.at/
+2025-03-26 10:53:08,374 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/main_워시몬스터_28312.png
+2025-03-26 10:53:08,374 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/main_워시몬스터_28312.png
+2025-03-26 10:53:08,388 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:53:08,449 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 10:53:08,449 - INFO - 총 7개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:53:08,449 - INFO - 서브페이지 처리 중 (1/7): 홈 - https://washmonster.modoo.at/?link=3vggbxbt
+2025-03-26 10:53:11,664 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth1_워시몬스터_홈_washmonster.modoo.at.png
+2025-03-26 10:53:11,664 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:53:12,669 - INFO - 서브페이지 처리 중 (2/7): 소개 - https://washmonster.modoo.at/?link=5gu8g731
+2025-03-26 10:53:16,009 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth1_워시몬스터_소개_washmonster.modoo.at.png
+2025-03-26 10:53:16,010 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 10:53:17,015 - INFO - 서브페이지 처리 중 (3/7): 인사말 - https://washmonster.modoo.at/?link=5gu8g731
+2025-03-26 10:53:19,859 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth2_워시몬스터_인사말_washmonster.modoo.at.png
+2025-03-26 10:53:19,859 - INFO - 서브페이지 캡처 성공: 인사말
+2025-03-26 10:53:20,864 - INFO - 서브페이지 처리 중 (4/7): 오시는길 - https://washmonster.modoo.at/?link=f8w4md51
+2025-03-26 10:53:23,988 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth2_워시몬스터_오시는길_washmonster.modoo.at.png
+2025-03-26 10:53:23,989 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:53:24,994 - INFO - 서브페이지 처리 중 (5/7): 프리미엄 세탁안내 - https://washmonster.modoo.at/?link=bp9c3y9l
+2025-03-26 10:53:28,355 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth1_워시몬스터_프리미엄 세탁안내_washmonster.modoo.at.png
+2025-03-26 10:53:28,355 - INFO - 서브페이지 캡처 성공: 프리미엄 세탁안내
+2025-03-26 10:53:29,361 - INFO - 서브페이지 처리 중 (6/7): 온라인견적문의 - https://washmonster.modoo.at/?link=g8w2wftp
+2025-03-26 10:53:32,552 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth1_워시몬스터_온라인견적문의_washmonster.modoo.at.png
+2025-03-26 10:53:32,553 - INFO - 서브페이지 캡처 성공: 온라인견적문의
+2025-03-26 10:53:33,558 - INFO - 서브페이지 처리 중 (7/7): 고객서비스 - https://washmonster.modoo.at/?link=bjqf8qtj
+2025-03-26 10:53:36,909 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_워시몬스터/depth1_워시몬스터_고객서비스_washmonster.modoo.at.png
+2025-03-26 10:53:36,909 - INFO - 서브페이지 캡처 성공: 고객서비스
+2025-03-26 10:53:37,913 - INFO - 서브페이지 캡처 완료. 성공: 7개, 실패: 0개
+2025-03-26 10:53:37,957 - INFO - URL ID 28312의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 8, 실패한 페이지: 0
+2025-03-26 10:53:37,957 - INFO - URL 처리 완료: 2번째 URL
+2025-03-26 10:53:37,957 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:53:43,192 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:53:43,192 - INFO - URL 처리 시작: ID=20503, URL=https://kjwelfare.modoo.at/
+2025-03-26 10:53:43,563 - INFO - 사이트 방문: https://kjwelfare.modoo.at/
+2025-03-26 10:53:50,689 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/main_(사)광주광역시 바른복지회_20503.png
+2025-03-26 10:53:50,689 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/main_(사)광주광역시 바른복지회_20503.png
+2025-03-26 10:53:50,701 - INFO - 메뉴 항목 19개 발견 (list_sitemenu)
+2025-03-26 10:53:50,809 - INFO - 총 11개의 링크 추출 완료
+2025-03-26 10:53:50,810 - INFO - 총 11개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:53:50,810 - INFO - 서브페이지 처리 중 (1/11): 홈 - https://kjwelfare.modoo.at/?link=75nkjf5w
+2025-03-26 10:53:55,181 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_홈_kjwelfare.modoo.at.png
+2025-03-26 10:53:55,182 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:53:56,184 - INFO - 서브페이지 처리 중 (2/11): 정부기관 바로가기 - https://kjwelfare.modoo.at/?link=egihhso6
+2025-03-26 10:53:59,189 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_정부기관 바로가기_kjwelfare.modoo.at.png
+2025-03-26 10:53:59,189 - INFO - 서브페이지 캡처 성공: 정부기관 바로가기
+2025-03-26 10:54:00,190 - INFO - 서브페이지 처리 중 (3/11): 인사말 - https://kjwelfare.modoo.at/?link=dzv7ncm1
+2025-03-26 10:54:03,319 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_인사말_kjwelfare.modoo.at.png
+2025-03-26 10:54:03,319 - INFO - 서브페이지 캡처 성공: 인사말
+2025-03-26 10:54:04,320 - INFO - 서브페이지 처리 중 (4/11): 설립취지서 - https://kjwelfare.modoo.at/?link=4pgctqpe
+2025-03-26 10:54:07,458 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_설립취지서_kjwelfare.modoo.at.png
+2025-03-26 10:54:07,459 - INFO - 서브페이지 캡처 성공: 설립취지서
+2025-03-26 10:54:08,461 - INFO - 서브페이지 처리 중 (5/11): 법인소개 및 조직도 - https://kjwelfare.modoo.at/?link=dlevpf4r
+2025-03-26 10:54:11,574 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_법인소개 및 조직도_kjwelfare.modoo.at.png
+2025-03-26 10:54:11,574 - INFO - 서브페이지 캡처 성공: 법인소개 및 조직도
+2025-03-26 10:54:12,575 - INFO - 서브페이지 처리 중 (6/11): 법인 공익활동 - https://kjwelfare.modoo.at/?link=7hlghan0
+2025-03-26 10:54:15,916 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_법인 공익활동_kjwelfare.modoo.at.png
+2025-03-26 10:54:15,916 - INFO - 서브페이지 캡처 성공: 법인 공익활동
+2025-03-26 10:54:16,917 - INFO - 서브페이지 처리 중 (7/11): 법인 공익활동 - https://kjwelfare.modoo.at/?link=7hlghan0
+2025-03-26 10:54:20,132 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth2_(사)광주광역시 바른복지회_법인 공익활동_kjwelfare.modoo.at.png
+2025-03-26 10:54:20,132 - INFO - 서브페이지 캡처 성공: 법인 공익활동
+2025-03-26 10:54:21,132 - INFO - 서브페이지 처리 중 (8/11): (부설)으뜸남구주간활동센터 - https://kjwelfare.modoo.at/?link=cwn6hx85
+2025-03-26 10:54:25,338 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth2_(사)광주광역시 바른복지회_(부설)으뜸남구주간활동센터_kjwelfare.modoo.at.png
+2025-03-26 10:54:25,339 - INFO - 서브페이지 캡처 성공: (부설)으뜸남구주간활동센터
+2025-03-26 10:54:26,339 - INFO - 서브페이지 처리 중 (9/11): 후원 안내 - https://kjwelfare.modoo.at/?link=z2teudy8
+2025-03-26 10:54:29,289 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_후원 안내_kjwelfare.modoo.at.png
+2025-03-26 10:54:29,289 - INFO - 서브페이지 캡처 성공: 후원 안내
+2025-03-26 10:54:30,291 - INFO - 서브페이지 처리 중 (10/11): 후원금액 및 실적 - https://kjwelfare.modoo.at/?link=3vq8cv44
+2025-03-26 10:54:33,342 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_후원금액 및 실적_kjwelfare.modoo.at.png
+2025-03-26 10:54:33,342 - INFO - 서브페이지 캡처 성공: 후원금액 및 실적
+2025-03-26 10:54:34,347 - INFO - 서브페이지 처리 중 (11/11): 오시는길 - https://kjwelfare.modoo.at/?link=evyzyugu
+2025-03-26 10:54:37,272 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_(사)광주광역시 바른복지회/depth1_(사)광주광역시 바른복지회_오시는길_kjwelfare.modoo.at.png
+2025-03-26 10:54:37,272 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:54:38,272 - INFO - 서브페이지 캡처 완료. 성공: 11개, 실패: 0개
+2025-03-26 10:54:38,316 - INFO - URL ID 20503의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 12, 실패한 페이지: 0
+2025-03-26 10:54:38,316 - INFO - URL 처리 완료: 3번째 URL
+2025-03-26 10:54:38,316 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:54:43,557 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:54:43,557 - INFO - URL 처리 시작: ID=9518, URL=https://ourmedical.modoo.at/
+2025-03-26 10:54:43,941 - INFO - 사이트 방문: https://ourmedical.modoo.at/
+2025-03-26 10:54:49,791 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/main_우리메디컬의원_9518.png
+2025-03-26 10:54:49,792 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/main_우리메디컬의원_9518.png
+2025-03-26 10:54:49,801 - INFO - 메뉴 항목 25개 발견 (list_sitemenu)
+2025-03-26 10:54:50,049 - INFO - 총 34개의 링크 추출 완료
+2025-03-26 10:54:50,049 - INFO - 총 34개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:54:50,049 - INFO - 서브페이지 처리 중 (1/34): 홈 - https://ourmedical.modoo.at/?link=87pzbj60
+2025-03-26 10:54:53,419 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_홈_ourmedical.modoo.at.png
+2025-03-26 10:54:53,420 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:54:54,425 - INFO - 서브페이지 처리 중 (2/34): 우리메디컬의원 소식 - https://ourmedical.modoo.at/?link=4d0ol4oh
+2025-03-26 10:54:57,357 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_우리메디컬의원 소식_ourmedical.modoo.at.png
+2025-03-26 10:54:57,357 - INFO - 서브페이지 캡처 성공: 우리메디컬의원 소식
+2025-03-26 10:54:58,362 - INFO - 서브페이지 처리 중 (3/34): 우리메디컬의원 소식 - https://ourmedical.modoo.at/?link=4d0ol4oh
+2025-03-26 10:55:01,221 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_우리메디컬의원 소식_ourmedical.modoo.at.png
+2025-03-26 10:55:01,221 - INFO - 서브페이지 캡처 성공: 우리메디컬의원 소식
+2025-03-26 10:55:02,227 - INFO - 서브페이지 처리 중 (4/34): 우리메디컬의원 소식 - https://ourmedical.modoo.at/?link=7zfqlk8v
+2025-03-26 10:55:05,284 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_우리메디컬의원 소식_ourmedical.modoo.at.png
+2025-03-26 10:55:05,284 - INFO - 서브페이지 캡처 성공: 우리메디컬의원 소식
+2025-03-26 10:55:06,284 - INFO - 서브페이지 처리 중 (5/34): 탈모탈출 - https://ourmedical.modoo.at/?link=150jdqv7
+2025-03-26 10:55:09,384 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_탈모탈출_ourmedical.modoo.at.png
+2025-03-26 10:55:09,385 - INFO - 서브페이지 캡처 성공: 탈모탈출
+2025-03-26 10:55:10,385 - INFO - 서브페이지 처리 중 (6/34): 2024년도 비급여인상 안내 - https://ourmedical.modoo.at/?link=chwrdajx
+2025-03-26 10:55:13,263 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_2024년도 비급여인상 안내_ourmedical.modoo.at.png
+2025-03-26 10:55:13,264 - INFO - 서브페이지 캡처 성공: 2024년도 비급여인상 안내
+2025-03-26 10:55:14,264 - INFO - 서브페이지 처리 중 (7/34): 주차장 출입구 변경 - https://ourmedical.modoo.at/?link=3u42thea
+2025-03-26 10:55:17,437 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_주차장 출입구 변경_ourmedical.modoo.at.png
+2025-03-26 10:55:17,437 - INFO - 서브페이지 캡처 성공: 주차장 출입구 변경
+2025-03-26 10:55:18,441 - INFO - 서브페이지 처리 중 (8/34): 주차장 유료화 안내 - https://ourmedical.modoo.at/?link=cot65rup
+2025-03-26 10:55:21,475 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_주차장 유료화 안내_ourmedical.modoo.at.png
+2025-03-26 10:55:21,475 - INFO - 서브페이지 캡처 성공: 주차장 유료화 안내
+2025-03-26 10:55:22,480 - INFO - 서브페이지 처리 중 (9/34): 본원소개 - https://ourmedical.modoo.at/?link=85hih3sj
+2025-03-26 10:55:25,353 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_본원소개_ourmedical.modoo.at.png
+2025-03-26 10:55:25,353 - INFO - 서브페이지 캡처 성공: 본원소개
+2025-03-26 10:55:26,353 - INFO - 서브페이지 처리 중 (10/34): 인사말 - https://ourmedical.modoo.at/?link=85hih3sj
+2025-03-26 10:55:29,254 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_인사말_ourmedical.modoo.at.png
+2025-03-26 10:55:29,254 - INFO - 서브페이지 캡처 성공: 인사말
+2025-03-26 10:55:30,259 - INFO - 서브페이지 처리 중 (11/34): 우리메디컬의원의 장점 - https://ourmedical.modoo.at/?link=a3n1sm1a
+2025-03-26 10:55:33,281 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_우리메디컬의원의 장점_ourmedical.modoo.at.png
+2025-03-26 10:55:33,281 - INFO - 서브페이지 캡처 성공: 우리메디컬의원의 장점
+2025-03-26 10:55:34,281 - INFO - 서브페이지 처리 중 (12/34): 내부시설 - https://ourmedical.modoo.at/?link=yr5675ys
+2025-03-26 10:55:38,745 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_내부시설_ourmedical.modoo.at.png
+2025-03-26 10:55:38,746 - INFO - 서브페이지 캡처 성공: 내부시설
+2025-03-26 10:55:39,746 - INFO - 서브페이지 처리 중 (13/34): 진료과목 - https://ourmedical.modoo.at/?link=ckam2tyv
+2025-03-26 10:55:42,648 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_진료과목_ourmedical.modoo.at.png
+2025-03-26 10:55:42,648 - INFO - 서브페이지 캡처 성공: 진료과목
+2025-03-26 10:55:43,654 - INFO - 서브페이지 처리 중 (14/34): 내과1 - https://ourmedical.modoo.at/?link=ckam2tyv
+2025-03-26 10:55:46,730 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_내과1_ourmedical.modoo.at.png
+2025-03-26 10:55:46,730 - INFO - 서브페이지 캡처 성공: 내과1
+2025-03-26 10:55:47,736 - INFO - 서브페이지 처리 중 (15/34): 내과2 - https://ourmedical.modoo.at/?link=35s40urh
+2025-03-26 10:55:50,873 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_내과2_ourmedical.modoo.at.png
+2025-03-26 10:55:50,873 - INFO - 서브페이지 캡처 성공: 내과2
+2025-03-26 10:55:51,879 - INFO - 서브페이지 처리 중 (16/34): 피부과 - https://ourmedical.modoo.at/?link=5t8hnl7k
+2025-03-26 10:55:54,764 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_피부과_ourmedical.modoo.at.png
+2025-03-26 10:55:54,764 - INFO - 서브페이지 캡처 성공: 피부과
+2025-03-26 10:55:55,764 - INFO - 서브페이지 처리 중 (17/34): 정형외과 - https://ourmedical.modoo.at/?link=2ve0y3ir
+2025-03-26 10:55:58,741 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_정형외과_ourmedical.modoo.at.png
+2025-03-26 10:55:58,741 - INFO - 서브페이지 캡처 성공: 정형외과
+2025-03-26 10:55:59,742 - INFO - 서브페이지 처리 중 (18/34): 건강 검진 센터 - https://ourmedical.modoo.at/?link=4ni6e6rc
+2025-03-26 10:56:02,973 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_건강 검진 센터_ourmedical.modoo.at.png
+2025-03-26 10:56:02,973 - INFO - 서브페이지 캡처 성공: 건강 검진 센터
+2025-03-26 10:56:03,978 - INFO - 서브페이지 처리 중 (19/34): 물리치료실 - https://ourmedical.modoo.at/?link=dtu7kg3y
+2025-03-26 10:56:07,312 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_물리치료실_ourmedical.modoo.at.png
+2025-03-26 10:56:07,312 - INFO - 서브페이지 캡처 성공: 물리치료실
+2025-03-26 10:56:08,312 - INFO - 서브페이지 처리 중 (20/34): 입원실 - https://ourmedical.modoo.at/?link=dnjela50
+2025-03-26 10:56:11,360 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_입원실_ourmedical.modoo.at.png
+2025-03-26 10:56:11,360 - INFO - 서브페이지 캡처 성공: 입원실
+2025-03-26 10:56:12,365 - INFO - 서브페이지 처리 중 (21/34): 피부 관리 센터 - https://ourmedical.modoo.at/?link=asvehp2r
+2025-03-26 10:56:15,513 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_피부 관리 센터_ourmedical.modoo.at.png
+2025-03-26 10:56:15,513 - INFO - 서브페이지 캡처 성공: 피부 관리 센터
+2025-03-26 10:56:16,518 - INFO - 서브페이지 처리 중 (22/34): 피부과 진료시간 변경안내 - https://ourmedical.modoo.at/?link=asvehp2r
+2025-03-26 10:56:19,662 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_피부과 진료시간 변경안내_ourmedical.modoo.at.png
+2025-03-26 10:56:19,662 - INFO - 서브페이지 캡처 성공: 피부과 진료시간 변경안내
+2025-03-26 10:56:20,667 - INFO - 서브페이지 처리 중 (23/34): 피부 관리 센터 - https://ourmedical.modoo.at/?link=8tco205j
+2025-03-26 10:56:25,039 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_피부 관리 센터_ourmedical.modoo.at.png
+2025-03-26 10:56:25,039 - INFO - 서브페이지 캡처 성공: 피부 관리 센터
+2025-03-26 10:56:26,039 - INFO - 서브페이지 처리 중 (24/34): 발톱 무좀 레이저기기  도입 - https://ourmedical.modoo.at/?link=2ibcb030
+2025-03-26 10:56:29,183 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_발톱 무좀 레이저기기  도입_ourmedical.modoo.at.png
+2025-03-26 10:56:29,183 - INFO - 서브페이지 캡처 성공: 발톱 무좀 레이저기기  도입
+2025-03-26 10:56:30,190 - INFO - 서브페이지 처리 중 (25/34): 탈모탈출 - https://ourmedical.modoo.at/?link=at3pgvoi
+2025-03-26 10:56:33,367 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_탈모탈출_ourmedical.modoo.at.png
+2025-03-26 10:56:33,367 - INFO - 서브페이지 캡처 성공: 탈모탈출
+2025-03-26 10:56:34,373 - INFO - 서브페이지 처리 중 (26/34): 인공 신장 센터 - https://ourmedical.modoo.at/?link=7kpcmdgt
+2025-03-26 10:56:37,815 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_인공 신장 센터_ourmedical.modoo.at.png
+2025-03-26 10:56:37,815 - INFO - 서브페이지 캡처 성공: 인공 신장 센터
+2025-03-26 10:56:38,820 - INFO - 서브페이지 처리 중 (27/34): 오시는길 - https://ourmedical.modoo.at/?link=bq7osmd3
+2025-03-26 10:56:41,846 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_오시는길_ourmedical.modoo.at.png
+2025-03-26 10:56:41,846 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:56:42,851 - INFO - 서브페이지 처리 중 (28/34): 오시는길 - https://ourmedical.modoo.at/?link=bq7osmd3
+2025-03-26 10:56:45,806 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_오시는길_ourmedical.modoo.at.png
+2025-03-26 10:56:45,807 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:56:46,812 - INFO - 서브페이지 처리 중 (29/34): 주차장 출입구 변경 - https://ourmedical.modoo.at/?link=bi9i6cv3
+2025-03-26 10:56:49,813 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_주차장 출입구 변경_ourmedical.modoo.at.png
+2025-03-26 10:56:49,813 - INFO - 서브페이지 캡처 성공: 주차장 출입구 변경
+2025-03-26 10:56:50,818 - INFO - 서브페이지 처리 중 (30/34): 게시판 - https://ourmedical.modoo.at/?link=35w4c9p9
+2025-03-26 10:56:54,005 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_게시판_ourmedical.modoo.at.png
+2025-03-26 10:56:54,006 - INFO - 서브페이지 캡처 성공: 게시판
+2025-03-26 10:56:55,011 - INFO - 서브페이지 처리 중 (31/34): 게시판 - https://ourmedical.modoo.at/?link=35w4c9p9
+2025-03-26 10:56:58,087 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_게시판_ourmedical.modoo.at.png
+2025-03-26 10:56:58,087 - INFO - 서브페이지 캡처 성공: 게시판
+2025-03-26 10:56:59,087 - INFO - 서브페이지 처리 중 (32/34): 보훈 대상자 위탁병원 지정! - https://ourmedical.modoo.at/?link=21lbvxbt
+2025-03-26 10:57:02,152 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_보훈 대상자 위탁병원 지정!_ourmedical.modoo.at.png
+2025-03-26 10:57:02,152 - INFO - 서브페이지 캡처 성공: 보훈 대상자 위탁병원 지정!
+2025-03-26 10:57:03,152 - INFO - 서브페이지 처리 중 (33/34): 코로나 19 백신 항체 검사 - https://ourmedical.modoo.at/?link=d73q899o
+2025-03-26 10:57:06,089 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth2_우리메디컬의원_코로나 19 백신 항체 검사_ourmedical.modoo.at.png
+2025-03-26 10:57:06,089 - INFO - 서브페이지 캡처 성공: 코로나 19 백신 항체 검사
+2025-03-26 10:57:07,094 - INFO - 서브페이지 처리 중 (34/34): Q & A - https://ourmedical.modoo.at/?link=1nzwi9ip
+2025-03-26 10:57:10,167 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리메디컬의원/depth1_우리메디컬의원_Q & A_ourmedical.modoo.at.png
+2025-03-26 10:57:10,167 - INFO - 서브페이지 캡처 성공: Q & A
+2025-03-26 10:57:11,172 - INFO - 서브페이지 캡처 완료. 성공: 34개, 실패: 0개
+2025-03-26 10:57:11,219 - INFO - URL ID 9518의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 35, 실패한 페이지: 0
+2025-03-26 10:57:11,219 - INFO - URL 처리 완료: 4번째 URL
+2025-03-26 10:57:11,219 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:57:16,456 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:57:16,456 - INFO - URL 처리 시작: ID=23843, URL=https://jbaumpilates.modoo.at/
+2025-03-26 10:57:16,825 - INFO - 사이트 방문: https://jbaumpilates.modoo.at/
+2025-03-26 10:57:22,373 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/main_전주 바움필라테스_23843.png
+2025-03-26 10:57:22,374 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/main_전주 바움필라테스_23843.png
+2025-03-26 10:57:22,383 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:57:22,449 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 10:57:22,450 - INFO - 총 7개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:57:22,450 - INFO - 서브페이지 처리 중 (1/7): 홈 - https://jbaumpilates.modoo.at/?link=58kby9wv
+2025-03-26 10:57:26,200 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth1_전주 바움필라테스_홈_jbaumpilates.modoo.at.png
+2025-03-26 10:57:26,200 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:57:27,205 - INFO - 서브페이지 처리 중 (2/7): 센터소개 - https://jbaumpilates.modoo.at/?link=55gmddi5
+2025-03-26 10:57:30,461 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth1_전주 바움필라테스_센터소개_jbaumpilates.modoo.at.png
+2025-03-26 10:57:30,461 - INFO - 서브페이지 캡처 성공: 센터소개
+2025-03-26 10:57:31,467 - INFO - 서브페이지 처리 중 (3/7): 센터소개 - https://jbaumpilates.modoo.at/?link=55gmddi5
+2025-03-26 10:57:34,550 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth2_전주 바움필라테스_센터소개_jbaumpilates.modoo.at.png
+2025-03-26 10:57:34,550 - INFO - 서브페이지 캡처 성공: 센터소개
+2025-03-26 10:57:35,555 - INFO - 서브페이지 처리 중 (4/7): 센터소개 - https://jbaumpilates.modoo.at/?link=7zgt9blm
+2025-03-26 10:57:38,516 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth2_전주 바움필라테스_센터소개_jbaumpilates.modoo.at.png
+2025-03-26 10:57:38,516 - INFO - 서브페이지 캡처 성공: 센터소개
+2025-03-26 10:57:39,517 - INFO - 서브페이지 처리 중 (5/7): 카카오톡 문의 - https://jbaumpilates.modoo.at/?link=53zziwnn
+2025-03-26 10:57:42,811 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth1_전주 바움필라테스_카카오톡 문의_jbaumpilates.modoo.at.png
+2025-03-26 10:57:42,811 - INFO - 서브페이지 캡처 성공: 카카오톡 문의
+2025-03-26 10:57:43,816 - INFO - 서브페이지 처리 중 (6/7): 블로그 소식 - https://jbaumpilates.modoo.at/?link=dxw9374m
+2025-03-26 10:57:47,468 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth1_전주 바움필라테스_블로그 소식_jbaumpilates.modoo.at.png
+2025-03-26 10:57:47,468 - INFO - 서브페이지 캡처 성공: 블로그 소식
+2025-03-26 10:57:48,473 - INFO - 서브페이지 처리 중 (7/7): 오시는길 - https://jbaumpilates.modoo.at/?link=bxke3zoe
+2025-03-26 10:57:51,463 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_전주 바움필라테스/depth1_전주 바움필라테스_오시는길_jbaumpilates.modoo.at.png
+2025-03-26 10:57:51,463 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:57:52,465 - INFO - 서브페이지 캡처 완료. 성공: 7개, 실패: 0개
+2025-03-26 10:57:52,500 - INFO - URL ID 23843의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 8, 실패한 페이지: 0
+2025-03-26 10:57:52,500 - INFO - URL 처리 완료: 5번째 URL
+2025-03-26 10:57:52,500 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:57:57,737 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:57:57,737 - INFO - URL 처리 시작: ID=25831, URL=https://blisscenter.modoo.at/
+2025-03-26 10:57:58,103 - INFO - 사이트 방문: https://blisscenter.modoo.at/
+2025-03-26 10:58:03,777 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/main_BLISS center_25831.png
+2025-03-26 10:58:03,778 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/main_BLISS center_25831.png
+2025-03-26 10:58:03,789 - INFO - 메뉴 항목 23개 발견 (list_sitemenu)
+2025-03-26 10:58:03,905 - INFO - 총 13개의 링크 추출 완료
+2025-03-26 10:58:03,905 - INFO - 총 13개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:58:03,905 - INFO - 서브페이지 처리 중 (1/13): 홈 - https://blisscenter.modoo.at/?link=6fjm62w6
+2025-03-26 10:58:07,530 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_홈_blisscenter.modoo.at.png
+2025-03-26 10:58:07,530 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:58:08,533 - INFO - 서브페이지 처리 중 (2/13): 강사소개 - https://blisscenter.modoo.at/?link=zsjak7cx
+2025-03-26 10:58:11,767 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_강사소개_blisscenter.modoo.at.png
+2025-03-26 10:58:11,767 - INFO - 서브페이지 캡처 성공: 강사소개
+2025-03-26 10:58:12,769 - INFO - 서브페이지 처리 중 (3/13): 교육과정 - https://blisscenter.modoo.at/?link=w9dnb5ur
+2025-03-26 10:58:15,667 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_교육과정_blisscenter.modoo.at.png
+2025-03-26 10:58:15,668 - INFO - 서브페이지 캡처 성공: 교육과정
+2025-03-26 10:58:16,673 - INFO - 서브페이지 처리 중 (4/13): SNS - https://blisscenter.modoo.at/?link=2316od6g
+2025-03-26 10:58:19,568 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_SNS_blisscenter.modoo.at.png
+2025-03-26 10:58:19,568 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 10:58:20,571 - INFO - 서브페이지 처리 중 (5/13): SNS - https://blisscenter.modoo.at/?link=2316od6g
+2025-03-26 10:58:23,467 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth2_BLISS center_SNS_blisscenter.modoo.at.png
+2025-03-26 10:58:23,467 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 10:58:24,467 - INFO - 서브페이지 처리 중 (6/13): SNS - https://blisscenter.modoo.at/?link=v6noue71
+2025-03-26 10:58:27,332 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth2_BLISS center_SNS_blisscenter.modoo.at.png
+2025-03-26 10:58:27,333 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 10:58:28,338 - INFO - 서브페이지 처리 중 (7/13): 수강료안내 - https://blisscenter.modoo.at/?link=ds9uzfym
+2025-03-26 10:58:31,381 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_수강료안내_blisscenter.modoo.at.png
+2025-03-26 10:58:31,382 - INFO - 서브페이지 캡처 성공: 수강료안내
+2025-03-26 10:58:32,387 - INFO - 서브페이지 처리 중 (8/13): 쿠폰 - https://blisscenter.modoo.at/?link=1d19xvfk
+2025-03-26 10:58:35,231 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_쿠폰_blisscenter.modoo.at.png
+2025-03-26 10:58:35,231 - INFO - 서브페이지 캡처 성공: 쿠폰
+2025-03-26 10:58:36,231 - INFO - 서브페이지 처리 중 (9/13): 스케줄 - https://blisscenter.modoo.at/?link=68g3yx9q
+2025-03-26 10:58:39,240 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_스케줄_blisscenter.modoo.at.png
+2025-03-26 10:58:39,240 - INFO - 서브페이지 캡처 성공: 스케줄
+2025-03-26 10:58:40,240 - INFO - 서브페이지 처리 중 (10/13): 문의하기 - https://blisscenter.modoo.at/?link=rv6txppf
+2025-03-26 10:58:43,204 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_문의하기_blisscenter.modoo.at.png
+2025-03-26 10:58:43,204 - INFO - 서브페이지 캡처 성공: 문의하기
+2025-03-26 10:58:44,210 - INFO - 서브페이지 처리 중 (11/13): 게시판 - https://blisscenter.modoo.at/?link=ul8shvuz
+2025-03-26 10:58:47,634 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_게시판_blisscenter.modoo.at.png
+2025-03-26 10:58:47,634 - INFO - 서브페이지 캡처 성공: 게시판
+2025-03-26 10:58:48,639 - INFO - 서브페이지 처리 중 (12/13): 오시는길 - https://blisscenter.modoo.at/?link=gsne9ooe
+2025-03-26 10:58:51,827 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_오시는길_blisscenter.modoo.at.png
+2025-03-26 10:58:51,827 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 10:58:52,832 - INFO - 서브페이지 처리 중 (13/13): 모아보기 - https://blisscenter.modoo.at/?link=dy4k8fc2
+2025-03-26 10:58:55,851 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_BLISS center/depth1_BLISS center_모아보기_blisscenter.modoo.at.png
+2025-03-26 10:58:55,851 - INFO - 서브페이지 캡처 성공: 모아보기
+2025-03-26 10:58:56,856 - INFO - 서브페이지 캡처 완료. 성공: 13개, 실패: 0개
+2025-03-26 10:58:56,895 - INFO - URL ID 25831의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 14, 실패한 페이지: 0
+2025-03-26 10:58:56,895 - INFO - URL 처리 완료: 6번째 URL
+2025-03-26 10:58:56,895 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:59:02,106 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:59:02,106 - INFO - URL 처리 시작: ID=19777, URL=https://0313625930.modoo.at/
+2025-03-26 10:59:02,498 - INFO - 사이트 방문: https://0313625930.modoo.at/
+2025-03-26 10:59:06,834 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/main_아모레방문판매홍성옥설화수헤라_19777.png
+2025-03-26 10:59:06,835 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/main_아모레방문판매홍성옥설화수헤라_19777.png
+2025-03-26 10:59:06,841 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 10:59:06,892 - INFO - 총 5개의 링크 추출 완료
+2025-03-26 10:59:06,892 - INFO - 총 5개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:59:06,892 - INFO - 서브페이지 처리 중 (1/5): Home - https://0313625930.modoo.at/?link=dqozq5pd
+2025-03-26 10:59:09,810 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/depth1_아모레방문판매홍성옥설화수헤라_Home_0313625930.modoo.at.png
+2025-03-26 10:59:09,810 - INFO - 서브페이지 캡처 성공: Home
+2025-03-26 10:59:10,815 - INFO - 서브페이지 처리 중 (2/5): 업체소개 - https://0313625930.modoo.at/?link=4o5vk28q
+2025-03-26 10:59:14,004 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/depth1_아모레방문판매홍성옥설화수헤라_업체소개_0313625930.modoo.at.png
+2025-03-26 10:59:14,005 - INFO - 서브페이지 캡처 성공: 업체소개
+2025-03-26 10:59:15,011 - INFO - 서브페이지 처리 중 (3/5): 사업안내 - https://0313625930.modoo.at/?link=7wtyzjbu
+2025-03-26 10:59:18,257 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/depth1_아모레방문판매홍성옥설화수헤라_사업안내_0313625930.modoo.at.png
+2025-03-26 10:59:18,258 - INFO - 서브페이지 캡처 성공: 사업안내
+2025-03-26 10:59:19,262 - INFO - 서브페이지 처리 중 (4/5): 제품소개 - https://0313625930.modoo.at/?link=34u8abt0
+2025-03-26 10:59:22,998 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/depth1_아모레방문판매홍성옥설화수헤라_제품소개_0313625930.modoo.at.png
+2025-03-26 10:59:22,998 - INFO - 서브페이지 캡처 성공: 제품소개
+2025-03-26 10:59:24,003 - INFO - 서브페이지 처리 중 (5/5): 고객센터 - https://0313625930.modoo.at/?link=eskuf695
+2025-03-26 10:59:26,998 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_아모레방문판매홍성옥설화수헤라/depth1_아모레방문판매홍성옥설화수헤라_고객센터_0313625930.modoo.at.png
+2025-03-26 10:59:26,998 - INFO - 서브페이지 캡처 성공: 고객센터
+2025-03-26 10:59:28,003 - INFO - 서브페이지 캡처 완료. 성공: 5개, 실패: 0개
+2025-03-26 10:59:28,045 - INFO - URL ID 19777의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 6, 실패한 페이지: 0
+2025-03-26 10:59:28,045 - INFO - URL 처리 완료: 7번째 URL
+2025-03-26 10:59:28,045 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 10:59:33,277 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 10:59:33,277 - INFO - URL 처리 시작: ID=28055, URL=https://disabledfamily.modoo.at/
+2025-03-26 10:59:33,645 - INFO - 사이트 방문: https://disabledfamily.modoo.at/
+2025-03-26 10:59:39,814 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/main_한국장애인가족복지협회_28055.png
+2025-03-26 10:59:39,815 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/main_한국장애인가족복지협회_28055.png
+2025-03-26 10:59:39,822 - INFO - 메뉴 항목 17개 발견 (list_sitemenu)
+2025-03-26 10:59:39,918 - INFO - 총 10개의 링크 추출 완료
+2025-03-26 10:59:39,918 - INFO - 총 10개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 10:59:39,918 - INFO - 서브페이지 처리 중 (1/10): 홈 - https://disabledfamily.modoo.at/?link=be07iyml
+2025-03-26 10:59:43,714 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_홈_disabledfamily.modoo.at.png
+2025-03-26 10:59:43,714 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 10:59:44,719 - INFO - 서브페이지 처리 중 (2/10): 협회소개 - https://disabledfamily.modoo.at/?link=c9qzsxxz
+2025-03-26 10:59:47,819 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_협회소개_disabledfamily.modoo.at.png
+2025-03-26 10:59:47,820 - INFO - 서브페이지 캡처 성공: 협회소개
+2025-03-26 10:59:48,820 - INFO - 서브페이지 처리 중 (3/10): 알림마당 - https://disabledfamily.modoo.at/?link=eycxag66
+2025-03-26 10:59:52,001 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_알림마당_disabledfamily.modoo.at.png
+2025-03-26 10:59:52,002 - INFO - 서브페이지 캡처 성공: 알림마당
+2025-03-26 10:59:53,002 - INFO - 서브페이지 처리 중 (4/10): 후원안내 - https://disabledfamily.modoo.at/?link=kwuy88tn
+2025-03-26 10:59:55,934 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_후원안내_disabledfamily.modoo.at.png
+2025-03-26 10:59:55,935 - INFO - 서브페이지 캡처 성공: 후원안내
+2025-03-26 10:59:56,940 - INFO - 서브페이지 처리 중 (5/10): 문의/사업 신청 - https://disabledfamily.modoo.at/?link=d5wpfjor
+2025-03-26 10:59:59,976 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_문의_사업 신청_disabledfamily.modoo.at.png
+2025-03-26 10:59:59,976 - INFO - 서브페이지 캡처 성공: 문의/사업 신청
+2025-03-26 11:00:00,978 - INFO - 서브페이지 처리 중 (6/10): 갤러리 - https://disabledfamily.modoo.at/?link=elewy7qc
+2025-03-26 11:00:05,126 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_갤러리_disabledfamily.modoo.at.png
+2025-03-26 11:00:05,126 - INFO - 서브페이지 캡처 성공: 갤러리
+2025-03-26 11:00:06,131 - INFO - 서브페이지 처리 중 (7/10): 갤러리 - https://disabledfamily.modoo.at/?link=elewy7qc
+2025-03-26 11:00:09,834 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth2_한국장애인가족복지협회_갤러리_disabledfamily.modoo.at.png
+2025-03-26 11:00:09,834 - INFO - 서브페이지 캡처 성공: 갤러리
+2025-03-26 11:00:10,839 - INFO - 서브페이지 처리 중 (8/10): 갤러리 - https://disabledfamily.modoo.at/?link=82qdhooc
+2025-03-26 11:00:13,700 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth2_한국장애인가족복지협회_갤러리_disabledfamily.modoo.at.png
+2025-03-26 11:00:13,700 - INFO - 서브페이지 캡처 성공: 갤러리
+2025-03-26 11:00:14,705 - INFO - 서브페이지 처리 중 (9/10): 관련기관 - https://disabledfamily.modoo.at/?link=2d1kp0e3
+2025-03-26 11:00:17,734 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_관련기관_disabledfamily.modoo.at.png
+2025-03-26 11:00:17,734 - INFO - 서브페이지 캡처 성공: 관련기관
+2025-03-26 11:00:18,734 - INFO - 서브페이지 처리 중 (10/10): 오시는길 - https://disabledfamily.modoo.at/?link=w7lgxhfi
+2025-03-26 11:00:21,632 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_한국장애인가족복지협회/depth1_한국장애인가족복지협회_오시는길_disabledfamily.modoo.at.png
+2025-03-26 11:00:21,632 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:00:22,638 - INFO - 서브페이지 캡처 완료. 성공: 10개, 실패: 0개
+2025-03-26 11:00:22,751 - INFO - URL ID 28055의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 11, 실패한 페이지: 0
+2025-03-26 11:00:22,751 - INFO - URL 처리 완료: 8번째 URL
+2025-03-26 11:00:22,751 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:00:27,971 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:00:27,971 - INFO - URL 처리 시작: ID=16702, URL=https://heodon.modoo.at/
+2025-03-26 11:00:28,362 - INFO - 사이트 방문: https://heodon.modoo.at/
+2025-03-26 11:00:33,094 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_허돈 김해외동고기맛집/main_허돈 김해외동고기맛집_16702.png
+2025-03-26 11:00:33,094 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_허돈 김해외동고기맛집/main_허돈 김해외동고기맛집_16702.png
+2025-03-26 11:00:33,098 - INFO - 메뉴 항목 3개 발견 (list_sitemenu)
+2025-03-26 11:00:33,114 - INFO - 총 1개의 링크 추출 완료
+2025-03-26 11:00:33,114 - INFO - 총 1개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:00:33,114 - INFO - 서브페이지 처리 중 (1/1): 허돈 - https://heodon.modoo.at/?link=68zylyfp
+2025-03-26 11:00:36,090 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_허돈 김해외동고기맛집/depth1_허돈 김해외동고기맛집_허돈_heodon.modoo.at.png
+2025-03-26 11:00:36,090 - INFO - 서브페이지 캡처 성공: 허돈
+2025-03-26 11:00:37,095 - INFO - 서브페이지 캡처 완료. 성공: 1개, 실패: 0개
+2025-03-26 11:00:37,129 - INFO - URL ID 16702의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 2, 실패한 페이지: 0
+2025-03-26 11:00:37,129 - INFO - URL 처리 완료: 9번째 URL
+2025-03-26 11:00:37,129 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:00:42,353 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:00:42,354 - INFO - URL 처리 시작: ID=2338, URL=https://woorihodu.modoo.at/
+2025-03-26 11:00:42,716 - INFO - 사이트 방문: https://woorihodu.modoo.at/
+2025-03-26 11:00:49,365 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/main_우리호두농장_2338.png
+2025-03-26 11:00:49,365 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/main_우리호두농장_2338.png
+2025-03-26 11:00:49,373 - INFO - 메뉴 항목 13개 발견 (list_sitemenu)
+2025-03-26 11:00:49,458 - INFO - 총 10개의 링크 추출 완료
+2025-03-26 11:00:49,458 - INFO - 총 10개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:00:49,458 - INFO - 서브페이지 처리 중 (1/10): HOME - https://woorihodu.modoo.at/?link=c24928rv
+2025-03-26 11:00:53,436 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_HOME_woorihodu.modoo.at.png
+2025-03-26 11:00:53,436 - INFO - 서브페이지 캡처 성공: HOME
+2025-03-26 11:00:54,436 - INFO - 서브페이지 처리 중 (2/10): 호두농장소개 - https://woorihodu.modoo.at/?link=1bfwq3y1
+2025-03-26 11:00:57,691 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_호두농장소개_woorihodu.modoo.at.png
+2025-03-26 11:00:57,691 - INFO - 서브페이지 캡처 성공: 호두농장소개
+2025-03-26 11:00:58,696 - INFO - 서브페이지 처리 중 (3/10): 농장갤러리 - https://woorihodu.modoo.at/?link=xgolt864
+2025-03-26 11:01:05,072 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_농장갤러리_woorihodu.modoo.at.png
+2025-03-26 11:01:05,072 - INFO - 서브페이지 캡처 성공: 농장갤러리
+2025-03-26 11:01:06,072 - INFO - 서브페이지 처리 중 (4/10): 메뉴 11 - https://woorihodu.modoo.at/?link=au8ds5ez
+2025-03-26 11:01:09,373 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_메뉴 11_woorihodu.modoo.at.png
+2025-03-26 11:01:09,373 - INFO - 서브페이지 캡처 성공: 메뉴 11
+2025-03-26 11:01:10,378 - INFO - 서브페이지 처리 중 (5/10): 상품안내 - https://woorihodu.modoo.at/?link=3nnzjt1b
+2025-03-26 11:01:13,602 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_상품안내_woorihodu.modoo.at.png
+2025-03-26 11:01:13,602 - INFO - 서브페이지 캡처 성공: 상품안내
+2025-03-26 11:01:14,605 - INFO - 서브페이지 처리 중 (6/10): # 알호두 - https://woorihodu.modoo.at/?link=3nnzjt1b
+2025-03-26 11:01:17,601 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth2_우리호두농장_# 알호두_woorihodu.modoo.at.png
+2025-03-26 11:01:17,602 - INFO - 서브페이지 캡처 성공: # 알호두
+2025-03-26 11:01:18,608 - INFO - 서브페이지 처리 중 (7/10): # 깐호두 - https://woorihodu.modoo.at/?link=82xc983d
+2025-03-26 11:01:21,533 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth2_우리호두농장_# 깐호두_woorihodu.modoo.at.png
+2025-03-26 11:01:21,533 - INFO - 서브페이지 캡처 성공: # 깐호두
+2025-03-26 11:01:22,534 - INFO - 서브페이지 처리 중 (8/10): # 호두기름 - https://woorihodu.modoo.at/?link=3vl63cbs
+2025-03-26 11:01:25,488 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth2_우리호두농장_# 호두기름_woorihodu.modoo.at.png
+2025-03-26 11:01:25,488 - INFO - 서브페이지 캡처 성공: # 호두기름
+2025-03-26 11:01:26,493 - INFO - 서브페이지 처리 중 (9/10): # 호두선물세트 - https://woorihodu.modoo.at/?link=bv9raoxb
+2025-03-26 11:01:29,478 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth2_우리호두농장_# 호두선물세트_woorihodu.modoo.at.png
+2025-03-26 11:01:29,479 - INFO - 서브페이지 캡처 성공: # 호두선물세트
+2025-03-26 11:01:30,484 - INFO - 서브페이지 처리 중 (10/10): 오시는길 - https://woorihodu.modoo.at/?link=7kp2xdwm
+2025-03-26 11:01:33,766 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_우리호두농장/depth1_우리호두농장_오시는길_woorihodu.modoo.at.png
+2025-03-26 11:01:33,766 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:01:34,766 - INFO - 서브페이지 캡처 완료. 성공: 10개, 실패: 0개
+2025-03-26 11:01:34,867 - INFO - URL ID 2338의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 11, 실패한 페이지: 0
+2025-03-26 11:01:34,867 - INFO - URL 처리 완료: 10번째 URL
+2025-03-26 11:01:34,867 - INFO - 최대 크롤링 횟수 10회에 도달했습니다.
+2025-03-26 11:01:34,868 - INFO - 데이터베이스 연결 종료
+2025-03-26 11:01:34,869 - INFO - 총 10개의 URL을 처리했습니다.
+2025-03-26 11:03:11,204 - INFO - 데이터베이스 연결 성공: data/crawler_data.db
+2025-03-26 11:03:11,422 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:03:11,423 - INFO - URL 처리 시작: ID=18987, URL=https://jds2514.modoo.at/
+2025-03-26 11:03:12,209 - INFO - 사이트 방문: https://jds2514.modoo.at/
+2025-03-26 11:03:18,561 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/main_토즈스터디센터 천안두정센터_18987.png
+2025-03-26 11:03:18,562 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/main_토즈스터디센터 천안두정센터_18987.png
+2025-03-26 11:03:18,576 - INFO - 메뉴 항목 15개 발견 (list_sitemenu)
+2025-03-26 11:03:18,675 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 11:03:18,675 - INFO - 총 7개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:03:18,675 - INFO - 서브페이지 처리 중 (1/7): 홈 - https://jds2514.modoo.at/?link=anvvaxo2
+2025-03-26 11:03:22,520 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_홈_jds2514.modoo.at.png
+2025-03-26 11:03:22,520 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:03:23,525 - INFO - 서브페이지 처리 중 (2/7): 소개 - https://jds2514.modoo.at/?link=77m1x7zs
+2025-03-26 11:03:26,636 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_소개_jds2514.modoo.at.png
+2025-03-26 11:03:26,636 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 11:03:27,636 - INFO - 서브페이지 처리 중 (3/7): 공간안내 - https://jds2514.modoo.at/?link=2153nfmk
+2025-03-26 11:03:32,917 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_공간안내_jds2514.modoo.at.png
+2025-03-26 11:03:32,917 - INFO - 서브페이지 캡처 성공: 공간안내
+2025-03-26 11:03:33,923 - INFO - 서브페이지 처리 중 (4/7): SNS - https://jds2514.modoo.at/?link=ebqto0m3
+2025-03-26 11:03:37,426 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_SNS_jds2514.modoo.at.png
+2025-03-26 11:03:37,426 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 11:03:38,427 - INFO - 서브페이지 처리 중 (5/7): 쿠폰/이벤트 - https://jds2514.modoo.at/?link=8h3s2622
+2025-03-26 11:03:41,250 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_쿠폰_이벤트_jds2514.modoo.at.png
+2025-03-26 11:03:41,250 - INFO - 서브페이지 캡처 성공: 쿠폰/이벤트
+2025-03-26 11:03:42,250 - INFO - 서브페이지 처리 중 (6/7): 문의/신청 - https://jds2514.modoo.at/?link=af4nxxpf
+2025-03-26 11:03:45,227 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_문의_신청_jds2514.modoo.at.png
+2025-03-26 11:03:45,227 - INFO - 서브페이지 캡처 성공: 문의/신청
+2025-03-26 11:03:46,227 - INFO - 서브페이지 처리 중 (7/7): 오시는길 - https://jds2514.modoo.at/?link=axjdj2qq
+2025-03-26 11:03:49,163 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_토즈스터디센터 천안두정센터/depth1_토즈스터디센터 천안두정센터_오시는길_jds2514.modoo.at.png
+2025-03-26 11:03:49,164 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:03:50,167 - INFO - 서브페이지 캡처 완료. 성공: 7개, 실패: 0개
+2025-03-26 11:03:50,236 - INFO - URL ID 18987의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 8, 실패한 페이지: 0
+2025-03-26 11:03:50,236 - INFO - URL 처리 완료: 1번째 URL
+2025-03-26 11:03:50,236 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:03:55,587 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:03:55,587 - INFO - URL 처리 시작: ID=34509, URL=https://hwangjaechamchi.modoo.at/
+2025-03-26 11:03:56,103 - INFO - 사이트 방문: https://hwangjaechamchi.modoo.at/
+2025-03-26 11:04:03,080 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/main_대전 황제참치_34509.png
+2025-03-26 11:04:03,081 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/main_대전 황제참치_34509.png
+2025-03-26 11:04:03,096 - INFO - 메뉴 항목 19개 발견 (list_sitemenu)
+2025-03-26 11:04:03,180 - INFO - 총 9개의 링크 추출 완료
+2025-03-26 11:04:03,180 - INFO - 총 9개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:04:03,180 - INFO - 서브페이지 처리 중 (1/9): 홈 - https://hwangjaechamchi.modoo.at/?link=ayhdo5ze
+2025-03-26 11:04:07,432 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_홈_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:07,433 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:04:08,434 - INFO - 서브페이지 처리 중 (2/9): 시설 - https://hwangjaechamchi.modoo.at/?link=357hi4se
+2025-03-26 11:04:13,606 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_시설_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:13,607 - INFO - 서브페이지 캡처 성공: 시설
+2025-03-26 11:04:14,612 - INFO - 서브페이지 처리 중 (3/9): 메뉴 - https://hwangjaechamchi.modoo.at/?link=ip96q66x
+2025-03-26 11:04:17,723 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_메뉴_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:17,723 - INFO - 서브페이지 캡처 성공: 메뉴
+2025-03-26 11:04:18,728 - INFO - 서브페이지 처리 중 (4/9): 소개 - https://hwangjaechamchi.modoo.at/?link=a77g91az
+2025-03-26 11:04:22,976 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_소개_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:22,976 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 11:04:23,981 - INFO - 서브페이지 처리 중 (5/9): 위치 - https://hwangjaechamchi.modoo.at/?link=44hn5m73
+2025-03-26 11:04:27,226 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_위치_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:27,226 - INFO - 서브페이지 캡처 성공: 위치
+2025-03-26 11:04:28,226 - INFO - 서브페이지 처리 중 (6/9): 예약 - https://hwangjaechamchi.modoo.at/?link=6hpceg98
+2025-03-26 11:04:31,333 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_예약_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:31,333 - INFO - 서브페이지 캡처 성공: 예약
+2025-03-26 11:04:32,338 - INFO - 서브페이지 처리 중 (7/9): 갤러리 - https://hwangjaechamchi.modoo.at/?link=44srj5zw
+2025-03-26 11:04:39,731 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_갤러리_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:39,733 - INFO - 서브페이지 캡처 성공: 갤러리
+2025-03-26 11:04:40,734 - INFO - 서브페이지 처리 중 (8/9): 페이지 - https://hwangjaechamchi.modoo.at/?link=aveji3pe
+2025-03-26 11:04:43,637 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_페이지_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:43,637 - INFO - 서브페이지 캡처 성공: 페이지
+2025-03-26 11:04:44,637 - INFO - 서브페이지 처리 중 (9/9): 페이지1 - https://hwangjaechamchi.modoo.at/?link=a22nfr3g
+2025-03-26 11:04:47,578 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_대전 황제참치/depth1_대전 황제참치_페이지1_hwangjaechamchi.modoo.at.png
+2025-03-26 11:04:47,579 - INFO - 서브페이지 캡처 성공: 페이지1
+2025-03-26 11:04:48,579 - INFO - 서브페이지 캡처 완료. 성공: 9개, 실패: 0개
+2025-03-26 11:04:48,626 - INFO - URL ID 34509의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 10, 실패한 페이지: 0
+2025-03-26 11:04:48,627 - INFO - URL 처리 완료: 2번째 URL
+2025-03-26 11:04:48,627 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:04:53,906 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:04:53,906 - INFO - URL 처리 시작: ID=12409, URL=https://youngeuncomputer.modoo.at/
+2025-03-26 11:04:54,268 - INFO - 사이트 방문: https://youngeuncomputer.modoo.at/
+2025-03-26 11:05:00,762 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/main_부산컴퓨터도매상가 조립컴퓨터_12409.png
+2025-03-26 11:05:00,762 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/main_부산컴퓨터도매상가 조립컴퓨터_12409.png
+2025-03-26 11:05:00,771 - INFO - 메뉴 항목 19개 발견 (list_sitemenu)
+2025-03-26 11:05:00,854 - INFO - 총 9개의 링크 추출 완료
+2025-03-26 11:05:00,854 - INFO - 총 9개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:05:00,854 - INFO - 서브페이지 처리 중 (1/9): 홈 - https://youngeuncomputer.modoo.at/?link=bs5dc3fp
+2025-03-26 11:05:04,801 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_홈_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:04,801 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:05:05,806 - INFO - 서브페이지 처리 중 (2/9): 회사소개 - https://youngeuncomputer.modoo.at/?link=bjk9bunj
+2025-03-26 11:05:09,067 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_회사소개_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:09,067 - INFO - 서브페이지 캡처 성공: 회사소개
+2025-03-26 11:05:10,067 - INFO - 서브페이지 처리 중 (3/9): 제작 과정 - https://youngeuncomputer.modoo.at/?link=eivs12rl
+2025-03-26 11:05:14,343 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_제작 과정_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:14,343 - INFO - 서브페이지 캡처 성공: 제작 과정
+2025-03-26 11:05:15,343 - INFO - 서브페이지 처리 중 (4/9): 제작 영상 - https://youngeuncomputer.modoo.at/?link=e18lk82o
+2025-03-26 11:05:18,846 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_제작 영상_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:18,846 - INFO - 서브페이지 캡처 성공: 제작 영상
+2025-03-26 11:05:19,851 - INFO - 서브페이지 처리 중 (5/9): PC 구매 문의 - https://youngeuncomputer.modoo.at/?link=89b7ijlq
+2025-03-26 11:05:20,605 - WARNING - 페이지 접속 실패: https://youngeuncomputer.modoo.at/?link=89b7ijlq, 상태 코드: 502
+2025-03-26 11:05:20,605 - WARNING - 서브페이지 캡처 실패: PC 구매 문의 - https://youngeuncomputer.modoo.at/?link=89b7ijlq
+2025-03-26 11:05:21,611 - INFO - 서브페이지 처리 중 (6/9): A/S 문의 - https://youngeuncomputer.modoo.at/?link=4y1tf0gt
+2025-03-26 11:05:24,626 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_A_S 문의_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:24,626 - INFO - 서브페이지 캡처 성공: A/S 문의
+2025-03-26 11:05:25,631 - INFO - 서브페이지 처리 중 (7/9): 블로그 - https://youngeuncomputer.modoo.at/?link=aq12pb3s
+2025-03-26 11:05:28,832 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_블로그_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:28,832 - INFO - 서브페이지 캡처 성공: 블로그
+2025-03-26 11:05:29,832 - INFO - 서브페이지 처리 중 (8/9): 오시는길 - https://youngeuncomputer.modoo.at/?link=rr3fj8qd
+2025-03-26 11:05:32,800 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_오시는길_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:32,800 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:05:33,801 - INFO - 서브페이지 처리 중 (9/9): 공지사항 - https://youngeuncomputer.modoo.at/?link=de743cv2
+2025-03-26 11:05:36,685 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_부산컴퓨터도매상가 조립컴퓨터/depth1_부산컴퓨터도매상가 조립컴퓨터_공지사항_youngeuncomputer.modoo.at.png
+2025-03-26 11:05:36,685 - INFO - 서브페이지 캡처 성공: 공지사항
+2025-03-26 11:05:37,690 - INFO - 서브페이지 캡처 완료. 성공: 8개, 실패: 1개
+2025-03-26 11:05:37,727 - INFO - URL ID 12409의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 9, 실패한 페이지: 1
+2025-03-26 11:05:37,727 - INFO - URL 처리 완료: 3번째 URL
+2025-03-26 11:05:37,727 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:05:43,009 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:05:43,009 - INFO - URL 처리 시작: ID=23984, URL=https://heorum.modoo.at/
+2025-03-26 11:05:43,374 - INFO - 사이트 방문: https://heorum.modoo.at/
+2025-03-26 11:05:49,949 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/main_해오름한의원_23984.png
+2025-03-26 11:05:49,949 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/main_해오름한의원_23984.png
+2025-03-26 11:05:49,959 - INFO - 메뉴 항목 11개 발견 (list_sitemenu)
+2025-03-26 11:05:50,025 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 11:05:50,025 - INFO - 총 7개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:05:50,025 - INFO - 서브페이지 처리 중 (1/7): 홈 - https://heorum.modoo.at/?link=dtstx3ur
+2025-03-26 11:05:53,907 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth1_해오름한의원_홈_heorum.modoo.at.png
+2025-03-26 11:05:53,907 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:05:54,910 - INFO - 서브페이지 처리 중 (2/7): 원장소개 - https://heorum.modoo.at/?link=6w9esm5i
+2025-03-26 11:05:57,730 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth1_해오름한의원_원장소개_heorum.modoo.at.png
+2025-03-26 11:05:57,731 - INFO - 서브페이지 캡처 성공: 원장소개
+2025-03-26 11:05:58,736 - INFO - 서브페이지 처리 중 (3/7): 진료안내 - https://heorum.modoo.at/?link=b69gkmee
+2025-03-26 11:06:01,664 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth1_해오름한의원_진료안내_heorum.modoo.at.png
+2025-03-26 11:06:01,664 - INFO - 서브페이지 캡처 성공: 진료안내
+2025-03-26 11:06:02,664 - INFO - 서브페이지 처리 중 (4/7): 진료안내 - https://heorum.modoo.at/?link=b69gkmee
+2025-03-26 11:06:05,481 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth2_해오름한의원_진료안내_heorum.modoo.at.png
+2025-03-26 11:06:05,481 - INFO - 서브페이지 캡처 성공: 진료안내
+2025-03-26 11:06:06,481 - INFO - 서브페이지 처리 중 (5/7): 진료안내 - https://heorum.modoo.at/?link=3ik6348c
+2025-03-26 11:06:09,526 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth2_해오름한의원_진료안내_heorum.modoo.at.png
+2025-03-26 11:06:09,526 - INFO - 서브페이지 캡처 성공: 진료안내
+2025-03-26 11:06:10,532 - INFO - 서브페이지 처리 중 (6/7): 내부시설 - https://heorum.modoo.at/?link=fn6dn6jy
+2025-03-26 11:06:13,958 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth1_해오름한의원_내부시설_heorum.modoo.at.png
+2025-03-26 11:06:13,958 - INFO - 서브페이지 캡처 성공: 내부시설
+2025-03-26 11:06:14,963 - INFO - 서브페이지 처리 중 (7/7): 오시는길 - https://heorum.modoo.at/?link=yz6zlg0o
+2025-03-26 11:06:17,919 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_해오름한의원/depth1_해오름한의원_오시는길_heorum.modoo.at.png
+2025-03-26 11:06:17,919 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:06:18,924 - INFO - 서브페이지 캡처 완료. 성공: 7개, 실패: 0개
+2025-03-26 11:06:18,963 - INFO - URL ID 23984의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 8, 실패한 페이지: 0
+2025-03-26 11:06:18,963 - INFO - URL 처리 완료: 4번째 URL
+2025-03-26 11:06:18,963 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:06:24,226 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:06:24,227 - INFO - URL 처리 시작: ID=2660, URL=https://spacemakers.modoo.at/
+2025-03-26 11:06:24,584 - INFO - 사이트 방문: https://spacemakers.modoo.at/
+2025-03-26 11:06:32,033 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./main_design d.o.t._2660.png
+2025-03-26 11:06:32,033 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./main_design d.o.t._2660.png
+2025-03-26 11:06:32,043 - INFO - 메뉴 항목 25개 발견 (list_sitemenu)
+2025-03-26 11:06:32,383 - INFO - 총 50개의 링크 추출 완료
+2025-03-26 11:06:32,383 - INFO - 총 50개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:06:32,383 - INFO - 서브페이지 처리 중 (1/50): 홈 - https://spacemakers.modoo.at/?link=ag18otk9
+2025-03-26 11:06:37,150 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._홈_spacemakers.modoo.at.png
+2025-03-26 11:06:37,150 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:06:38,150 - INFO - 서브페이지 처리 중 (2/50): Home Remodeling - https://spacemakers.modoo.at/?link=an1ckked
+2025-03-26 11:06:42,064 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Home Remodeling_spacemakers.modoo.at.png
+2025-03-26 11:06:42,064 - INFO - 서브페이지 캡처 성공: Home Remodeling
+2025-03-26 11:06:43,064 - INFO - 서브페이지 처리 중 (3/50): Home Remodeling - https://spacemakers.modoo.at/?link=an1ckked
+2025-03-26 11:06:46,066 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Home Remodeling_spacemakers.modoo.at.png
+2025-03-26 11:06:46,066 - INFO - 서브페이지 캡처 성공: Home Remodeling
+2025-03-26 11:06:47,069 - INFO - 서브페이지 처리 중 (4/50): 압구정 현대아파트 52PY - https://spacemakers.modoo.at/?link=fvq3hh7h
+2025-03-26 11:06:50,824 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._압구정 현대아파트 52PY_spacemakers.modoo.at.png
+2025-03-26 11:06:50,824 - INFO - 서브페이지 캡처 성공: 압구정 현대아파트 52PY
+2025-03-26 11:06:51,827 - INFO - 서브페이지 처리 중 (5/50): 삼성동 씨티빌라 60PY - https://spacemakers.modoo.at/?link=b6pjb42c
+2025-03-26 11:06:55,587 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._삼성동 씨티빌라 60PY_spacemakers.modoo.at.png
+2025-03-26 11:06:55,587 - INFO - 서브페이지 캡처 성공: 삼성동 씨티빌라 60PY
+2025-03-26 11:06:56,587 - INFO - 서브페이지 처리 중 (6/50): 대치동 포스코아파트 65PY - https://spacemakers.modoo.at/?link=d1zauvf7
+2025-03-26 11:07:00,497 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._대치동 포스코아파트 65PY_spacemakers.modoo.at.png
+2025-03-26 11:07:00,497 - INFO - 서브페이지 캡처 성공: 대치동 포스코아파트 65PY
+2025-03-26 11:07:01,502 - INFO - 서브페이지 처리 중 (7/50): 대림 아크로빌 23PY - https://spacemakers.modoo.at/?link=w1bt6fuj
+2025-03-26 11:07:05,233 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._대림 아크로빌 23PY_spacemakers.modoo.at.png
+2025-03-26 11:07:05,233 - INFO - 서브페이지 캡처 성공: 대림 아크로빌 23PY
+2025-03-26 11:07:06,238 - INFO - 서브페이지 처리 중 (8/50): 압구정 현대아파트 65평 - https://spacemakers.modoo.at/?link=20k5nj06
+2025-03-26 11:07:09,837 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._압구정 현대아파트 65평_spacemakers.modoo.at.png
+2025-03-26 11:07:09,837 - INFO - 서브페이지 캡처 성공: 압구정 현대아파트 65평
+2025-03-26 11:07:10,837 - INFO - 서브페이지 처리 중 (9/50): 압구정동 Kitchen - https://spacemakers.modoo.at/?link=e18j4i6w
+2025-03-26 11:07:14,417 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._압구정동 Kitchen_spacemakers.modoo.at.png
+2025-03-26 11:07:14,417 - INFO - 서브페이지 캡처 성공: 압구정동 Kitchen
+2025-03-26 11:07:15,423 - INFO - 서브페이지 처리 중 (10/50): 상계동 주공 32PY - https://spacemakers.modoo.at/?link=5ihgt29i
+2025-03-26 11:07:19,222 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._상계동 주공 32PY_spacemakers.modoo.at.png
+2025-03-26 11:07:19,223 - INFO - 서브페이지 캡처 성공: 상계동 주공 32PY
+2025-03-26 11:07:20,223 - INFO - 서브페이지 처리 중 (11/50): 수원영통 참누리레이크 34평 - https://spacemakers.modoo.at/?link=24lojwj2
+2025-03-26 11:07:25,400 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._수원영통 참누리레이크 34평_spacemakers.modoo.at.png
+2025-03-26 11:07:25,400 - INFO - 서브페이지 캡처 성공: 수원영통 참누리레이크 34평
+2025-03-26 11:07:26,405 - INFO - 서브페이지 처리 중 (12/50): 판교 호반써밋 49평 - https://spacemakers.modoo.at/?link=acnzp13f
+2025-03-26 11:07:30,600 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._판교 호반써밋 49평_spacemakers.modoo.at.png
+2025-03-26 11:07:30,600 - INFO - 서브페이지 캡처 성공: 판교 호반써밋 49평
+2025-03-26 11:07:31,607 - INFO - 서브페이지 처리 중 (13/50): 남양주 부영아파트 - https://spacemakers.modoo.at/?link=7ro09qvi
+2025-03-26 11:07:36,658 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._남양주 부영아파트_spacemakers.modoo.at.png
+2025-03-26 11:07:36,658 - INFO - 서브페이지 캡처 성공: 남양주 부영아파트
+2025-03-26 11:07:37,662 - INFO - 서브페이지 처리 중 (14/50): Home Remodeling - https://spacemakers.modoo.at/?link=8tcmpo69
+2025-03-26 11:07:40,851 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Home Remodeling_spacemakers.modoo.at.png
+2025-03-26 11:07:40,851 - INFO - 서브페이지 캡처 성공: Home Remodeling
+2025-03-26 11:07:41,856 - INFO - 서브페이지 처리 중 (15/50): Model House - https://spacemakers.modoo.at/?link=ebunqb2v
+2025-03-26 11:07:45,386 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Model House_spacemakers.modoo.at.png
+2025-03-26 11:07:45,386 - INFO - 서브페이지 캡처 성공: Model House
+2025-03-26 11:07:46,386 - INFO - 서브페이지 처리 중 (16/50): Model House - https://spacemakers.modoo.at/?link=ebunqb2v
+2025-03-26 11:07:49,466 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Model House_spacemakers.modoo.at.png
+2025-03-26 11:07:49,466 - INFO - 서브페이지 캡처 성공: Model House
+2025-03-26 11:07:50,471 - INFO - 서브페이지 처리 중 (17/50): 수원 IPARK - https://spacemakers.modoo.at/?link=11ml6kgb
+2025-03-26 11:07:54,174 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._수원 IPARK_spacemakers.modoo.at.png
+2025-03-26 11:07:54,174 - INFO - 서브페이지 캡처 성공: 수원 IPARK
+2025-03-26 11:07:55,175 - INFO - 서브페이지 처리 중 (18/50): 수원 I-PARK units - https://spacemakers.modoo.at/?link=dmo2pfhk
+2025-03-26 11:08:00,175 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._수원 I-PARK units_spacemakers.modoo.at.png
+2025-03-26 11:08:00,175 - INFO - 서브페이지 캡처 성공: 수원 I-PARK units
+2025-03-26 11:08:01,181 - INFO - 서브페이지 처리 중 (19/50): I-PARK Gallery - https://spacemakers.modoo.at/?link=eqx3u5m7
+2025-03-26 11:08:31,190 - WARNING - 페이지 로딩 시간 초과: https://spacemakers.modoo.at/?link=eqx3u5m7
+2025-03-26 11:08:31,192 - WARNING - 서브페이지 캡처 실패: I-PARK Gallery - https://spacemakers.modoo.at/?link=eqx3u5m7
+2025-03-26 11:08:32,192 - INFO - 서브페이지 처리 중 (20/50): Convertible H - https://spacemakers.modoo.at/?link=31g5v8qm
+2025-03-26 11:08:45,741 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Convertible H_spacemakers.modoo.at.png
+2025-03-26 11:08:45,741 - INFO - 서브페이지 캡처 성공: Convertible H
+2025-03-26 11:08:46,742 - INFO - 서브페이지 처리 중 (21/50): Office - https://spacemakers.modoo.at/?link=e4d9pyil
+2025-03-26 11:08:50,280 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Office_spacemakers.modoo.at.png
+2025-03-26 11:08:50,281 - INFO - 서브페이지 캡처 성공: Office
+2025-03-26 11:08:51,286 - INFO - 서브페이지 처리 중 (22/50): 문화체육관광부 - https://spacemakers.modoo.at/?link=e4d9pyil
+2025-03-26 11:08:54,462 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._문화체육관광부_spacemakers.modoo.at.png
+2025-03-26 11:08:54,462 - INFO - 서브페이지 캡처 성공: 문화체육관광부
+2025-03-26 11:08:55,467 - INFO - 서브페이지 처리 중 (23/50): Office - https://spacemakers.modoo.at/?link=a1gtwte3
+2025-03-26 11:08:59,057 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Office_spacemakers.modoo.at.png
+2025-03-26 11:08:59,057 - INFO - 서브페이지 캡처 성공: Office
+2025-03-26 11:09:00,062 - INFO - 서브페이지 처리 중 (24/50): 데이터진흥원 - https://spacemakers.modoo.at/?link=7pcv5y1s
+2025-03-26 11:09:03,239 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._데이터진흥원_spacemakers.modoo.at.png
+2025-03-26 11:09:03,239 - INFO - 서브페이지 캡처 성공: 데이터진흥원
+2025-03-26 11:09:04,245 - INFO - 서브페이지 처리 중 (25/50): CONCENTRIX 본관 - https://spacemakers.modoo.at/?link=3s5s1vhm
+2025-03-26 11:09:07,803 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._CONCENTRIX 본관_spacemakers.modoo.at.png
+2025-03-26 11:09:07,803 - INFO - 서브페이지 캡처 성공: CONCENTRIX 본관
+2025-03-26 11:09:08,803 - INFO - 서브페이지 처리 중 (26/50): CONCENTRIX 별관 - https://spacemakers.modoo.at/?link=7m9bqhgv
+2025-03-26 11:09:12,171 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._CONCENTRIX 별관_spacemakers.modoo.at.png
+2025-03-26 11:09:12,171 - INFO - 서브페이지 캡처 성공: CONCENTRIX 별관
+2025-03-26 11:09:13,176 - INFO - 서브페이지 처리 중 (27/50): Commerce - https://spacemakers.modoo.at/?link=6m3a6sg0
+2025-03-26 11:09:16,244 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Commerce_spacemakers.modoo.at.png
+2025-03-26 11:09:16,245 - INFO - 서브페이지 캡처 성공: Commerce
+2025-03-26 11:09:17,245 - INFO - 서브페이지 처리 중 (28/50): Commerce - https://spacemakers.modoo.at/?link=6m3a6sg0
+2025-03-26 11:09:20,231 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Commerce_spacemakers.modoo.at.png
+2025-03-26 11:09:20,231 - INFO - 서브페이지 캡처 성공: Commerce
+2025-03-26 11:09:21,236 - INFO - 서브페이지 처리 중 (29/50): 최선어학원 - https://spacemakers.modoo.at/?link=25yxhiio
+2025-03-26 11:09:24,834 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._최선어학원_spacemakers.modoo.at.png
+2025-03-26 11:09:24,834 - INFO - 서브페이지 캡처 성공: 최선어학원
+2025-03-26 11:09:25,839 - INFO - 서브페이지 처리 중 (30/50): 스텔라케잌 압구정 - https://spacemakers.modoo.at/?link=cq3fqohg
+2025-03-26 11:09:29,427 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._스텔라케잌 압구정_spacemakers.modoo.at.png
+2025-03-26 11:09:29,427 - INFO - 서브페이지 캡처 성공: 스텔라케잌 압구정
+2025-03-26 11:09:30,428 - INFO - 서브페이지 처리 중 (31/50): 스텔라케잌 용인 - https://spacemakers.modoo.at/?link=buwh8bl9
+2025-03-26 11:09:33,771 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._스텔라케잌 용인_spacemakers.modoo.at.png
+2025-03-26 11:09:33,772 - INFO - 서브페이지 캡처 성공: 스텔라케잌 용인
+2025-03-26 11:09:34,772 - INFO - 서브페이지 처리 중 (32/50): 삼봉가 종로 - https://spacemakers.modoo.at/?link=3i6sauw6
+2025-03-26 11:09:38,154 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._삼봉가 종로_spacemakers.modoo.at.png
+2025-03-26 11:09:38,154 - INFO - 서브페이지 캡처 성공: 삼봉가 종로
+2025-03-26 11:09:39,159 - INFO - 서브페이지 처리 중 (33/50): inside box 판교 - https://spacemakers.modoo.at/?link=ea0wl4ay
+2025-03-26 11:09:42,349 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._inside box 판교_spacemakers.modoo.at.png
+2025-03-26 11:09:42,350 - INFO - 서브페이지 캡처 성공: inside box 판교
+2025-03-26 11:09:43,355 - INFO - 서브페이지 처리 중 (34/50): Urban - https://spacemakers.modoo.at/?link=31bepd0l
+2025-03-26 11:09:46,839 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Urban_spacemakers.modoo.at.png
+2025-03-26 11:09:46,839 - INFO - 서브페이지 캡처 성공: Urban
+2025-03-26 11:09:47,844 - INFO - 서브페이지 처리 중 (35/50): Product - https://spacemakers.modoo.at/?link=54akmsjg
+2025-03-26 11:09:50,998 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Product_spacemakers.modoo.at.png
+2025-03-26 11:09:50,999 - INFO - 서브페이지 캡처 성공: Product
+2025-03-26 11:09:52,004 - INFO - 서브페이지 처리 중 (36/50): Brand - https://spacemakers.modoo.at/?link=b5d0nk4i
+2025-03-26 11:09:55,394 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Brand_spacemakers.modoo.at.png
+2025-03-26 11:09:55,395 - INFO - 서브페이지 캡처 성공: Brand
+2025-03-26 11:09:56,400 - INFO - 서브페이지 처리 중 (37/50): Brand - https://spacemakers.modoo.at/?link=b5d0nk4i
+2025-03-26 11:09:59,426 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Brand_spacemakers.modoo.at.png
+2025-03-26 11:09:59,426 - INFO - 서브페이지 캡처 성공: Brand
+2025-03-26 11:10:00,431 - INFO - 서브페이지 처리 중 (38/50): MIZONTECH - https://spacemakers.modoo.at/?link=cedrkchx
+2025-03-26 11:10:03,704 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._MIZONTECH_spacemakers.modoo.at.png
+2025-03-26 11:10:03,704 - INFO - 서브페이지 캡처 성공: MIZONTECH
+2025-03-26 11:10:04,704 - INFO - 서브페이지 처리 중 (39/50): 충남발효세계화사업단 - https://spacemakers.modoo.at/?link=75929r0n
+2025-03-26 11:10:07,856 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._충남발효세계화사업단_spacemakers.modoo.at.png
+2025-03-26 11:10:07,856 - INFO - 서브페이지 캡처 성공: 충남발효세계화사업단
+2025-03-26 11:10:08,862 - INFO - 서브페이지 처리 중 (40/50): Ecoz bio - https://spacemakers.modoo.at/?link=3asj0sd7
+2025-03-26 11:10:11,930 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Ecoz bio_spacemakers.modoo.at.png
+2025-03-26 11:10:11,930 - INFO - 서브페이지 캡처 성공: Ecoz bio
+2025-03-26 11:10:12,936 - INFO - 서브페이지 처리 중 (41/50): Art - https://spacemakers.modoo.at/?link=6al2501t
+2025-03-26 11:10:16,370 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Art_spacemakers.modoo.at.png
+2025-03-26 11:10:16,370 - INFO - 서브페이지 캡처 성공: Art
+2025-03-26 11:10:17,370 - INFO - 서브페이지 처리 중 (42/50): Art - https://spacemakers.modoo.at/?link=6al2501t
+2025-03-26 11:10:20,249 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._Art_spacemakers.modoo.at.png
+2025-03-26 11:10:20,249 - INFO - 서브페이지 캡처 성공: Art
+2025-03-26 11:10:21,254 - INFO - 서브페이지 처리 중 (43/50): 다시세운프로젝트 2017 - https://spacemakers.modoo.at/?link=bjtpfr3g
+2025-03-26 11:10:25,211 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._다시세운프로젝트 2017_spacemakers.modoo.at.png
+2025-03-26 11:10:25,211 - INFO - 서브페이지 캡처 성공: 다시세운프로젝트 2017
+2025-03-26 11:10:26,211 - INFO - 서브페이지 처리 중 (44/50): 다시세운프로젝트 2018 - https://spacemakers.modoo.at/?link=55rj2lmq
+2025-03-26 11:10:31,128 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._다시세운프로젝트 2018_spacemakers.modoo.at.png
+2025-03-26 11:10:31,128 - INFO - 서브페이지 캡처 성공: 다시세운프로젝트 2018
+2025-03-26 11:10:32,134 - INFO - 서브페이지 처리 중 (45/50): 마켓발견 - https://spacemakers.modoo.at/?link=xy7d2b68
+2025-03-26 11:10:36,102 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._마켓발견_spacemakers.modoo.at.png
+2025-03-26 11:10:36,102 - INFO - 서브페이지 캡처 성공: 마켓발견
+2025-03-26 11:10:37,107 - INFO - 서브페이지 처리 중 (46/50): 아모레퍼시픽 - https://spacemakers.modoo.at/?link=e47b09c1
+2025-03-26 11:10:40,188 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._아모레퍼시픽_spacemakers.modoo.at.png
+2025-03-26 11:10:40,188 - INFO - 서브페이지 캡처 성공: 아모레퍼시픽
+2025-03-26 11:10:41,191 - INFO - 서브페이지 처리 중 (47/50): 아디다스 - https://spacemakers.modoo.at/?link=6yamvr9o
+2025-03-26 11:10:45,356 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth2_design d.o.t._아디다스_spacemakers.modoo.at.png
+2025-03-26 11:10:45,356 - INFO - 서브페이지 캡처 성공: 아디다스
+2025-03-26 11:10:46,357 - INFO - 서브페이지 처리 중 (48/50): Award - https://spacemakers.modoo.at/?link=1dgsg6wl
+2025-03-26 11:10:49,639 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Award_spacemakers.modoo.at.png
+2025-03-26 11:10:49,639 - INFO - 서브페이지 캡처 성공: Award
+2025-03-26 11:10:50,641 - INFO - 서브페이지 처리 중 (49/50): Profile - https://spacemakers.modoo.at/?link=8oerqlw6
+2025-03-26 11:10:53,515 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._Profile_spacemakers.modoo.at.png
+2025-03-26 11:10:53,515 - INFO - 서브페이지 캡처 성공: Profile
+2025-03-26 11:10:54,515 - INFO - 서브페이지 처리 중 (50/50): 오시는길 - https://spacemakers.modoo.at/?link=00228m9u
+2025-03-26 11:10:57,487 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_design d.o.t./depth1_design d.o.t._오시는길_spacemakers.modoo.at.png
+2025-03-26 11:10:57,487 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:10:58,492 - INFO - 서브페이지 캡처 완료. 성공: 49개, 실패: 1개
+2025-03-26 11:10:58,537 - INFO - URL ID 2660의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 50, 실패한 페이지: 1
+2025-03-26 11:10:58,537 - INFO - URL 처리 완료: 5번째 URL
+2025-03-26 11:10:58,537 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:11:03,825 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:11:03,825 - INFO - URL 처리 시작: ID=16613, URL=https://sigolyeohengsj.modoo.at/
+2025-03-26 11:11:04,201 - INFO - 사이트 방문: https://sigolyeohengsj.modoo.at/
+2025-03-26 11:11:09,132 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_시골여행 울산칼국수맛집/main_시골여행 울산칼국수맛집_16613.png
+2025-03-26 11:11:09,132 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_시골여행 울산칼국수맛집/main_시골여행 울산칼국수맛집_16613.png
+2025-03-26 11:11:09,141 - INFO - 메뉴 항목 3개 발견 (list_sitemenu)
+2025-03-26 11:11:09,159 - INFO - 총 1개의 링크 추출 완료
+2025-03-26 11:11:09,159 - INFO - 총 1개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:11:09,159 - INFO - 서브페이지 처리 중 (1/1): 시골여행 병영점 - https://sigolyeohengsj.modoo.at/?link=19akq5vp
+2025-03-26 11:11:12,152 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_시골여행 울산칼국수맛집/depth1_시골여행 울산칼국수맛집_시골여행 병영점_sigolyeohengsj.modoo.at.png
+2025-03-26 11:11:12,152 - INFO - 서브페이지 캡처 성공: 시골여행 병영점
+2025-03-26 11:11:13,153 - INFO - 서브페이지 캡처 완료. 성공: 1개, 실패: 0개
+2025-03-26 11:11:13,181 - INFO - URL ID 16613의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 2, 실패한 페이지: 0
+2025-03-26 11:11:13,181 - INFO - URL 처리 완료: 6번째 URL
+2025-03-26 11:11:13,181 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:11:18,459 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:11:18,460 - INFO - URL 처리 시작: ID=30116, URL=https://yesing30.modoo.at/
+2025-03-26 11:11:18,838 - INFO - 사이트 방문: https://yesing30.modoo.at/
+2025-03-26 11:11:27,367 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/main_如如나무연구소_30116.png
+2025-03-26 11:11:27,367 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/main_如如나무연구소_30116.png
+2025-03-26 11:11:27,381 - INFO - 메뉴 항목 47개 발견 (list_sitemenu)
+2025-03-26 11:11:27,606 - INFO - 총 23개의 링크 추출 완료
+2025-03-26 11:11:27,607 - INFO - 총 23개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:11:27,607 - INFO - 서브페이지 처리 중 (1/23): 부산지사 - https://yesing30.modoo.at/?link=as06r2pq
+2025-03-26 11:11:33,055 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_부산지사_yesing30.modoo.at.png
+2025-03-26 11:11:33,056 - INFO - 서브페이지 캡처 성공: 부산지사
+2025-03-26 11:11:34,057 - INFO - 서브페이지 처리 중 (2/23): 여여나무연구소 명상 - https://yesing30.modoo.at/?link=9ugsell4
+2025-03-26 11:11:37,622 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_여여나무연구소 명상_yesing30.modoo.at.png
+2025-03-26 11:11:37,622 - INFO - 서브페이지 캡처 성공: 여여나무연구소 명상
+2025-03-26 11:11:38,622 - INFO - 서브페이지 처리 중 (3/23): 오시는 길 - https://yesing30.modoo.at/?link=bpp8jh7w
+2025-03-26 11:11:41,568 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_오시는 길_yesing30.modoo.at.png
+2025-03-26 11:11:41,568 - INFO - 서브페이지 캡처 성공: 오시는 길
+2025-03-26 11:11:42,573 - INFO - 서브페이지 처리 중 (4/23): 수강과목 및 담당강사 - https://yesing30.modoo.at/?link=9zr19mwv
+2025-03-26 11:11:45,576 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_수강과목 및 담당강사_yesing30.modoo.at.png
+2025-03-26 11:11:45,576 - INFO - 서브페이지 캡처 성공: 수강과목 및 담당강사
+2025-03-26 11:11:46,581 - INFO - 서브페이지 처리 중 (5/23): 기계교구구매 - https://yesing30.modoo.at/?link=5a4c09et
+2025-03-26 11:11:49,570 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_기계교구구매_yesing30.modoo.at.png
+2025-03-26 11:11:49,571 - INFO - 서브페이지 캡처 성공: 기계교구구매
+2025-03-26 11:11:50,571 - INFO - 서브페이지 처리 중 (6/23): 상담합니다 - https://yesing30.modoo.at/?link=4iq7ycio
+2025-03-26 11:11:53,781 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_상담합니다_yesing30.modoo.at.png
+2025-03-26 11:11:53,782 - INFO - 서브페이지 캡처 성공: 상담합니다
+2025-03-26 11:11:54,787 - INFO - 서브페이지 처리 중 (7/23): 마케팅과정 - https://yesing30.modoo.at/?link=b4wbmgy0
+2025-03-26 11:11:57,834 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_마케팅과정_yesing30.modoo.at.png
+2025-03-26 11:11:57,834 - INFO - 서브페이지 캡처 성공: 마케팅과정
+2025-03-26 11:11:58,835 - INFO - 서브페이지 처리 중 (8/23): 컴퓨터 관련수업 - https://yesing30.modoo.at/?link=6e7gi6js
+2025-03-26 11:12:01,810 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_컴퓨터 관련수업_yesing30.modoo.at.png
+2025-03-26 11:12:01,811 - INFO - 서브페이지 캡처 성공: 컴퓨터 관련수업
+2025-03-26 11:12:02,811 - INFO - 서브페이지 처리 중 (9/23): 컴퓨터 수업 활동 - https://yesing30.modoo.at/?link=35884tun
+2025-03-26 11:12:05,712 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_컴퓨터 수업 활동_yesing30.modoo.at.png
+2025-03-26 11:12:05,713 - INFO - 서브페이지 캡처 성공: 컴퓨터 수업 활동
+2025-03-26 11:12:06,713 - INFO - 서브페이지 처리 중 (10/23): 뉴로하모니피드백 수업과정 - https://yesing30.modoo.at/?link=b34mjh60
+2025-03-26 11:12:09,861 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_뉴로하모니피드백 수업과정_yesing30.modoo.at.png
+2025-03-26 11:12:09,861 - INFO - 서브페이지 캡처 성공: 뉴로하모니피드백 수업과정
+2025-03-26 11:12:10,867 - INFO - 서브페이지 처리 중 (11/23): 뉴로하모니피드백 자격증과정 - https://yesing30.modoo.at/?link=6l9vzrb6
+2025-03-26 11:12:13,884 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_뉴로하모니피드백 자격증과정_yesing30.modoo.at.png
+2025-03-26 11:12:13,885 - INFO - 서브페이지 캡처 성공: 뉴로하모니피드백 자격증과정
+2025-03-26 11:12:14,890 - INFO - 서브페이지 처리 중 (12/23): 부산케엔젤 자격증과정 - https://yesing30.modoo.at/?link=4k3a2gpd
+2025-03-26 11:12:17,908 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_부산케엔젤 자격증과정_yesing30.modoo.at.png
+2025-03-26 11:12:17,908 - INFO - 서브페이지 캡처 성공: 부산케엔젤 자격증과정
+2025-03-26 11:12:18,908 - INFO - 서브페이지 처리 중 (13/23): 방문수업 - https://yesing30.modoo.at/?link=2wkombfp
+2025-03-26 11:12:22,055 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_방문수업_yesing30.modoo.at.png
+2025-03-26 11:12:22,055 - INFO - 서브페이지 캡처 성공: 방문수업
+2025-03-26 11:12:23,055 - INFO - 서브페이지 처리 중 (14/23): 감각스터디 - https://yesing30.modoo.at/?link=due9zt1y
+2025-03-26 11:12:28,312 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_감각스터디_yesing30.modoo.at.png
+2025-03-26 11:12:28,312 - INFO - 서브페이지 캡처 성공: 감각스터디
+2025-03-26 11:12:29,312 - INFO - 서브페이지 처리 중 (15/23): 글쓰기 수업 - https://yesing30.modoo.at/?link=2kjaaed4
+2025-03-26 11:12:32,207 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_글쓰기 수업_yesing30.modoo.at.png
+2025-03-26 11:12:32,208 - INFO - 서브페이지 캡처 성공: 글쓰기 수업
+2025-03-26 11:12:33,208 - INFO - 서브페이지 처리 중 (16/23): 페이지1 - https://yesing30.modoo.at/?link=cde7pnol
+2025-03-26 11:12:36,089 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_페이지1_yesing30.modoo.at.png
+2025-03-26 11:12:36,089 - INFO - 서브페이지 캡처 성공: 페이지1
+2025-03-26 11:12:37,094 - INFO - 서브페이지 처리 중 (17/23): 놀이 인문학 서평 - https://yesing30.modoo.at/?link=bb3igrkj
+2025-03-26 11:12:40,042 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_놀이 인문학 서평_yesing30.modoo.at.png
+2025-03-26 11:12:40,042 - INFO - 서브페이지 캡처 성공: 놀이 인문학 서평
+2025-03-26 11:12:41,042 - INFO - 서브페이지 처리 중 (18/23): 서점/ 책 출판/홍보 - https://yesing30.modoo.at/?link=5h8j1df1
+2025-03-26 11:12:43,977 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_서점_ 책 출판_홍보_yesing30.modoo.at.png
+2025-03-26 11:12:43,977 - INFO - 서브페이지 캡처 성공: 서점/ 책 출판/홍보
+2025-03-26 11:12:44,982 - INFO - 서브페이지 처리 중 (19/23): 부산여대캠프지기활동 - https://yesing30.modoo.at/?link=a9of9esr
+2025-03-26 11:12:48,513 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_부산여대캠프지기활동_yesing30.modoo.at.png
+2025-03-26 11:12:48,513 - INFO - 서브페이지 캡처 성공: 부산여대캠프지기활동
+2025-03-26 11:12:49,514 - INFO - 서브페이지 처리 중 (20/23): 페이지 - https://yesing30.modoo.at/?link=elbjipol
+2025-03-26 11:12:53,269 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_페이지_yesing30.modoo.at.png
+2025-03-26 11:12:53,271 - INFO - 서브페이지 캡처 성공: 페이지
+2025-03-26 11:12:54,276 - INFO - 서브페이지 처리 중 (21/23): 여여나무연구소 복지센터 - https://yesing30.modoo.at/?link=54a9hlux
+2025-03-26 11:12:57,157 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_여여나무연구소 복지센터_yesing30.modoo.at.png
+2025-03-26 11:12:57,158 - INFO - 서브페이지 캡처 성공: 여여나무연구소 복지센터
+2025-03-26 11:12:58,163 - INFO - 서브페이지 처리 중 (22/23): 줌화상수업과정및활동 - https://yesing30.modoo.at/?link=5zpjgbwv
+2025-03-26 11:13:01,157 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_줌화상수업과정및활동_yesing30.modoo.at.png
+2025-03-26 11:13:01,158 - INFO - 서브페이지 캡처 성공: 줌화상수업과정및활동
+2025-03-26 11:13:02,163 - INFO - 서브페이지 처리 중 (23/23): 페이지2 - https://yesing30.modoo.at/?link=65fyiswo
+2025-03-26 11:13:05,036 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_如如나무연구소/depth1_如如나무연구소_페이지2_yesing30.modoo.at.png
+2025-03-26 11:13:05,036 - INFO - 서브페이지 캡처 성공: 페이지2
+2025-03-26 11:13:06,036 - INFO - 서브페이지 캡처 완료. 성공: 23개, 실패: 0개
+2025-03-26 11:13:06,083 - INFO - URL ID 30116의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 24, 실패한 페이지: 0
+2025-03-26 11:13:06,083 - INFO - URL 처리 완료: 7번째 URL
+2025-03-26 11:13:06,083 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:13:11,448 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:13:11,448 - INFO - URL 처리 시작: ID=30293, URL=https://jesus112.modoo.at/
+2025-03-26 11:13:11,857 - INFO - 사이트 방문: https://jesus112.modoo.at/
+2025-03-26 11:13:17,388 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/main_이단 상담사 전문 교육원_30293.png
+2025-03-26 11:13:17,388 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/main_이단 상담사 전문 교육원_30293.png
+2025-03-26 11:13:17,399 - INFO - 메뉴 항목 23개 발견 (list_sitemenu)
+2025-03-26 11:13:17,641 - INFO - 총 34개의 링크 추출 완료
+2025-03-26 11:13:17,641 - INFO - 총 34개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:13:17,641 - INFO - 서브페이지 처리 중 (1/34): 홈 - https://jesus112.modoo.at/?link=a8j6ob7l
+2025-03-26 11:13:20,955 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_홈_jesus112.modoo.at.png
+2025-03-26 11:13:20,955 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:13:21,955 - INFO - 서브페이지 처리 중 (2/34): 교육원장 인사말 - https://jesus112.modoo.at/?link=1izgt5l1
+2025-03-26 11:13:24,850 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_교육원장 인사말_jesus112.modoo.at.png
+2025-03-26 11:13:24,851 - INFO - 서브페이지 캡처 성공: 교육원장 인사말
+2025-03-26 11:13:25,856 - INFO - 서브페이지 처리 중 (3/34): 입학안내 - https://jesus112.modoo.at/?link=4sdlw527
+2025-03-26 11:13:28,716 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_입학안내_jesus112.modoo.at.png
+2025-03-26 11:13:28,716 - INFO - 서브페이지 캡처 성공: 입학안내
+2025-03-26 11:13:29,721 - INFO - 서브페이지 처리 중 (4/34): 지원 소개 - https://jesus112.modoo.at/?link=c1vlw0e9
+2025-03-26 11:13:33,005 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_지원 소개_jesus112.modoo.at.png
+2025-03-26 11:13:33,006 - INFO - 서브페이지 캡처 성공: 지원 소개
+2025-03-26 11:13:34,006 - INFO - 서브페이지 처리 중 (5/34): 수도권(봉담 상록교회) - https://jesus112.modoo.at/?link=c1vlw0e9
+2025-03-26 11:13:37,095 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_수도권(봉담 상록교회)_jesus112.modoo.at.png
+2025-03-26 11:13:37,095 - INFO - 서브페이지 캡처 성공: 수도권(봉담 상록교회)
+2025-03-26 11:13:38,096 - INFO - 서브페이지 처리 중 (6/34): 중부권(대전신학교) - https://jesus112.modoo.at/?link=55c01jtt
+2025-03-26 11:13:42,103 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_중부권(대전신학교)_jesus112.modoo.at.png
+2025-03-26 11:13:42,104 - INFO - 서브페이지 캡처 성공: 중부권(대전신학교)
+2025-03-26 11:13:43,109 - INFO - 서브페이지 처리 중 (7/34): 중부권(목원대학교) - https://jesus112.modoo.at/?link=89larznk
+2025-03-26 11:13:46,255 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_중부권(목원대학교)_jesus112.modoo.at.png
+2025-03-26 11:13:46,255 - INFO - 서브페이지 캡처 성공: 중부권(목원대학교)
+2025-03-26 11:13:47,255 - INFO - 서브페이지 처리 중 (8/34): 호남권(광주 주원교회) - https://jesus112.modoo.at/?link=40o2c1xl
+2025-03-26 11:13:50,439 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_호남권(광주 주원교회)_jesus112.modoo.at.png
+2025-03-26 11:13:50,439 - INFO - 서브페이지 캡처 성공: 호남권(광주 주원교회)
+2025-03-26 11:13:51,440 - INFO - 서브페이지 처리 중 (9/34): 강사소개 - https://jesus112.modoo.at/?link=b06hwg69
+2025-03-26 11:13:54,302 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_강사소개_jesus112.modoo.at.png
+2025-03-26 11:13:54,302 - INFO - 서브페이지 캡처 성공: 강사소개
+2025-03-26 11:13:55,302 - INFO - 서브페이지 처리 중 (10/34): 진용식 교육원장 - https://jesus112.modoo.at/?link=b06hwg69
+2025-03-26 11:13:58,220 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_진용식 교육원장_jesus112.modoo.at.png
+2025-03-26 11:13:58,221 - INFO - 서브페이지 캡처 성공: 진용식 교육원장
+2025-03-26 11:13:59,221 - INFO - 서브페이지 처리 중 (11/34): 김종한 교수 - https://jesus112.modoo.at/?link=4p57slc1
+2025-03-26 11:14:02,167 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_김종한 교수_jesus112.modoo.at.png
+2025-03-26 11:14:02,167 - INFO - 서브페이지 캡처 성공: 김종한 교수
+2025-03-26 11:14:03,172 - INFO - 서브페이지 처리 중 (12/34): 서영국 교수 - https://jesus112.modoo.at/?link=a3aenj9x
+2025-03-26 11:14:06,081 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_서영국 교수_jesus112.modoo.at.png
+2025-03-26 11:14:06,081 - INFO - 서브페이지 캡처 성공: 서영국 교수
+2025-03-26 11:14:07,082 - INFO - 서브페이지 처리 중 (13/34): 고광종 교수 - https://jesus112.modoo.at/?link=arrqdvdd
+2025-03-26 11:14:09,916 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_고광종 교수_jesus112.modoo.at.png
+2025-03-26 11:14:09,916 - INFO - 서브페이지 캡처 성공: 고광종 교수
+2025-03-26 11:14:10,921 - INFO - 서브페이지 처리 중 (14/34): 정운기 교수 - https://jesus112.modoo.at/?link=2eur7nh6
+2025-03-26 11:14:13,881 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_정운기 교수_jesus112.modoo.at.png
+2025-03-26 11:14:13,881 - INFO - 서브페이지 캡처 성공: 정운기 교수
+2025-03-26 11:14:14,886 - INFO - 서브페이지 처리 중 (15/34): 백현 교수 - https://jesus112.modoo.at/?link=4ypvd2a1
+2025-03-26 11:14:17,752 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_백현 교수_jesus112.modoo.at.png
+2025-03-26 11:14:17,752 - INFO - 서브페이지 캡처 성공: 백현 교수
+2025-03-26 11:14:18,758 - INFO - 서브페이지 처리 중 (16/34): 김경천 교수 - https://jesus112.modoo.at/?link=etb38mso
+2025-03-26 11:14:21,613 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_김경천 교수_jesus112.modoo.at.png
+2025-03-26 11:14:21,613 - INFO - 서브페이지 캡처 성공: 김경천 교수
+2025-03-26 11:14:22,618 - INFO - 서브페이지 처리 중 (17/34): 진정한 교수 - https://jesus112.modoo.at/?link=7g189cf2
+2025-03-26 11:14:25,469 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_진정한 교수_jesus112.modoo.at.png
+2025-03-26 11:14:25,469 - INFO - 서브페이지 캡처 성공: 진정한 교수
+2025-03-26 11:14:26,474 - INFO - 서브페이지 처리 중 (18/34): 김충일 교수 - https://jesus112.modoo.at/?link=6k08df5m
+2025-03-26 11:14:29,303 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_김충일 교수_jesus112.modoo.at.png
+2025-03-26 11:14:29,304 - INFO - 서브페이지 캡처 성공: 김충일 교수
+2025-03-26 11:14:30,309 - INFO - 서브페이지 처리 중 (19/34): 주은혜 교수 - https://jesus112.modoo.at/?link=9jcg8d9x
+2025-03-26 11:14:33,147 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_주은혜 교수_jesus112.modoo.at.png
+2025-03-26 11:14:33,148 - INFO - 서브페이지 캡처 성공: 주은혜 교수
+2025-03-26 11:14:34,148 - INFO - 서브페이지 처리 중 (20/34): 김상희 교수 - https://jesus112.modoo.at/?link=9n95h19j
+2025-03-26 11:14:36,998 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_김상희 교수_jesus112.modoo.at.png
+2025-03-26 11:14:36,998 - INFO - 서브페이지 캡처 성공: 김상희 교수
+2025-03-26 11:14:38,003 - INFO - 서브페이지 처리 중 (21/34): 교육과정 및 과목소개 - https://jesus112.modoo.at/?link=9wcs519q
+2025-03-26 11:14:40,907 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_교육과정 및 과목소개_jesus112.modoo.at.png
+2025-03-26 11:14:40,907 - INFO - 서브페이지 캡처 성공: 교육과정 및 과목소개
+2025-03-26 11:14:41,908 - INFO - 서브페이지 처리 중 (22/34): 교육과정 - https://jesus112.modoo.at/?link=9wcs519q
+2025-03-26 11:14:44,761 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_교육과정_jesus112.modoo.at.png
+2025-03-26 11:14:44,761 - INFO - 서브페이지 캡처 성공: 교육과정
+2025-03-26 11:14:45,762 - INFO - 서브페이지 처리 중 (23/34): 교과목 소개 - https://jesus112.modoo.at/?link=c21jayg2
+2025-03-26 11:14:48,737 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_교과목 소개_jesus112.modoo.at.png
+2025-03-26 11:14:48,737 - INFO - 서브페이지 캡처 성공: 교과목 소개
+2025-03-26 11:14:49,742 - INFO - 서브페이지 처리 중 (24/34): 언론 속 상담소와 교육원 - https://jesus112.modoo.at/?link=8oebexog
+2025-03-26 11:14:53,798 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_언론 속 상담소와 교육원_jesus112.modoo.at.png
+2025-03-26 11:14:53,798 - INFO - 서브페이지 캡처 성공: 언론 속 상담소와 교육원
+2025-03-26 11:14:54,803 - INFO - 서브페이지 처리 중 (25/34): TV방송 - https://jesus112.modoo.at/?link=8oebexog
+2025-03-26 11:14:58,439 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_TV방송_jesus112.modoo.at.png
+2025-03-26 11:14:58,439 - INFO - 서브페이지 캡처 성공: TV방송
+2025-03-26 11:14:59,444 - INFO - 서브페이지 처리 중 (26/34): 이단옆차기 시즌1 - https://jesus112.modoo.at/?link=btwlmrbd
+2025-03-26 11:15:03,831 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_이단옆차기 시즌1_jesus112.modoo.at.png
+2025-03-26 11:15:03,831 - INFO - 서브페이지 캡처 성공: 이단옆차기 시즌1
+2025-03-26 11:15:04,836 - INFO - 서브페이지 처리 중 (27/34): 이단옆차기 시즌2 - https://jesus112.modoo.at/?link=3niftzvn
+2025-03-26 11:15:10,202 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_이단옆차기 시즌2_jesus112.modoo.at.png
+2025-03-26 11:15:10,202 - INFO - 서브페이지 캡처 성공: 이단옆차기 시즌2
+2025-03-26 11:15:11,208 - INFO - 서브페이지 처리 중 (28/34): 탈퇴자 간증 및 인터뷰 - https://jesus112.modoo.at/?link=9jzdv0ma
+2025-03-26 11:15:16,163 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_탈퇴자 간증 및 인터뷰_jesus112.modoo.at.png
+2025-03-26 11:15:16,163 - INFO - 서브페이지 캡처 성공: 탈퇴자 간증 및 인터뷰
+2025-03-26 11:15:17,169 - INFO - 서브페이지 처리 중 (29/34): 뉴스 - https://jesus112.modoo.at/?link=cu12xddp
+2025-03-26 11:15:28,471 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_뉴스_jesus112.modoo.at.png
+2025-03-26 11:15:28,471 - INFO - 서브페이지 캡처 성공: 뉴스
+2025-03-26 11:15:29,471 - INFO - 서브페이지 처리 중 (30/34): 기사 - https://jesus112.modoo.at/?link=6l5pzjij
+2025-03-26 11:15:32,337 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth2_이단 상담사 전문 교육원_기사_jesus112.modoo.at.png
+2025-03-26 11:15:32,337 - INFO - 서브페이지 캡처 성공: 기사
+2025-03-26 11:15:33,342 - INFO - 서브페이지 처리 중 (31/34): 학사일정 - https://jesus112.modoo.at/?link=1wil6w7m
+2025-03-26 11:15:36,386 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_학사일정_jesus112.modoo.at.png
+2025-03-26 11:15:36,386 - INFO - 서브페이지 캡처 성공: 학사일정
+2025-03-26 11:15:37,387 - INFO - 서브페이지 처리 중 (32/34): 문의하기 - https://jesus112.modoo.at/?link=wh8568xi
+2025-03-26 11:15:40,401 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_문의하기_jesus112.modoo.at.png
+2025-03-26 11:15:40,401 - INFO - 서브페이지 캡처 성공: 문의하기
+2025-03-26 11:15:41,406 - INFO - 서브페이지 처리 중 (33/34): 게시판 - https://jesus112.modoo.at/?link=ln7oyt6e
+2025-03-26 11:15:44,414 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_게시판_jesus112.modoo.at.png
+2025-03-26 11:15:44,414 - INFO - 서브페이지 캡처 성공: 게시판
+2025-03-26 11:15:45,414 - INFO - 서브페이지 처리 중 (34/34): 오시는길 - https://jesus112.modoo.at/?link=97jkkgb5
+2025-03-26 11:15:48,541 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_이단 상담사 전문 교육원/depth1_이단 상담사 전문 교육원_오시는길_jesus112.modoo.at.png
+2025-03-26 11:15:48,541 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:15:49,541 - INFO - 서브페이지 캡처 완료. 성공: 34개, 실패: 0개
+2025-03-26 11:15:49,586 - INFO - URL ID 30293의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 35, 실패한 페이지: 0
+2025-03-26 11:15:49,586 - INFO - URL 처리 완료: 8번째 URL
+2025-03-26 11:15:49,586 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:15:54,879 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:15:54,879 - INFO - URL 처리 시작: ID=20381, URL=https://ymcasangwon.modoo.at/
+2025-03-26 11:15:55,250 - INFO - 사이트 방문: https://ymcasangwon.modoo.at/
+2025-03-26 11:16:01,360 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/main_YMCA고양테니스장_20381.png
+2025-03-26 11:16:01,360 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/main_YMCA고양테니스장_20381.png
+2025-03-26 11:16:01,368 - INFO - 메뉴 항목 13개 발견 (list_sitemenu)
+2025-03-26 11:16:01,438 - INFO - 총 8개의 링크 추출 완료
+2025-03-26 11:16:01,438 - INFO - 총 8개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:16:01,438 - INFO - 서브페이지 처리 중 (1/8): YMCA고양테니스장 - https://ymcasangwon.modoo.at/?link=dnp69d1t
+2025-03-26 11:16:04,957 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_YMCA고양테니스장_ymcasangwon.modoo.at.png
+2025-03-26 11:16:04,957 - INFO - 서브페이지 캡처 성공: YMCA고양테니스장
+2025-03-26 11:16:05,958 - INFO - 서브페이지 처리 중 (2/8): 시설안내 - https://ymcasangwon.modoo.at/?link=mc4sdyoe
+2025-03-26 11:16:08,814 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_시설안내_ymcasangwon.modoo.at.png
+2025-03-26 11:16:08,814 - INFO - 서브페이지 캡처 성공: 시설안내
+2025-03-26 11:16:09,814 - INFO - 서브페이지 처리 중 (3/8): SNS - https://ymcasangwon.modoo.at/?link=loc3ar94
+2025-03-26 11:16:12,982 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_SNS_ymcasangwon.modoo.at.png
+2025-03-26 11:16:12,982 - INFO - 서브페이지 캡처 성공: SNS
+2025-03-26 11:16:13,985 - INFO - 서브페이지 처리 중 (4/8): 게시판 - https://ymcasangwon.modoo.at/?link=mh9v1ot6
+2025-03-26 11:16:16,987 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_게시판_ymcasangwon.modoo.at.png
+2025-03-26 11:16:16,987 - INFO - 서브페이지 캡처 성공: 게시판
+2025-03-26 11:16:17,987 - INFO - 서브페이지 처리 중 (5/8): 오시는길 - https://ymcasangwon.modoo.at/?link=hyc8wk6z
+2025-03-26 11:16:20,914 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_오시는길_ymcasangwon.modoo.at.png
+2025-03-26 11:16:20,915 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:16:21,915 - INFO - 서브페이지 처리 중 (6/8): 이모저모 - https://ymcasangwon.modoo.at/?link=bxlkz3w0
+2025-03-26 11:16:25,491 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth1_YMCA고양테니스장_이모저모_ymcasangwon.modoo.at.png
+2025-03-26 11:16:25,491 - INFO - 서브페이지 캡처 성공: 이모저모
+2025-03-26 11:16:26,491 - INFO - 서브페이지 처리 중 (7/8): 이모저모 - https://ymcasangwon.modoo.at/?link=bxlkz3w0
+2025-03-26 11:16:29,697 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth2_YMCA고양테니스장_이모저모_ymcasangwon.modoo.at.png
+2025-03-26 11:16:29,697 - INFO - 서브페이지 캡처 성공: 이모저모
+2025-03-26 11:16:30,702 - INFO - 서브페이지 처리 중 (8/8): 이모저모 - https://ymcasangwon.modoo.at/?link=dkaxofgy
+2025-03-26 11:16:33,523 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_YMCA고양테니스장/depth2_YMCA고양테니스장_이모저모_ymcasangwon.modoo.at.png
+2025-03-26 11:16:33,523 - INFO - 서브페이지 캡처 성공: 이모저모
+2025-03-26 11:16:34,528 - INFO - 서브페이지 캡처 완료. 성공: 8개, 실패: 0개
+2025-03-26 11:16:34,564 - INFO - URL ID 20381의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 9, 실패한 페이지: 0
+2025-03-26 11:16:34,564 - INFO - URL 처리 완료: 9번째 URL
+2025-03-26 11:16:34,564 - INFO - 5초 대기 후 다음 URL 처리 예정...
+2025-03-26 11:16:39,859 - INFO - 1개의 URL을 랜덤하게 가져왔습니다.
+2025-03-26 11:16:39,859 - INFO - URL 처리 시작: ID=16857, URL=https://jjduruchigi.modoo.at/
+2025-03-26 11:16:40,218 - INFO - 사이트 방문: https://jjduruchigi.modoo.at/
+2025-03-26 11:16:46,494 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/main_두루치기먹고가게 성산읍맛집_16857.png
+2025-03-26 11:16:46,494 - INFO - 메인 페이지 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/main_두루치기먹고가게 성산읍맛집_16857.png
+2025-03-26 11:16:46,507 - INFO - 메뉴 항목 15개 발견 (list_sitemenu)
+2025-03-26 11:16:46,573 - INFO - 총 7개의 링크 추출 완료
+2025-03-26 11:16:46,573 - INFO - 총 7개의 서브페이지 스크린샷 캡처 시작
+2025-03-26 11:16:46,573 - INFO - 서브페이지 처리 중 (1/7): 홈 - https://jjduruchigi.modoo.at/?link=cdwx94gh
+2025-03-26 11:16:50,653 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_홈_jjduruchigi.modoo.at.png
+2025-03-26 11:16:50,653 - INFO - 서브페이지 캡처 성공: 홈
+2025-03-26 11:16:51,655 - INFO - 서브페이지 처리 중 (2/7): 소개 - https://jjduruchigi.modoo.at/?link=d3za431m
+2025-03-26 11:16:54,988 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_소개_jjduruchigi.modoo.at.png
+2025-03-26 11:16:54,988 - INFO - 서브페이지 캡처 성공: 소개
+2025-03-26 11:16:55,988 - INFO - 서브페이지 처리 중 (3/7): 매장안내 - https://jjduruchigi.modoo.at/?link=h74225mo
+2025-03-26 11:16:59,579 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_매장안내_jjduruchigi.modoo.at.png
+2025-03-26 11:16:59,579 - INFO - 서브페이지 캡처 성공: 매장안내
+2025-03-26 11:17:00,589 - INFO - 서브페이지 처리 중 (4/7): 메뉴 - https://jjduruchigi.modoo.at/?link=sy93zqcw
+2025-03-26 11:17:03,629 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_메뉴_jjduruchigi.modoo.at.png
+2025-03-26 11:17:03,629 - INFO - 서브페이지 캡처 성공: 메뉴
+2025-03-26 11:17:04,630 - INFO - 서브페이지 처리 중 (5/7): 방문후기 - https://jjduruchigi.modoo.at/?link=9ex6sope
+2025-03-26 11:17:07,693 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_방문후기_jjduruchigi.modoo.at.png
+2025-03-26 11:17:07,693 - INFO - 서브페이지 캡처 성공: 방문후기
+2025-03-26 11:17:08,704 - INFO - 서브페이지 처리 중 (6/7): 오시는길 - https://jjduruchigi.modoo.at/?link=8le9giuu
+2025-03-26 11:17:11,620 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_오시는길_jjduruchigi.modoo.at.png
+2025-03-26 11:17:11,620 - INFO - 서브페이지 캡처 성공: 오시는길
+2025-03-26 11:17:12,630 - INFO - 서브페이지 처리 중 (7/7): 이벤트 - https://jjduruchigi.modoo.at/?link=6dewz920
+2025-03-26 11:17:15,820 - INFO - 스크린샷 캡처 완료: data/screenshots/20250326_두루치기먹고가게 성산읍맛집/depth1_두루치기먹고가게 성산읍맛집_이벤트_jjduruchigi.modoo.at.png
+2025-03-26 11:17:15,820 - INFO - 서브페이지 캡처 성공: 이벤트
+2025-03-26 11:17:16,830 - INFO - 서브페이지 캡처 완료. 성공: 7개, 실패: 0개
+2025-03-26 11:17:16,873 - INFO - URL ID 16857의 스크린샷 상태를 1로 업데이트했습니다. 처리된 페이지: 8, 실패한 페이지: 0
+2025-03-26 11:17:16,873 - INFO - URL 처리 완료: 10번째 URL
+2025-03-26 11:17:16,873 - INFO - 최대 크롤링 횟수 10회에 도달했습니다.
+2025-03-26 11:17:16,874 - INFO - 데이터베이스 연결 종료
+2025-03-26 11:17:16,874 - INFO - 총 10개의 URL을 처리했습니다.
