@@ -1,5 +1,5 @@
 """
-Main module to orchestrate the Naver search result scraping process.
+Main module to orchestrate the Naver search result scraping process using Naver Search API.
 """
 
 import time
@@ -9,7 +9,7 @@ import logging
 import concurrent.futures
 from typing import List, Dict, Optional, Tuple
 import src.config as config
-from src.scraper import (
+from src.naver_api import (
     initialize_browser,
     close_browser,
     get_search_page,
@@ -30,8 +30,8 @@ _force_run = False
 # 기존 키워드 건너뛰기 여부 플래그
 _skip_existing = True
 
-# 병렬 처리 수 설정
-_parallel_count = 6
+# 병렬 처리 수 설정 (API 호출의 경우 낮게 설정)
+_parallel_count = 3
 
 # 데이터베이스 파일명
 DB_FILENAME = config.DEFAULT_DB_FILENAME
@@ -48,7 +48,7 @@ def set_force_run(force=False):
     _force_run = force
     if _force_run:
         logger.info(
-            "강제 실행 모드가 활성화되었습니다. 작업 이력이 없어도 크롤링을 실행합니다."
+            "강제 실행 모드가 활성화되었습니다. 작업 이력이 없어도 수집을 실행합니다."
         )
 
 
@@ -63,16 +63,16 @@ def set_skip_existing(skip=True):
     _skip_existing = skip
     if not _skip_existing:
         logger.info(
-            "모든 키워드 재크롤링 모드가 활성화되었습니다. 이미 크롤링된 키워드도 다시 크롤링합니다."
+            "모든 키워드 재수집 모드가 활성화되었습니다. 이미 수집된 키워드도 다시 수집합니다."
         )
 
 
-def set_parallel_count(count=4):
+def set_parallel_count(count=3):
     """
     병렬 처리 수를 설정합니다.
 
     Args:
-        count: 동시에 처리할 검색어 수 (기본값: 4)
+        count: 동시에 처리할 검색어 수 (기본값: 3)
     """
     global _parallel_count
     _parallel_count = max(1, count)  # 최소 1 이상
@@ -197,101 +197,99 @@ def format_combo_for_display(keyword_combo):
     return " + ".join([f"{item[0]}:{item[1]}" for item in keyword_combo])
 
 
-def scrape_page(page, search_query: str, page_num: int):
+def scrape_page(api_client, search_query: str, page_num: int) -> Tuple[bool, int]:
     """
-    Scrape a single page of search results using an existing browser page.
+    API를 통해 검색 결과 한 페이지를 가져옵니다.
 
     Args:
-        page: Playwright page object
-        search_query: The search query to use
-        page_num: The page number to scrape
+        api_client: API 클라이언트 객체
+        search_query: 검색어
+        page_num: 페이지 번호
 
     Returns:
-        bool: Success status
+        Tuple[bool, int]: (성공 여부, 결과 개수)
     """
-    logger.info(f"Scraping page {page_num} for query '{search_query}'...")
+    logger.info(f"API로 페이지 {page_num} 검색 중 '{search_query}'...")
+    results_count = 0
+    success = False
 
     try:
-        # Navigate to the page
-        success = get_search_page(page, search_query, page_num)
+        # API로 페이지 요청 유효성 검사 및 설정
+        page_valid = get_search_page(api_client, search_query, page_num)
 
-        if success:
-            # Scrape data from the page
-            results = scrape_search_results(page)
+        if page_valid:
+            # API로 결과 가져오기
+            results = scrape_search_results(api_client)
+            results_count = len(results)
+            success = True  # API 호출 자체는 성공했을 수 있음 (결과가 0개여도)
 
-            # Save the data
-            save_page_data(search_query, page_num, results)
+            if results_count > 0:
+                # 데이터 저장
+                save_page_data(search_query, page_num, results)
+                logger.info(
+                    f"검색어 '{search_query}'의 페이지 {page_num} 수집 완료, {results_count}개 결과 발견 및 저장."
+                )
+            else:
+                # 결과가 0개인 경우
+                logger.info(
+                    f"검색어 '{search_query}'의 페이지 {page_num} 수집 완료, 결과 없음."
+                )
 
-            logger.info(
-                f"Completed scraping page {page_num} for query '{search_query}', found {len(results)} results."
-            )
-            return True
         else:
             logger.warning(
-                f"Failed to navigate to page {page_num} for query '{search_query}'"
+                f"검색어 '{search_query}'의 페이지 {page_num} 요청 유효성 검사 실패 또는 API 제한 도달"
             )
-            return False
+            # success는 False로 유지
 
     except Exception as e:
-        logger.error(
-            f"Error processing page {page_num} for query '{search_query}': {e}"
-        )
-        return False
+        logger.error(f"검색어 '{search_query}'의 페이지 {page_num} 처리 중 오류: {e}")
+        success = False  # 에러 발생 시 실패로 간주
+
+    return success, results_count
 
 
 def scrape_all_pages_for_query(search_query: str):
     """
-    Scrape all pages in the configured range for a specific query.
-    Uses a single browser instance for all pages of this query.
+    특정 검색어에 대해 설정된 범위의 모든 페이지를 검색합니다.
+    하나의 API 클라이언트 인스턴스를 사용합니다.
 
     Args:
-        search_query: The search query to use
+        search_query: 검색어
     """
-    logger.info(f"Starting to scrape Naver search results for '{search_query}'")
-    logger.info(f"Pages to scrape: {config.START_PAGE} to {config.END_PAGE}")
+    logger.info(f"'{search_query}' 검색 결과 수집 시작")
+    logger.info(f"수집할 페이지: {config.START_PAGE}~{config.END_PAGE}")
 
-    # 하나의 브라우저 인스턴스 초기화
-    playwright, browser, context, page = initialize_browser()
+    # API 클라이언트 초기화
+    api_client, _, _, _ = initialize_browser()
 
     try:
-        # 연속 실패 감지를 위한 변수
-        consecutive_failures = 0
-        max_consecutive_failures = 1  # 연속 1번 실패하면 중단
-
+        # ----- 수정된 부분 시작 -----
         for page_num in range(config.START_PAGE, config.END_PAGE + 1):
-            # 페이지 스크래핑
-            success = scrape_page(page, search_query, page_num)
+            # 페이지 검색 및 결과 개수 확인
+            success, results_count = scrape_page(api_client, search_query, page_num)
 
-            if success:
-                # 성공 시 연속 실패 카운트 초기화
-                consecutive_failures = 0
-
-                # 페이지 간 딜레이
-                if page_num < config.END_PAGE:
-                    logger.info(f"Waiting 2 seconds before next page...")
-                    time.sleep(2)
-            else:
-                # 실패 시 연속 실패 카운트 증가
-                consecutive_failures += 1
-                logger.warning(
-                    f"페이지 {page_num} 크롤링 실패. 연속 실패: {consecutive_failures}/{max_consecutive_failures}"
+            # API 호출 실패 또는 결과 없음 시 해당 키워드 처리 중단
+            if not success or results_count == 0:
+                log_level = logging.WARNING if not success else logging.INFO
+                logger.log(
+                    log_level,
+                    f"검색어 '{search_query}'의 페이지 {page_num}에서 결과가 없거나 오류 발생. 해당 키워드 처리 중단.",
                 )
+                break  # 현재 키워드의 페이지 반복 중단
 
-                # 연속 실패 횟수가 임계값을 초과하면 중단
-                if consecutive_failures >= max_consecutive_failures:
-                    logger.warning(
-                        f"검색어 '{search_query}'에 대한 결과가 더 이상 없는 것으로 판단됩니다. 다음 키워드로 넘어갑니다."
-                    )
-                    break
+            # API 호출 간 딜레이 (성공하고 결과가 있을 때만)
+            if page_num < config.END_PAGE:
+                time.sleep(config.NAVER_API_CALL_DELAY)
+        # ----- 수정된 부분 끝 -----
 
     except Exception as e:
-        logger.error(f"Error during scraping process for query '{search_query}': {e}")
+        logger.error(f"검색어 '{search_query}' 처리 중 오류: {e}")
 
     finally:
-        # 작업 완료 후 브라우저 종료
-        close_browser(playwright, browser, context)
+        # API 클라이언트 종료
+        close_browser(api_client, None, None)
 
-    logger.info(f"Scraping process completed for query '{search_query}'.")
+    logger.info(f"검색어 '{search_query}' 처리 완료.")
 
 
 def process_keyword_combo(i, keyword_combo, total_combos):
@@ -314,7 +312,7 @@ def process_keyword_combo(i, keyword_combo, total_combos):
 
     # 작업 이력 확인 - 이미 작업된 경우 건너뜀
     if check_keyword_work_history([search_query]) and not _force_run:
-        return f"[{i+1}/{total_combos}] 검색어 '{search_query}'({format_combo_for_display(keyword_combo)}) - 이미 크롤링됨, 건너뜀"
+        return f"[{i+1}/{total_combos}] 검색어 '{search_query}'({format_combo_for_display(keyword_combo)}) - 이미 수집됨, 건너뜀"
 
     # 시작 로그
     logger.info(f"{'='*50}")
@@ -324,7 +322,7 @@ def process_keyword_combo(i, keyword_combo, total_combos):
     logger.info(f"변환된 검색어: {search_query}")
     logger.info(f"{'='*50}")
 
-    # 해당 검색어로 모든 페이지 크롤링
+    # 해당 검색어로 모든 페이지 수집
     start_time = time.time()
     scrape_all_pages_for_query(search_query)
     elapsed_time = time.time() - start_time
@@ -334,7 +332,7 @@ def process_keyword_combo(i, keyword_combo, total_combos):
 
 def check_keyword_work_history(search_queries: List[str]) -> set:
     """
-    주어진 검색어 목록 중 데이터베이스에 이미 크롤링 이력이 있는 키워드를 확인합니다.
+    주어진 검색어 목록 중 데이터베이스에 이미 수집 이력이 있는 키워드를 확인합니다.
     SQLite 데이터베이스에서 IN 절을 사용하여 한 번에 조회합니다.
 
     Args:
@@ -364,7 +362,7 @@ def check_keyword_work_history(search_queries: List[str]) -> set:
 
     except Exception as e:
         logger.error(f"키워드 작업 이력 확인 중 오류: {e}")
-        # 오류 발생 시 안전하게 빈 집합 반환
+        # 오류 발생 시 안전하게 빈 집합 반환 (또는 다른 처리 방식 선택 가능)
         return set()
 
     finally:
@@ -375,7 +373,22 @@ def check_keyword_work_history(search_queries: List[str]) -> set:
 
 
 def main():
-    """Main entry point for the scraper."""
+    """메인 진입점입니다."""
+    # 환경 변수 확인
+    if not os.getenv("NAVER_CLIENT_ID") and not hasattr(config, "NAVER_API_CLIENT_ID"):
+        logger.error(
+            "NAVER_CLIENT_ID 환경 변수 또는 config.py의 NAVER_API_CLIENT_ID 설정이 필요합니다."
+        )
+        return
+
+    if not os.getenv("NAVER_CLIENT_SECRET") and not hasattr(
+        config, "NAVER_API_CLIENT_SECRET"
+    ):
+        logger.error(
+            "NAVER_CLIENT_SECRET 환경 변수 또는 config.py의 NAVER_API_CLIENT_SECRET 설정이 필요합니다."
+        )
+        return
+
     # 데이터베이스 초기화
     initialize_db(DB_FILENAME)
 
@@ -394,11 +407,11 @@ def main():
     # 이미 처리된 키워드 한 번에 확인
     existing_keywords = set()
     if _skip_existing and not _force_run:
-        logger.info("데이터베이스에서 기존 크롤링 이력 확인 중...")
+        logger.info("데이터베이스에서 기존 수집 이력 확인 중...")
         existing_keywords = check_keyword_work_history(all_search_queries)
-        logger.info(f"확인 완료. 기존 크롤링 이력 {len(existing_keywords)}건 발견.")
+        logger.info(f"확인 완료. 기존 수집 이력 {len(existing_keywords)}건 발견.")
 
-    # 크롤링할 키워드 목록 준비
+    # 수집할 키워드 목록 준비
     tasks = []
     skipped_count = 0
     for i, keyword_combo in enumerate(keyword_combinations):
@@ -409,7 +422,7 @@ def main():
         # 작업 이력 확인하여 건너뛸지 결정
         if not _force_run and search_query in existing_keywords:
             # logger.info(
-            #     f"[{i+1}/{total_combos}] 검색어 '{search_query}' - 이미 크롤링됨, 건너뜀"
+            #     f"[{i+1}/{total_combos}] 검색어 '{search_query}' - 이미 수집됨, 건너뜀"
             # ) # 로그가 너무 많아질 수 있으므로 주석 처리
             skipped_count += 1
             continue
@@ -419,28 +432,30 @@ def main():
 
     # 건너뛴 개수 로그 출력
     if skipped_count > 0:
-        logger.info(f"{skipped_count}개의 검색어는 이미 크롤링되어 건너뜀니다.")
+        logger.info(f"{skipped_count}개의 검색어는 이미 수집되어 건너뜀니다.")
 
-    # 실제 크롤링할 작업 수 출력
-    logger.info(f"실제 크롤링할 검색어: {len(tasks)}개")
+    # 실제 수집할 작업 수 출력
+    logger.info(f"실제 수집할 검색어: {len(tasks)}개")
 
     if not tasks:
-        logger.info("크롤링할 검색어가 없습니다. 종료합니다.")
+        logger.info("수집할 검색어가 없습니다. 종료합니다.")
         return
-
-    # 병렬 처리 실행
-    start_time = time.time()
 
     # 중간 요약 정보
     logger.info(f"총 {total_combos}개의 검색어 조합이 생성되었습니다.")
     logger.info(f"병렬 처리 수: {_parallel_count}")
-    logger.info(f"실제 크롤링할 검색어: {len(tasks)}개")
+    logger.info(f"실제 수집할 검색어: {len(tasks)}개")
+    logger.info(f"API 호출 제한: 하루 {config.NAVER_API_DAILY_LIMIT}회")
+    logger.info(f"한 번에 요청할 결과 수: {config.NAVER_API_DISPLAY_COUNT}개")
 
     # 사용자 입력 받기
     user_input = input("계속 진행하시겠습니까? (y/n): ")
     if user_input != "y":
         logger.info("프로그램을 종료합니다.")
         return
+
+    # 병렬 처리 시작
+    start_time = time.time()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=_parallel_count) as executor:
         # 작업 제출
@@ -459,7 +474,7 @@ def main():
 
     # 실행 시간 계산
     total_time = time.time() - start_time
-    logger.info(f"모든 검색어 조합에 대한 크롤링이 완료되었습니다.")
+    logger.info(f"모든 검색어 조합에 대한 수집이 완료되었습니다.")
     logger.info(f"총 소요 시간: {total_time:.1f}초 ({total_time/60:.1f}분)")
 
 
