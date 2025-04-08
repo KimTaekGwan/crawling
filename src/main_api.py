@@ -256,28 +256,39 @@ def scrape_all_pages_for_query(search_query: str):
     Args:
         search_query: 검색어
     """
+    START_PAGE = 1
+    END_PAGE = 10
     logger.info(f"'{search_query}' 검색 결과 수집 시작")
-    logger.info(f"수집할 페이지: {config.START_PAGE}~{config.END_PAGE}")
+    logger.info(f"수집할 페이지: {START_PAGE}~{END_PAGE}")
 
     # API 클라이언트 초기화
     api_client, _, _, _ = initialize_browser()
 
     try:
         # ----- 수정된 부분 시작 -----
-        for page_num in range(config.START_PAGE, config.END_PAGE + 1):
+        for page_num in range(START_PAGE, END_PAGE + 1):
             # 페이지 검색 및 결과 개수 확인
             success, results_count = scrape_page(api_client, search_query, page_num)
 
             # API 호출 실패 또는 결과 없음 시 해당 키워드 처리 중단
-            if not success or results_count == 0:
+            # 또는 결과 수가 기대한 수(display count)보다 적을 경우 중단
+            expected_count = config.NAVER_API_DISPLAY_COUNT
+            if not success or results_count < expected_count:
                 log_level = logging.WARNING if not success else logging.INFO
+                reason = (
+                    "오류 발생"
+                    if not success
+                    else f"결과 부족 ({results_count}/{expected_count})"
+                )
                 logger.log(
                     log_level,
-                    f"검색어 '{search_query}'의 페이지 {page_num}에서 결과가 없거나 오류 발생. 해당 키워드 처리 중단.",
+                    f"검색어 '{search_query}'의 페이지 {page_num}에서 {reason}. 해당 키워드 처리 중단.",
                 )
                 break  # 현재 키워드의 페이지 반복 중단
 
             # API 호출 간 딜레이 (성공하고 결과가 있을 때만)
+            # 위 조건문에서 이미 결과 수가 충분한 경우만 여기까지 오므로, END_PAGE 체크는 불필요할 수 있음
+            # 하지만 명확성을 위해 유지하거나, 필요시 제거 가능
             if page_num < config.END_PAGE:
                 time.sleep(config.NAVER_API_CALL_DELAY)
         # ----- 수정된 부분 끝 -----
