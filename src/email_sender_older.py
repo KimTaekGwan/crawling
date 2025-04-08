@@ -1,9 +1,8 @@
 """
-Module for automatically sending emails through Naver Mail using BCC batching.
+Module for automatically sending emails through Naver Mail.
 
 이 모듈은 네이버 메일을 통해 자동으로 이메일을 전송하는 기능을 제공합니다.
-데이터베이스에 저장된 URL 정보에서 이메일 주소를 추출하여
-설정된 배치 크기만큼 묶어 BCC(숨은 참조)로 이메일을 전송합니다.
+데이터베이스에 저장된 URL 정보에서 이메일 주소를 추출하여 이메일을 전송합니다.
 
 템플릿 파일 사용법:
 - HTML 템플릿: templates/email_template.html
@@ -11,10 +10,9 @@ Module for automatically sending emails through Naver Mail using BCC batching.
 
 이메일 설정은 config.py 파일 또는 .env 파일에서 관리됩니다.
 .env 파일 예시:
-```
+
 EMAIL_SENDER=your_email@naver.com
 EMAIL_PASSWORD=your_password_or_app_password
-EMAIL_BCC_BATCH_SIZE=50
 ```
 
 터미널에서 실행:
@@ -32,6 +30,7 @@ import os
 import time
 import logging
 import sqlite3
+import concurrent.futures
 import signal
 import sys
 import threading
@@ -53,6 +52,9 @@ logger = logging.getLogger(__name__)
 # 데이터베이스 파일명
 DB_FILENAME = config.DEFAULT_DB_FILENAME
 
+# 병렬 처리 수 설정
+_parallel_count = config.EMAIL_PARALLEL_COUNT
+
 # 전송된 메일 개수 카운터
 _sent_count = 0
 _error_count = 0
@@ -67,6 +69,18 @@ _counter_lock = threading.Lock()
 _terminate = False
 
 
+def set_parallel_count(count=4):
+    """
+    병렬 처리 수를 설정합니다.
+
+    Args:
+        count: 동시에 처리할 이메일 수 (기본값: 4)
+    """
+    global _parallel_count
+    _parallel_count = max(1, count)  # 최소 1 이상
+    logger.info(f"병렬 처리 수가 {_parallel_count}로 설정되었습니다.")
+
+
 def update_email_status(
     conn: sqlite3.Connection, url: str, status: int, commit: bool = True
 ) -> None:
@@ -79,7 +93,7 @@ def update_email_status(
         status: 새 상태 코드
         commit: 커밋 여부 (기본값: True)
     """
-    # conn이 None이면 새 연결 생성
+    # conn이 None이면 새 연결 생성 (스레드 안전성을 위해)
     thread_local_conn = conn is None
     if thread_local_conn:
         conn = get_db_connection(DB_FILENAME)
@@ -122,93 +136,20 @@ def update_email_status(
             conn.close()
 
 
-def update_batch_email_status(
-    conn: sqlite3.Connection, url_status_map: Dict[str, int], commit: bool = True
-) -> int:
+def send_email(
+    recipient_email: str, subject: str = None, custom_content: str = None
+) -> bool:
     """
-    여러 URL의 이메일 전송 상태를 한 번에 업데이트합니다.
+    네이버 메일을 통해 이메일을 전송합니다.
 
     Args:
-        conn: 데이터베이스 연결 객체
-        url_status_map: URL과 상태 코드의 매핑 딕셔너리
-        commit: 커밋 여부 (기본값: True)
-
-    Returns:
-        업데이트된 레코드 수
-    """
-    if not url_status_map:
-        return 0
-
-    # conn이 None이면 새 연결 생성
-    thread_local_conn = conn is None
-    if thread_local_conn:
-        conn = get_db_connection(DB_FILENAME)
-
-    updated_count = 0
-    try:
-        # websites 테이블에 email_status 및 email_date 컬럼이 없으면 추가 (한 번만 확인)
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(websites)")
-        columns = [row["name"] for row in cursor.fetchall()]
-
-        if "email_status" not in columns:
-            cursor.execute(
-                "ALTER TABLE websites ADD COLUMN email_status INTEGER DEFAULT 0"
-            )
-            logger.info("websites 테이블에 email_status 컬럼을 추가했습니다.")
-
-        if "email_date" not in columns:
-            cursor.execute("ALTER TABLE websites ADD COLUMN email_date TIMESTAMP")
-            logger.info("websites 테이블에 email_date 컬럼을 추가했습니다.")
-
-        # 각 URL의 상태 업데이트 (트랜잭션 하나로 처리)
-        for url, status in url_status_map.items():
-            cursor.execute(
-                """
-                UPDATE websites 
-                SET email_status = ?, email_date = CURRENT_TIMESTAMP
-                WHERE url = ?
-                """,
-                (status, url),
-            )
-            updated_count += cursor.rowcount
-
-        if commit:
-            conn.commit()
-            logger.info(
-                f"총 {updated_count}개 URL의 이메일 상태가 성공적으로 업데이트되었습니다."
-            )
-    except sqlite3.Error as e:
-        logger.error(f"데이터베이스 배치 업데이트 오류: {e}")
-        if commit:
-            conn.rollback()
-        updated_count = 0
-    finally:
-        # 이 함수 내에서 생성한 연결이면 여기서 닫음
-        if thread_local_conn and conn:
-            conn.close()
-
-    return updated_count
-
-
-def send_bcc_batch_email(
-    recipient_emails: List[str], subject: str = None, custom_content: str = None
-) -> Tuple[bool, List[str]]:
-    """
-    여러 수신자에게 숨은 참조(BCC)로 이메일을 한 번에 전송합니다.
-
-    Args:
-        recipient_emails: 수신자 이메일 주소 목록
+        recipient_email: 수신자 이메일 주소
         subject: 이메일 제목 (None인 경우 config에서 가져옴)
         custom_content: 사용자 정의 내용 (None인 경우 config에서 가져옴)
 
     Returns:
-        (성공 여부, 이메일 주소 목록) 튜플. 성공하면 전체 목록 반환, 실패하면 빈 목록 반환
+        성공 여부 (True/False)
     """
-    if not recipient_emails:
-        logger.warning("수신자 이메일 주소 목록이 비어 있습니다.")
-        return False, []
-
     try:
         # SMTP 서버 설정
         smtp_server = config.EMAIL_SMTP_SERVER
@@ -223,10 +164,7 @@ def send_bcc_batch_email(
         # 메시지 생성
         msg = MIMEMultipart("alternative")
         msg["From"] = sender_email
-        # To 필드는 발신자로 설정 (수신자는 BCC로 처리)
-        msg["To"] = sender_email
-        # BCC 필드 설정
-        msg["Bcc"] = ", ".join(recipient_emails)
+        msg["To"] = recipient_email
         msg["Subject"] = subject
 
         # 텍스트 버전 추가
@@ -235,7 +173,7 @@ def send_bcc_batch_email(
             logger.error(
                 "텍스트 이메일 내용이 비어 있습니다. 템플릿 파일을 확인해주세요."
             )
-            return False, []
+            return False
 
         text_part = MIMEText(text_part_content, "plain", "utf-8")
         msg.attach(text_part)
@@ -248,7 +186,7 @@ def send_bcc_batch_email(
             logger.error(
                 "HTML 이메일 내용이 비어 있습니다. 템플릿 파일을 확인해주세요."
             )
-            return False, []
+            return False
 
         html_part = MIMEText(html_part_content, "html", "utf-8")
         msg.attach(html_part)
@@ -257,19 +195,184 @@ def send_bcc_batch_email(
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()  # TLS 보안 처리
             server.login(sender_email, password)
-            # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
-            server.sendmail(
-                sender_email, [sender_email] + recipient_emails, msg.as_string()
-            )
+            server.sendmail(sender_email, recipient_email, msg.as_string())
 
-        logger.info(
-            f"{len(recipient_emails)}명의 수신자에게 BCC로 이메일을 성공적으로 전송했습니다."
-        )
-        return True, recipient_emails
+        logger.info(f"{recipient_email}에게 이메일을 성공적으로 전송했습니다.")
+        return True
 
     except Exception as e:
-        logger.error(f"BCC 이메일 전송 중 오류 발생: {e}")
-        return False, []
+        logger.error(f"{recipient_email}에게 이메일 전송 중 오류 발생: {e}")
+        return False
+
+
+def process_email_for_url(conn: sqlite3.Connection, url: str) -> int:
+    """
+    URL에 해당하는 웹사이트의 이메일로 메시지를 전송합니다.
+    이미 성공적으로 전송된 이메일(email_status=1)은 항상 건너뜁니다.
+
+    Args:
+        conn: 데이터베이스 연결 객체
+        url: 대상 URL
+
+    Returns:
+        상태 코드 (config.EMAIL_STATUS 참조)
+    """
+    global _sent_count, _error_count, _no_email_count, _already_sent_count, _terminate
+
+    # 종료 신호 확인
+    if _terminate:
+        # 취소 시 미전송 상태로 처리 (오류가 아닌 미전송으로 변경)
+        return config.EMAIL_STATUS["NOT_SENT"]
+
+    # conn이 None이면 새 연결 생성 (스레드 안전성을 위해)
+    thread_local_conn = conn is None
+    if thread_local_conn:
+        conn = get_db_connection(DB_FILENAME)
+
+    try:
+        # 각 스레드에서 row_factory 설정
+        conn.row_factory = sqlite3.Row
+
+        # URL에 대한 정보 조회
+        cursor = conn.cursor()
+        cursor.execute("SELECT email, email_status FROM websites WHERE url = ?", (url,))
+        row = cursor.fetchone()
+
+        if not row:
+            logger.warning(f"URL {url}에 대한 정보를 찾을 수 없습니다.")
+            return config.EMAIL_STATUS["ERROR"]
+
+        # Email 값 추출
+        email_address = row["email"] if "email" in row.keys() else ""
+
+        # email_status 값 추출 (컬럼이 존재하지 않거나 NULL인 경우 기본값 0 사용)
+        try:
+            # 딕셔너리 변환 후 get 메서드 사용
+            row_dict = dict(row)
+            current_status = row_dict.get("email_status", 0)
+            logger.debug(
+                f"URL: {url}, 현재 이메일 상태: {current_status} (SENT={config.EMAIL_STATUS['SENT']})"
+            )
+        except Exception as e:
+            logger.debug(f"email_status 열 접근 실패, 기본값 0 사용: {e}")
+            current_status = 0  # 기본값 NOT_SENT
+
+        # 이미 성공적으로 전송된 경우 (항상 건너뜀)
+        if current_status == config.EMAIL_STATUS["SENT"]:
+            with _counter_lock:
+                _already_sent_count += 1
+            logger.info(
+                f"URL {url}의 이메일은 이미 성공적으로 전송되었습니다. 건너뜁니다."
+            )
+            return config.EMAIL_STATUS["ALREADY_SENT"]
+
+        logger.debug(f"URL: {url}, Email: {email_address}, Status: {current_status}")
+
+        # 이메일 주소가 없는 경우
+        if not email_address:
+            with _counter_lock:
+                _no_email_count += 1
+            logger.warning(f"URL {url}에 이메일 주소가 없습니다.")
+            return config.EMAIL_STATUS["NO_EMAIL"]
+
+        # 이메일 전송
+        success = send_email(email_address)
+
+        if success:
+            with _counter_lock:
+                _sent_count += 1
+            logger.info(
+                f"URL {url}의 이메일 {email_address}로 메시지를 성공적으로 전송했습니다."
+            )
+            return config.EMAIL_STATUS["SENT"]
+        else:
+            with _counter_lock:
+                _error_count += 1
+            logger.error(
+                f"URL {url}의 이메일 {email_address}로 메시지 전송에 실패했습니다."
+            )
+            return config.EMAIL_STATUS["ERROR"]
+
+    except Exception as e:
+        with _counter_lock:
+            _error_count += 1
+        logger.error(f"URL {url} 처리 중 오류 발생: {e}")
+        return config.EMAIL_STATUS["ERROR"]
+    finally:
+        # 이 함수 내에서 생성한 연결이면 여기서 닫음
+        if thread_local_conn and conn:
+            conn.close()
+
+
+def process_email_thread(url: str) -> None:
+    """
+    스레드에서 실행될 URL 처리 함수입니다.
+
+    Args:
+        url: 처리할 URL
+    """
+    # 각 스레드에서 고유한 데이터베이스 연결 생성
+    thread_conn = get_db_connection(DB_FILENAME)
+    try:
+        status = process_email_for_url(thread_conn, url)
+        update_email_status(thread_conn, url, status)
+
+        # 처리 사이에 약간의 딜레이 추가
+        time.sleep(config.EMAIL_BETWEEN_DELAY)
+    finally:
+        # 연결 종료 확실히 처리
+        thread_conn.close()
+
+
+def process_url_batch(urls: List[str]) -> None:
+    """
+    URL 배치를 병렬로 처리합니다.
+
+    Args:
+        urls: 처리할 URL 목록
+    """
+    global _total_count, _terminate
+
+    try:
+        # 병렬 처리를 위한 스레드 풀 생성
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=_parallel_count
+        ) as executor:
+            # 각 URL에 대해 이메일 전송 함수 실행
+            # 메인 데이터베이스 연결을 공유하지 않고 각 스레드가 자체 연결 생성
+            future_to_url = {
+                executor.submit(process_email_thread, url): url for url in urls
+            }
+
+            # 완료된 작업 처리
+            for future in concurrent.futures.as_completed(future_to_url):
+                url = future_to_url[future]
+                try:
+                    future.result()  # 결과 대기 (예외 발생 시 처리)
+                except Exception as e:
+                    logger.error(f"URL {url} 처리 중 예외 발생: {e}")
+
+                # 진행 상황 업데이트
+                with _counter_lock:
+                    _total_count += 1
+                    completion = (_total_count / len(urls)) * 100
+
+                if _total_count % 10 == 0 or _total_count == len(urls):
+                    logger.info(
+                        f"진행 상황: {_total_count}/{len(urls)} URLs 처리됨 ({completion:.1f}%)"
+                    )
+                    logger.info(
+                        f"전송: {_sent_count}, 에러: {_error_count}, "
+                        f"이메일 없음: {_no_email_count}, 이미 전송됨: {_already_sent_count}"
+                    )
+
+                # 종료 플래그 확인
+                if _terminate:
+                    logger.info("종료 요청을 받았습니다. URL 처리를 중단합니다.")
+                    break
+
+    except Exception as e:
+        logger.error(f"URL 배치 처리 중 오류 발생: {e}")
 
 
 def signal_handler(sig, frame):
@@ -287,7 +390,6 @@ def display_email_summary(
     email_details: List[Dict],
     emails_with_no_address: List[str],
     already_sent_count: int,
-    bcc_batch_size: int,
 ) -> bool:
     """
     이메일 발송 요약 정보를 표시하고 사용자 확인을 요청합니다.
@@ -297,7 +399,6 @@ def display_email_summary(
         email_details: 이메일 상세 정보 목록
         emails_with_no_address: 이메일 주소가 없는 URL 목록
         already_sent_count: 이미 전송된 이메일 수
-        bcc_batch_size: BCC 배치 크기
 
     Returns:
         사용자가 발송을 확인했는지 여부 (True/False)
@@ -310,13 +411,6 @@ def display_email_summary(
     for detail in email_details:
         domain = detail["domain"]
         domain_counts[domain] = domain_counts.get(domain, 0) + 1
-
-    # 배치 수 계산
-    batch_count = (
-        (total_emails_to_send + bcc_batch_size - 1) // bcc_batch_size
-        if total_emails_to_send > 0
-        else 0
-    )
 
     # 발송 요약 정보 표시
     print("\n" + "=" * 60)
@@ -335,7 +429,6 @@ def display_email_summary(
     print(f"발송 대상 URL 수: {len(urls)}개")
     print(f"이메일 주소가 없는 URL 수: {len(emails_with_no_address)}개")
     print(f"실제 발송 예정 이메일 수: {total_emails_to_send}개")
-    print(f"BCC 배치 크기: {bcc_batch_size}개 (총 {batch_count}개 배치)")
 
     # 도메인별 통계
     print("\n📊 도메인별 발송 통계:")
@@ -374,21 +467,16 @@ def send_emails_for_websites(
     데이터베이스의 웹사이트 정보를 기반으로 이메일을 전송합니다.
     이미 성공적으로 전송된 이메일(email_status=1)은 처리 대상에서 제외됩니다.
 
-    이메일은 config.EMAIL_BCC_BATCH_SIZE 설정에 따라 여러 명의 수신자에게 BCC로 한 번에 전송됩니다.
-
     Args:
         db_filename: 데이터베이스 파일 경로 (None인 경우 기본값 사용)
         email_filter: 이메일 필터링 조건 (None인 경우 모든 URL 대상)
-        batch_size: URL 처리 배치 크기 (데이터베이스에서 조회 단위)
+        batch_size: 한 번에 처리할 URL 배치 크기
     """
     global _sent_count, _error_count, _no_email_count, _already_sent_count, _total_count, _terminate
 
     # 데이터베이스 파일명 설정
     if db_filename is None:
         db_filename = DB_FILENAME
-
-    # BCC 배치 크기 설정
-    bcc_batch_size = config.EMAIL_BCC_BATCH_SIZE
 
     # 시그널 핸들러 등록 (Ctrl+C 및 종료 신호 처리)
     signal.signal(signal.SIGINT, signal_handler)
@@ -552,96 +640,32 @@ def send_emails_for_websites(
 
         # 발송 요약 정보 표시 및 사용자 확인
         if not display_email_summary(
-            urls,
-            email_details,
-            emails_with_no_address,
-            already_sent_count,
-            bcc_batch_size,
+            urls, email_details, emails_with_no_address, already_sent_count
         ):
             logger.info("사용자가 이메일 발송을 취소했습니다. 프로그램을 종료합니다.")
             return
 
-        logger.info("사용자 확인 완료. BCC 배치 방식으로 이메일 발송을 시작합니다.")
+        logger.info("사용자 확인 완료. 이메일 발송을 시작합니다.")
 
-        # 이메일이 없는 URL 먼저 처리
-        if emails_with_no_address:
-            no_email_status_updates = {
-                url: config.EMAIL_STATUS["NO_EMAIL"] for url in emails_with_no_address
-            }
-            update_batch_email_status(conn, no_email_status_updates)
-            _no_email_count += len(emails_with_no_address)
-            logger.info(
-                f"{len(emails_with_no_address)}개의 이메일 없는 URL 상태를 업데이트했습니다."
-            )
-
-        # 이메일 주소가 있는 항목을 BCC 배치로 처리
-        total_batches = (
-            (len(email_details) + bcc_batch_size - 1) // bcc_batch_size
-            if email_details
-            else 0
-        )
+        # URL을 배치로 나누기
+        batches = [urls[i : i + batch_size] for i in range(0, len(urls), batch_size)]
         logger.info(
-            f"이메일 주소가 있는 {len(email_details)}개 항목을 {total_batches}개의 BCC 배치로 처리합니다."
+            f"{len(batches)}개의 배치로 나누어 처리합니다. (배치당 최대 {batch_size}개)"
         )
 
-        for batch_idx in range(0, len(email_details), bcc_batch_size):
+        # 각 배치 처리
+        for i, batch in enumerate(batches, 1):
             if _terminate:
                 logger.info("종료 요청으로 인해 남은 배치 처리를 중단합니다.")
                 break
 
-            # 현재 배치 가져오기
-            current_batch = email_details[batch_idx : batch_idx + bcc_batch_size]
-            batch_emails = [item["email"] for item in current_batch]
-            batch_urls = [item["url"] for item in current_batch]
+            logger.info(f"배치 {i}/{len(batches)} 처리 중 ({len(batch)}개 URL)")
+            process_url_batch(batch)
 
-            logger.info(
-                f"배치 {batch_idx // bcc_batch_size + 1}/{total_batches} 처리 중 ({len(current_batch)}개 이메일)..."
-            )
-
-            # BCC로 배치 이메일 전송
-            success, sent_emails = send_bcc_batch_email(batch_emails)
-
-            # 상태 업데이트
-            if success:
-                # 성공한 경우 모든 URL의 상태를 SENT로 업데이트
-                success_status_updates = {
-                    url: config.EMAIL_STATUS["SENT"] for url in batch_urls
-                }
-                update_batch_email_status(conn, success_status_updates)
-                _sent_count += len(current_batch)
-                logger.info(
-                    f"배치 {batch_idx // bcc_batch_size + 1} 전송 성공: {len(current_batch)}개 이메일"
-                )
-            else:
-                # 실패한 경우 모든 URL의 상태를 ERROR로 업데이트
-                error_status_updates = {
-                    url: config.EMAIL_STATUS["ERROR"] for url in batch_urls
-                }
-                update_batch_email_status(conn, error_status_updates)
-                _error_count += len(current_batch)
-                logger.error(
-                    f"배치 {batch_idx // bcc_batch_size + 1} 전송 실패: {len(current_batch)}개 이메일"
-                )
-
-            # 배치 간 잠시 대기 (너무 빠른 발송은 스팸으로 분류될 수 있음)
-            if batch_idx + bcc_batch_size < len(email_details) and not _terminate:
-                logger.info(
-                    f"다음 배치로 넘어가기 전에 {config.EMAIL_BETWEEN_DELAY}초 대기..."
-                )
-                time.sleep(config.EMAIL_BETWEEN_DELAY)
-
-            # 진행률 표시
-            _total_count = batch_idx + len(current_batch)
-            completion = (
-                (_total_count / len(email_details)) * 100 if email_details else 100
-            )
-            logger.info(
-                f"진행 상황: {_total_count}/{len(email_details)} 이메일 처리됨 ({completion:.1f}%)"
-            )
-            logger.info(
-                f"전송: {_sent_count}, 에러: {_error_count}, "
-                f"이메일 없음: {_no_email_count}, 이미 전송됨: {_already_sent_count}"
-            )
+            # 배치 간 잠시 대기
+            if i < len(batches) and not _terminate:
+                logger.info("다음 배치로 넘어가기 전에 5초 대기합니다...")
+                time.sleep(5)
 
         # 종료 시간 및 통계 출력
         end_time = datetime.now()
@@ -717,13 +741,13 @@ def main():
         help=f"데이터베이스 파일 (기본값: {DB_FILENAME})",
     )
     parser.add_argument(
-        "--batch-size", type=int, default=100, help="URL 배치 크기 (기본값: 100)"
+        "--parallel",
+        type=int,
+        default=_parallel_count,
+        help=f"병렬 처리 수 (기본값: {_parallel_count})",
     )
     parser.add_argument(
-        "--bcc-size",
-        type=int,
-        default=config.EMAIL_BCC_BATCH_SIZE,
-        help=f"BCC 배치 크기 (기본값: {config.EMAIL_BCC_BATCH_SIZE})",
+        "--batch-size", type=int, default=100, help="배치당 URL 수 (기본값: 100)"
     )
     parser.add_argument(
         "--include", type=str, nargs="+", help="포함할 키워드 목록 (URL 필터링)"
@@ -780,15 +804,13 @@ def main():
     # 로그 레벨 설정
     logging.getLogger().setLevel(getattr(logging, args.log_level))
 
-    # BCC 크기 설정
-    if args.bcc_size and args.bcc_size != config.EMAIL_BCC_BATCH_SIZE:
-        config.EMAIL_BCC_BATCH_SIZE = args.bcc_size
-        logger.info(f"BCC 배치 크기를 {config.EMAIL_BCC_BATCH_SIZE}로 설정했습니다.")
-
     logger.info("이미 성공적으로 전송된 이메일은 항상 건너뛰는 모드로 실행합니다.")
     logger.info(
         f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']})"
     )
+
+    # 병렬 처리 수 설정
+    set_parallel_count(args.parallel)
 
     # 테스트 이메일 전송 모드 확인
     if args.test_email or args.test_emails:
@@ -894,66 +916,71 @@ def send_test_emails(
         f"테스트 모드: {len(email_addresses)}개의 이메일 주소로 메일을 전송합니다."
     )
 
-    # BCC로 테스트 이메일 전송
-    if len(email_addresses) > 1:
-        # 여러 이메일 주소가 있는 경우 BCC로 한 번에 전송
-        logger.info(
-            f"BCC 방식으로 {len(email_addresses)}개의 테스트 이메일을 한 번에 전송합니다."
-        )
-        success, sent_emails = send_bcc_batch_email(
-            email_addresses, subject, html_content
-        )
-        if success:
-            logger.info(f"테스트 이메일 BCC 전송 성공: {len(sent_emails)}개 이메일")
-        else:
-            logger.error("테스트 이메일 BCC 전송 실패")
-    else:
-        # 단일 이메일 주소인 경우 일반 방식으로 전송
-        logger.info(
-            f"단일 이메일 주소 {email_addresses[0]}로 테스트 이메일을 전송합니다."
-        )
+    # 각 이메일 주소로 메일 전송
+    success_count = 0
+    error_count = 0
+
+    for email in email_addresses:
+        logger.info(f"테스트 이메일 {email}로 전송 시도 중...")
 
         # 사용자 정의 내용으로 이메일 전송
-        try:
-            # SMTP 서버 설정
-            smtp_server = config.EMAIL_SMTP_SERVER
-            smtp_port = config.EMAIL_SMTP_PORT
-            sender_email = config.EMAIL_SENDER
-            password = config.EMAIL_PASSWORD
+        if html_content or text_content:
+            # send_email 함수를 직접 호출하지 않고 내부 구현을 다시 작성
+            try:
+                # SMTP 서버 설정
+                smtp_server = config.EMAIL_SMTP_SERVER
+                smtp_port = config.EMAIL_SMTP_PORT
+                sender_email = config.EMAIL_SENDER
+                password = config.EMAIL_PASSWORD
 
-            # 제목 설정
-            email_subject = subject if subject else config.EMAIL_SUBJECT
+                # 제목 설정
+                email_subject = subject if subject else config.EMAIL_SUBJECT
 
-            # 메시지 생성
-            msg = MIMEMultipart("alternative")
-            msg["From"] = sender_email
-            msg["To"] = email_addresses[0]
-            msg["Subject"] = email_subject
+                # 메시지 생성
+                msg = MIMEMultipart("alternative")
+                msg["From"] = sender_email
+                msg["To"] = email
+                msg["Subject"] = email_subject
 
-            # 텍스트 버전 추가
-            text_part_content = (
-                text_content if text_content else config.EMAIL_TEXT_CONTENT
-            )
-            text_part = MIMEText(text_part_content, "plain", "utf-8")
-            msg.attach(text_part)
+                # 텍스트 버전 추가
+                text_part_content = (
+                    text_content if text_content else config.EMAIL_TEXT_CONTENT
+                )
+                text_part = MIMEText(text_part_content, "plain", "utf-8")
+                msg.attach(text_part)
 
-            # HTML 버전 추가
-            html_part_content = (
-                html_content if html_content else config.EMAIL_HTML_CONTENT
-            )
-            html_part = MIMEText(html_part_content, "html", "utf-8")
-            msg.attach(html_part)
+                # HTML 버전 추가
+                html_part_content = (
+                    html_content if html_content else config.EMAIL_HTML_CONTENT
+                )
+                html_part = MIMEText(html_part_content, "html", "utf-8")
+                msg.attach(html_part)
 
-            # SMTP 연결 및 메일 전송
-            with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls()  # TLS 보안 처리
-                server.login(sender_email, password)
-                server.sendmail(sender_email, email_addresses[0], msg.as_string())
+                # SMTP 연결 및 메일 전송
+                with smtplib.SMTP(smtp_server, smtp_port) as server:
+                    server.starttls()  # TLS 보안 처리
+                    server.login(sender_email, password)
+                    server.sendmail(sender_email, email, msg.as_string())
 
-            logger.info(f"{email_addresses[0]}로 테스트 이메일 전송 성공")
+                success_count += 1
+                logger.info(f"{email}로 테스트 이메일 전송 성공 (커스텀 내용)")
 
-        except Exception as e:
-            logger.error(f"{email_addresses[0]}에게 이메일 전송 중 오류 발생: {e}")
+            except Exception as e:
+                error_count += 1
+                logger.error(f"{email}에게 이메일 전송 중 오류 발생: {e}")
+        else:
+            # 기본 내용으로 이메일 전송
+            if send_email(email, subject):
+                success_count += 1
+                logger.info(f"{email}로 테스트 이메일 전송 성공")
+            else:
+                error_count += 1
+                logger.error(f"{email}로 테스트 이메일 전송 실패")
+
+    # 결과 출력
+    logger.info(
+        f"테스트 이메일 전송 완료: 성공 {success_count}개, 실패 {error_count}개 (총 {len(email_addresses)}개)"
+    )
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ _force_run = False
 _skip_existing = True
 
 # 병렬 처리 수 설정
-_parallel_count = 6
+_parallel_count = config.SEARCH_PARALLEL_COUNT
 
 # 데이터베이스 파일명
 DB_FILENAME = config.DEFAULT_DB_FILENAME
