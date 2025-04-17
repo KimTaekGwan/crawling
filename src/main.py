@@ -442,7 +442,9 @@ def main():
         logger.info("프로그램을 종료합니다.")
         return
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=_parallel_count) as executor:
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=_parallel_count
+    ) as executor:
         # 작업 제출
         futures = [
             executor.submit(process_keyword_combo, i, kw, total_combos)

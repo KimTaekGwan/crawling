@@ -22,6 +22,7 @@ from src.db_storage import (
     get_db_connection,
 )
 import argparse
+import json
 
 # 로깅 설정
 logging.basicConfig(
@@ -274,12 +275,157 @@ def clean_database_urls(db_filename: str) -> int:
         conn.close()
 
 
-def extract_footer_info(page: Page) -> Dict[str, str]:
+def _extract_floating_data(
+    page: Page,
+    data_type: str,  # 'phone' or 'email' for logging
+    primary_script_pattern: Optional[re.Pattern],
+    primary_script_group: int,
+    secondary_script_pattern: Optional[re.Pattern],
+    secondary_script_group: int,
+    button_selector: Optional[str],
+    button_attribute: str = "data-data",
+) -> Optional[str]:
     """
-    웹페이지의 푸터에서 기업 정보를 추출합니다.
+    Helper function to extract data (phone or email) from script content or floating button attributes.
+    Tries primary script pattern, then secondary script pattern, then button element.
+
+    Args:
+        page: Playwright Page object.
+        data_type: Type of data being extracted ('phone' or 'email').
+        primary_script_pattern: High-priority regex pattern for script content.
+        primary_script_group: Regex group index for primary pattern.
+        secondary_script_pattern: Lower-priority regex pattern for script content.
+        secondary_script_group: Regex group index for secondary pattern.
+        button_selector: CSS selector for the button element.
+        button_attribute: Attribute to extract data from the button element.
+
+    Returns:
+        Extracted data string or None.
+    """
+    data = None
+    source = None  # 어디서 찾았는지 기록
+
+    try:
+        # 스크립트 내용 한 번만 가져오기
+        script_content = page.content()
+
+        # 1. 우선 순위 높은 스크립트 패턴 검색
+        if primary_script_pattern:
+            match = primary_script_pattern.search(script_content)
+            if match:
+                data = match.group(primary_script_group).strip()
+                if data:
+                    source = f"스크립트 ({primary_script_pattern.pattern[:20]}...)"  # 패턴 일부 표시
+
+        # 2. 우선 순위 낮은 스크립트 패턴 검색 (데이터가 아직 없을 경우)
+        if not data and secondary_script_pattern:
+            match = secondary_script_pattern.search(script_content)
+            if match:
+                data = match.group(secondary_script_group).strip()
+                if data:
+                    source = f"스크립트 ({secondary_script_pattern.pattern[:20]}...)"
+
+        # 3. 버튼 요소 검색 (데이터가 아직 없을 경우)
+        if not data and button_selector:
+            button_element = page.query_selector(button_selector)
+            if button_element:
+                data = button_element.get_attribute(button_attribute)
+                if data:
+                    data = data.strip()
+                    source = f"버튼 속성 ({button_selector})"
+
+        # 최종 결과 로그
+        if data:
+            logger.debug(f"{source}에서 {data_type} 발견: {data}")
+            return data
+        else:
+            logger.debug(f"스크립트 및 플로팅 버튼에서 {data_type}을(를) 찾을 수 없음")
+            return None
+
+    except Exception as e:
+        logger.error(f"플로팅 데이터 ({data_type}) 추출 중 오류: {e}")
+        return None
+
+
+def extract_floating_button_phone(page: Page) -> Optional[str]:
+    """
+    페이지 내 스크립트에서 전화번호를 추출합니다.
+    phone 객체 또는 contractData/pcContractData를 확인합니다.
 
     Args:
         page: Playwright 페이지 객체
+
+    Returns:
+        추출된 전화번호 또는 None
+    """
+    # 패턴 정의
+    phone_obj_pattern = re.compile(
+        r'"phone"\s*:\s*\{"name"\s*:\s*"([^"]+)",\s*"checked"\s*:\s*1\}'
+    )
+    contract_data_pattern = re.compile(
+        r"""
+        (?:contractData|pcContractData)\s*:\s*\[\s*
+        \{.*?
+        "protocol"\s*:\s*"tel"
+        .*?
+        "link"\s*:\s*"([^"]+)"
+        .*?\}
+        """,
+        re.VERBOSE | re.DOTALL,
+    )
+
+    return _extract_floating_data(
+        page=page,
+        data_type="phone",
+        primary_script_pattern=phone_obj_pattern,
+        primary_script_group=1,
+        secondary_script_pattern=contract_data_pattern,
+        secondary_script_group=1,
+        button_selector=None,  # 전화번호는 버튼 속성에 직접 없음
+    )
+
+
+def extract_floating_button_email(page: Page) -> Optional[str]:
+    """
+    페이지 내 스크립트 또는 플로팅 버튼 요소에서 이메일 주소를 추출합니다.
+    스크립트 내 email 객체 (checked:1) 또는 버튼의 data-data 속성을 확인합니다.
+
+    Args:
+        page: Playwright 페이지 객체
+
+    Returns:
+        추출된 이메일 주소 또는 None
+    """
+    # 패턴 정의
+    email_obj_pattern = re.compile(
+        r'"email"\s*:\s*\{"name"\s*:\s*"([^"]+)",\s*"checked"\s*:\s*1\}'
+    )
+    button_selector = 'a._btnFloating[data-type="email"]'
+
+    return _extract_floating_data(
+        page=page,
+        data_type="email",
+        primary_script_pattern=email_obj_pattern,
+        primary_script_group=1,
+        secondary_script_pattern=None,  # 이메일은 contractData에 없음
+        secondary_script_group=1,
+        button_selector=button_selector,
+        button_attribute="data-data",
+    )
+
+
+def extract_footer_info(
+    page: Page, phone_found_elsewhere: bool = False, email_found_elsewhere: bool = False
+) -> Dict[str, str]:
+    """
+    웹페이지의 푸터에서 기업 정보를 추출합니다.
+    phone_found_elsewhere가 True이면 전화번호는 추출하지 않습니다.
+    email_found_elsewhere가 True이면 이메일은 추출하지 않습니다.
+
+    Args:
+        page: Playwright 페이지 객체
+        phone_found_elsewhere: 다른 곳에서 전화번호를 이미 찾았는지 여부
+        email_found_elsewhere: 다른 곳에서 이메일을 이미 찾았는지 여부
 
     Returns:
         추출된 기업 정보가 담긴 딕셔너리
@@ -291,53 +437,125 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
         footer_selector = (
             "#main > div.footer._footer > div.section_footer > div > div.area_info"
         )
-        if not page.query_selector(footer_selector):
+        footer_element = page.query_selector(footer_selector)
+        if not footer_element:
             logger.debug("푸터 영역을 찾을 수 없습니다.")
             return info
 
         # 정보 목록 확인
-        list_items = page.query_selector_all(f"{footer_selector} ul.list_info > li")
+        list_items = footer_element.query_selector_all("ul.list_info > li")
         if not list_items:
-            logger.debug("푸터 정보 목록을 찾을 수 없습니다.")
+            logger.debug("푸터 정보 목록(li)을 찾을 수 없습니다.")
+            # 푸터 영역 전체 텍스트에서 시도
+            footer_text = footer_element.inner_text()
+
+            # 전화번호 추출 (필요한 경우)
+            if not phone_found_elsewhere:
+                phone_match = re.search(
+                    r"(?:전화번호|연락처)\s*:?\s*([0-9\-]+(?: داخلی\s*\d+)?|[0-9]{2,4}\s*-\s*[0-9]{3,4}\s*-\s*[0-9]{4})",
+                    footer_text,
+                )
+                if phone_match:
+                    info["phone_number"] = phone_match.group(1).strip()
+
+            # 이메일 추출 (필요한 경우)
+            if not email_found_elsewhere:
+                email_match = re.search(
+                    r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", footer_text
+                )
+                if email_match:
+                    info["email"] = email_match.group(1)
+
+            # 주소 추출
+            address_match = re.search(
+                r"([^\n]*(?:시|도|군|구|길|로)\s+[^\n]+)", footer_text
+            )
+            if address_match and "사업자등록번호" not in address_match.group(1):
+                info["address"] = address_match.group(1).strip()
+
+            # 회사명 추출
+            lines = footer_text.split("\n")
+            if lines:
+                first_line = lines[0].strip()
+                if first_line and not any(
+                    kw in first_line
+                    for kw in [
+                        "사업자등록번호",
+                        "대표",
+                        "전화번호",
+                        "이메일",
+                        "주소",
+                        "팩스",
+                    ]
+                ):
+                    info["company"] = first_line
+
             return info
 
-        # 각 항목 처리
+        # 각 항목 처리 (li 태그가 있는 경우)
         for item in list_items:
             text = item.inner_text().strip()
 
-            # 전화번호 추출
-            if "전화번호" in text:
-                phone_match = re.search(r"전화번호\s*:?\s*([0-9\-]+)", text)
+            # 전화번호 추출 (필요한 경우)
+            if not phone_found_elsewhere and ("전화번호" in text or "연락처" in text):
+                phone_match = re.search(
+                    r"(?:전화번호|연락처)\s*:?\s*([0-9\-]+(?: داخلی\s*\d+)?|[0-9]{2,4}\s*-\s*[0-9]{3,4}\s*-\s*[0-9]{4})",
+                    text,
+                )
                 if phone_match:
-                    info["phone_number"] = phone_match.group(1)
+                    info["phone_number"] = phone_match.group(1).strip()
 
-            # 이메일 추출
-            elif "이메일" in text:
+            # 이메일 추출 (필요한 경우)
+            elif not email_found_elsewhere and "이메일" in text:
                 email_match = re.search(
-                    r"이메일\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
+                    r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})",
                     text,
                 )
                 if email_match:
                     info["email"] = email_match.group(1)
 
-            # 주소 추출 (주소 형태를 가진 텍스트로 판단)
+            # 주소 추출
             elif (
-                "광역시" in text
+                "주소" in text
+                or "광역시" in text
                 or "시 " in text
                 or "군 " in text
                 or "도 " in text
                 or "구 " in text
+                or "길 " in text
+                or "로 " in text
             ):
-                if "사업자등록번호" not in text and "연락처" not in text:
-                    info["address"] = text
+                if not any(
+                    kw in text
+                    for kw in [
+                        "사업자등록번호",
+                        "연락처",
+                        "전화번호",
+                        "이메일",
+                        "대표자",
+                        "팩스",
+                        "통신판매업",
+                    ]
+                ):
+                    address_text = re.sub(r"^주소\s*:\s*", "", text).strip()
+                    if address_text:
+                        info["address"] = address_text
 
-            # 기업명 추출 (첫 번째 항목으로 가정)
-            elif (
-                info["company"] == ""
-                and "사업자등록번호" not in text
-                and "대표" not in text
+            # 기업명 추출
+            elif info["company"] == "" and not any(
+                kw in text
+                for kw in [
+                    "사업자등록번호",
+                    "대표",
+                    "전화번호",
+                    "이메일",
+                    "주소",
+                    "팩스",
+                    "통신판매업",
+                    "연락처",
+                ]
             ):
-                if len(text) < 30:  # 길이 제한으로 주소가 아닌 항목 구분
+                if len(text) < 50:
                     info["company"] = text
 
     except Exception as e:
@@ -386,6 +604,7 @@ def extract_talk_link(page: Page) -> str:
 def crawl_detail_page(url: str) -> Dict[str, str]:
     """
     특정 URL에서 상세 정보를 크롤링합니다.
+    플로팅 버튼의 전화번호와 이메일을 우선적으로 사용합니다.
 
     Args:
         url: 크롤링할 URL
@@ -404,31 +623,94 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
 
     # 브라우저 초기화
     playwright, browser, context, page = initialize_browser()
+    phone_extracted_from_floating = False
+    email_extracted_from_floating = False  # 이메일 플래그 추가
 
     try:
         # URL로 이동
         logger.info(f"URL 접속 중: {url}")
-        page.goto(url, timeout=30000)
+        context.set_extra_http_headers(
+            {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+        )
+        page.goto(url, timeout=45000, wait_until="domcontentloaded")
 
         # 페이지 로딩 대기
-        page.wait_for_load_state("networkidle", timeout=10000)
+        try:
+            page.wait_for_load_state("networkidle", timeout=15000)
+        except Exception as e:
+            logger.warning(f"네트워크 안정화 대기 시간 초과 (계속 진행): {url} - {e}")
+            time.sleep(3)
 
-        # 푸터 정보 추출
-        footer_info = extract_footer_info(page)
-        details.update(footer_info)
+        # "페이지 없음" 오류 확인
+        error_locator = page.locator(
+            "h1:has-text('요청하신 페이지를 찾을 수 없습니다'), h1:has-text('서비스 점검 중')"
+        )
+        if error_locator.count() > 0:
+            error_text = error_locator.first.inner_text()
+            logger.warning(f"'{error_text}' 감지: {url}")
+            return {"error": "page_not_found", "url": url}
+
+        # 플로팅 버튼 전화번호 추출 시도
+        floating_phone = extract_floating_button_phone(page)
+        if floating_phone:
+            details["phone_number"] = floating_phone
+            phone_extracted_from_floating = True
+            logger.info(f"플로팅 버튼에서 전화번호 추출 성공: {floating_phone}")
+        else:
+            logger.info("플로팅 버튼에서 전화번호를 찾지 못했습니다.")
+
+        # 플로팅 버튼 이메일 추출 시도
+        floating_email = extract_floating_button_email(page)
+        if floating_email:
+            details["email"] = floating_email
+            email_extracted_from_floating = True
+            logger.info(f"플로팅 버튼/스크립트에서 이메일 추출 성공: {floating_email}")
+        else:
+            logger.info("플로팅 버튼/스크립트에서 이메일을 찾지 못했습니다.")
+
+        # 푸터 정보 추출 (플로팅 버튼에서 찾았는지 여부 전달)
+        footer_info = extract_footer_info(
+            page,
+            phone_found_elsewhere=phone_extracted_from_floating,
+            email_found_elsewhere=email_extracted_from_floating,
+        )  # 이메일 플래그 전달
+
+        # 플로팅에서 못 찾았거나 값이 비었으면 푸터 정보 사용 (전화번호)
+        if not phone_extracted_from_floating or not details["phone_number"]:
+            details["phone_number"] = footer_info.get("phone_number", "")
+
+        # 플로팅에서 못 찾았거나 값이 비었으면 푸터 정보 사용 (이메일)
+        if not email_extracted_from_floating or not details["email"]:
+            details["email"] = footer_info.get("email", "")
+
+        # 다른 푸터 정보 업데이트 (전화번호, 이메일 제외하고 덮어쓰기)
+        details["company"] = footer_info.get("company", "")
+        details["address"] = footer_info.get("address", "")
 
         # 톡톡 링크 추출
         details["talk_link"] = extract_talk_link(page)
 
         logger.info(f"크롤링 완료: {url}")
         logger.debug(f"- 기업명: {details['company']}")
-        logger.debug(f"- 전화번호: {details['phone_number']}")
-        logger.debug(f"- 이메일: {details['email']}")
+        logger.debug(
+            f"- 전화번호: {details['phone_number']} {'(플로팅)' if phone_extracted_from_floating else '(푸터)' if details['phone_number'] else ''}"
+        )
+        logger.debug(
+            f"- 이메일: {details['email']} {'(플로팅/스크립트)' if email_extracted_from_floating else '(푸터)' if details['email'] else ''}"
+        )  # 로그 수정
         logger.debug(f"- 주소: {details['address']}")
         logger.debug(f"- 톡톡링크: {details['talk_link']}")
 
     except Exception as e:
-        logger.error(f"상세 페이지 크롤링 중 오류: {url} - {e}")
+        # 타임아웃 오류 구분
+        if "Timeout" in str(e):
+            logger.error(f"상세 페이지 크롤링 중 타임아웃 오류: {url} - {e}")
+            # 타임아웃 시 특정 오류 반환 가능
+            # return {"error": "timeout", "url": url}
+        else:
+            logger.error(f"상세 페이지 크롤링 중 오류: {url} - {e}")
 
     finally:
         # 브라우저 종료
@@ -437,21 +719,70 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
     return details
 
 
-def save_intermediate_results(results: List[Dict[str, str]], db_filename: str) -> None:
+def delete_urls_from_db(urls_to_delete: List[str], db_filename: str) -> int:
     """
-    중간 결과를 데이터베이스에 저장합니다.
+    데이터베이스에서 지정된 URL 목록을 삭제합니다.
 
     Args:
-        results: 저장할 결과 목록
+        urls_to_delete: 삭제할 URL 목록
+        db_filename: 데이터베이스 파일명
+
+    Returns:
+        삭제된 행의 수
+    """
+    if not urls_to_delete:
+        return 0
+
+    conn = get_db_connection(db_filename)
+    if not conn:
+        logger.error("데이터베이스 연결 실패 (삭제)")
+        return 0
+
+    deleted_count = 0
+    try:
+        cursor = conn.cursor()
+        # 트랜잭션 시작
+        conn.execute("BEGIN TRANSACTION")
+        for url in urls_to_delete:
+            cursor.execute("DELETE FROM websites WHERE url = ?", (url,))
+            deleted_count += cursor.rowcount  # 삭제된 행 수 누적
+            if cursor.rowcount > 0:
+                logger.info(f"데이터베이스에서 삭제됨 (페이지 없음): {url}")
+            else:
+                logger.warning(
+                    f"데이터베이스에서 URL을 찾을 수 없어 삭제하지 못함: {url}"
+                )
+        # 트랜잭션 커밋
+        conn.commit()
+        logger.info(
+            f"총 {deleted_count}개의 '페이지 없음' URL을 데이터베이스에서 삭제했습니다."
+        )
+    except Exception as e:
+        logger.error(f"데이터베이스에서 URL 삭제 중 오류: {e}")
+        conn.rollback()
+        deleted_count = 0  # 롤백 시 삭제 카운트 초기화
+    finally:
+        conn.close()
+
+    return deleted_count
+
+
+def save_intermediate_results(results: List[Dict[str, str]], db_filename: str) -> None:
+    """
+    중간 결과를 데이터베이스에 저장합니다. (오류 결과는 제외)
+
+    Args:
+        results: 저장할 결과 목록 (오류가 아닌 결과만 포함)
         db_filename: 데이터베이스 파일명
     """
-    if not results:
-        logger.warning("저장할 중간 결과가 없습니다.")
+    valid_results = [res for res in results if "error" not in res]  # 오류 결과 필터링
+    if not valid_results:
+        logger.debug("저장할 유효한 중간 결과가 없습니다.")
         return
 
     try:
         # 데이터베이스에 중간 결과 저장
-        saved_count = save_to_db(results, db_filename)
+        saved_count = save_to_db(valid_results, db_filename)
         logger.info(f"중간 결과 {saved_count}개를 데이터베이스에 저장했습니다.")
     except Exception as e:
         logger.error(f"중간 결과 저장 중 오류: {e}")
@@ -482,6 +813,10 @@ def process_url(item, i, total_items):
     try:
         logger.info(f"[{i+1}/{total_items}] 처리 중: {url}")
         details = crawl_detail_page(url)
+
+        # crawl_detail_page에서 오류 반환 시 그대로 반환
+        if details and "error" in details:
+            return details
 
         # Name 필드 추가
         if name:
@@ -682,6 +1017,7 @@ def crawl_details_from_db(
 
     # 병렬 처리
     results = []
+    urls_to_delete = []  # 삭제할 URL 목록 추가
     with concurrent.futures.ThreadPoolExecutor(max_workers=_parallel_count) as executor:
         # 작업 제출
         future_to_url = {
@@ -697,18 +1033,35 @@ def crawl_details_from_db(
             try:
                 details = future.result()
                 if details:
-                    results.append(details)
-                    logger.info(f"[{i+1}/{total_items}] 완료: {url}")
+                    # 오류 결과 처리
+                    if "error" in details and details["error"] == "page_not_found":
+                        urls_to_delete.append(details["url"])
+                        logger.warning(
+                            f"[{i+1}/{total_items}] '페이지 없음' 오류로 처리 건너뜀: {url}"
+                        )
+                    else:
+                        results.append(details)
+                        logger.info(f"[{i+1}/{total_items}] 완료: {url}")
                 else:
-                    logger.warning(f"[{i+1}/{total_items}] 실패: {url}")
+                    logger.warning(f"[{i+1}/{total_items}] 실패 (결과 없음): {url}")
             except Exception as e:
                 logger.error(f"[{i+1}/{total_items}] 오류: {url} - {e}")
 
-            # 중간 저장
+            # 중간 저장 및 삭제
             if (i + 1) % save_interval == 0 or (i + 1) == total_items:
+                # 삭제할 URL 처리
+                if urls_to_delete:
+                    delete_urls_from_db(urls_to_delete, db_filename)
+                    urls_to_delete = []  # 삭제 후 리스트 비우기
+
+                # 결과 저장
                 save_intermediate_results(results, db_filename)
                 # 저장 후 리스트 비우기
                 results = []
+
+    # 루프 종료 후 남은 URL 삭제 처리 (필요한 경우)
+    if urls_to_delete:
+        delete_urls_from_db(urls_to_delete, db_filename)
 
     logger.info("모든 URL 처리가 완료되었습니다.")
 

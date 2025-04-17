@@ -254,13 +254,22 @@ def send_bcc_batch_email(
         msg.attach(html_part)
 
         # SMTP 연결 및 메일 전송
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()  # TLS 보안 처리
-            server.login(sender_email, password)
-            # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
-            server.sendmail(
-                sender_email, [sender_email] + recipient_emails, msg.as_string()
-            )
+        match config.EMAIL_SMTP_PORT:
+            case 465:
+                with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                    server.login(sender_email, password)
+                    # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
+                    server.sendmail(
+                        sender_email, [sender_email] + recipient_emails, msg.as_string()
+                    )
+            case 587:
+                with smtplib.SMTP(smtp_server, smtp_port) as server:
+                    server.starttls()  # TLS 보안 처리
+                    server.login(sender_email, password)
+                    # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
+                    server.sendmail(
+                        sender_email, [sender_email] + recipient_emails, msg.as_string()
+                    )
 
         logger.info(
             f"{len(recipient_emails)}명의 수신자에게 BCC로 이메일을 성공적으로 전송했습니다."
@@ -945,10 +954,22 @@ def send_test_emails(
             msg.attach(html_part)
 
             # SMTP 연결 및 메일 전송
-            with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls()  # TLS 보안 처리
-                server.login(sender_email, password)
-                server.sendmail(sender_email, email_addresses[0], msg.as_string())
+            match config.EMAIL_SMTP_PORT:
+                case 465:
+                    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                        server.login(sender_email, password)
+                        # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
+                        server.sendmail(
+                            sender_email, email_addresses[0], msg.as_string()
+                        )
+                case 587:
+                    with smtplib.SMTP(smtp_server, smtp_port) as server:
+                        server.starttls()  # TLS 보안 처리
+                        server.login(sender_email, password)
+                        # BCC 필드의 주소들로 메일 전송 (From 주소는 발신자, To 주소도 발신자로 설정)
+                        server.sendmail(
+                            sender_email, email_addresses[0], msg.as_string()
+                        )
 
             logger.info(f"{email_addresses[0]}로 테스트 이메일 전송 성공")
 
