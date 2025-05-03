@@ -274,6 +274,52 @@ def clean_database_urls(db_filename: str) -> int:
         conn.close()
 
 
+def fetch_and_extract_og_title(page: Page) -> Optional[str]:
+    """
+    웹페이지에서 제목을 추출합니다.
+    og:site_name, og:title, 일반 title 태그 순서로 확인합니다.
+
+    Args:
+        page: Playwright 페이지 객체
+
+    Returns:
+        추출된 제목 문자열 또는 None
+    """
+    try:
+        # og:site_name 메타 태그 확인
+        og_site_name = page.query_selector('meta[property="og:site_name"]')
+        if og_site_name:
+            content = og_site_name.get_attribute('content')
+            if content:
+                title = content.strip()
+                logger.debug(f"og:site_name 제목 추출: {title}")
+                return title
+
+        # og:title 메타 태그 확인
+        og_title = page.query_selector('meta[property="og:title"]')
+        if og_title:
+            content = og_title.get_attribute('content')
+            if content:
+                title = content.strip()
+                logger.debug(f"og:title 제목 추출: {title}")
+                return title
+
+        # 일반 title 태그 확인
+        title_tag = page.query_selector('title')
+        if title_tag:
+            title = title_tag.inner_text().strip()
+            if title:
+                logger.debug(f"title 태그 제목 추출: {title}")
+                return title
+
+        logger.debug("어떤 제목 정보도 찾을 수 없음")
+        return None
+
+    except Exception as e:
+        logger.error(f"제목 추출 중 오류: {e}")
+        return None
+
+
 def extract_footer_info(page: Page) -> Dict[str, str]:
     """
     웹페이지의 푸터에서 기업 정보를 추출합니다.
@@ -284,9 +330,14 @@ def extract_footer_info(page: Page) -> Dict[str, str]:
     Returns:
         추출된 기업 정보가 담긴 딕셔너리
     """
-    info = {"company": "", "phone_number": "", "email": "", "address": ""}
+    info = {"company": "", "phone_number": "", "email": "", "address": "", "title": ""}
 
     try:
+        # 제목 추출 시도 (og:site_name, og:title, title 태그 순서)
+        title = fetch_and_extract_og_title(page)
+        if title:
+            info["title"] = title
+
         # 푸터 영역이 존재하는지 확인
         footer_selector = (
             "#main > div.footer._footer > div.section_footer > div > div.area_info"
@@ -383,6 +434,37 @@ def extract_talk_link(page: Page) -> str:
     return talk_link
 
 
+def delete_url_from_db(conn: sqlite3.Connection, url: str) -> bool:
+    """
+    데이터베이스에서 특정 URL의 레코드를 삭제합니다.
+
+    Args:
+        conn: SQLite 데이터베이스 연결 객체
+        url: 삭제할 URL
+
+    Returns:
+        삭제 성공 여부 (True/False)
+    """
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM websites WHERE url = ?", (url,))
+        conn.commit()
+        # 삭제된 행이 있는지 확인
+        if cursor.rowcount > 0:
+            logger.info(f"레코드 삭제 성공: {url}")
+            return True
+        else:
+            logger.warning(f"삭제할 레코드를 찾지 못함: {url}")
+            return False
+    except sqlite3.Error as e:
+        logger.error(f"DB 레코드 삭제 실패: {url} - {e}")
+        try:
+            conn.rollback()
+        except sqlite3.Error as rb_err:
+            logger.error(f"삭제 작업 롤백 중 오류: {rb_err}")
+        return False
+
+
 def crawl_detail_page(url: str) -> Dict[str, str]:
     """
     특정 URL에서 상세 정보를 크롤링합니다.
@@ -400,6 +482,7 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         "email": "",
         "address": "",
         "talk_link": "",
+        "title": "",
     }
 
     # 브라우저 초기화
@@ -413,7 +496,20 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         # 페이지 로딩 대기
         page.wait_for_load_state("networkidle", timeout=10000)
 
-        # 푸터 정보 추출
+        # 404 또는 "페이지를 찾을 수 없습니다" 확인
+        # page_content = page.content()
+        # if "요청하신 페이지를 찾을 수 없습니다" in page_content or "404" in page_content:
+        #     logger.warning(f"404 또는 페이지를 찾을 수 없음: {url}")
+        #     # DB에서 URL 삭제
+        #     conn = get_db_connection(config.DEFAULT_DB_FILENAME)
+        #     if conn:
+        #         try:
+        #             delete_url_from_db(conn, url)
+        #         finally:
+        #             conn.close()
+        #     return None
+
+        # 푸터 정보 추출 (title 포함)
         footer_info = extract_footer_info(page)
         details.update(footer_info)
 
@@ -426,6 +522,7 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         logger.debug(f"- 이메일: {details['email']}")
         logger.debug(f"- 주소: {details['address']}")
         logger.debug(f"- 톡톡링크: {details['talk_link']}")
+        logger.debug(f"- 제목: {details['title']}")
 
     except Exception as e:
         logger.error(f"상세 페이지 크롤링 중 오류: {url} - {e}")
@@ -482,6 +579,10 @@ def process_url(item, i, total_items):
     try:
         logger.info(f"[{i+1}/{total_items}] 처리 중: {url}")
         details = crawl_detail_page(url)
+
+        # 404 또는 페이지를 찾을 수 없는 경우 None 반환
+        if details is None:
+            return None
 
         # Name 필드 추가
         if name:

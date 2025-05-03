@@ -1,0 +1,9 @@
+# Sample test emails for personalized email sending
+# Format: email,title
+# Lines starting with # are ignored
+
+test1@example.com,헤어샵 미용실
+test2@example.com,카페 커피숍
+test3@example.com,맛있는 식당
+youremail@gmail.com,테스트 회사
+# Add more test emails as needed 

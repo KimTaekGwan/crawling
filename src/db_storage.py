@@ -25,7 +25,16 @@ def get_db_connection(db_filename: str) -> sqlite3.Connection:
         SQLite connection object
     """
     ensure_db_dir()
-    db_path = os.path.join(config.DATA_DIR, db_filename)
+    # Check if db_filename already contains a path separator
+    if os.path.sep in db_filename:
+        db_path = db_filename # Use the provided path directly
+    else:
+        # Assume it's just a filename and join with DATA_DIR
+        db_path = os.path.join(config.DATA_DIR, db_filename)
+    
+    # Log the final path being used for connection
+    logging.debug(f"Attempting to connect to database at: {os.path.abspath(db_path)}")
+
     conn = sqlite3.connect(db_path)
 
     # Enable foreign keys and other helpful settings

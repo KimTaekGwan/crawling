@@ -557,11 +557,10 @@ class EmailSender:
         Returns:
             (성공 수, 실패 수, 총 처리 URL 수) 튜플
         """
+        # 시작 시간 기록
         start_time = datetime.now()
         logger.info(f"개인화된 이메일 전송 작업 시작: {start_time}")
-
-        logger.info(f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']}), ERROR({config.EMAIL_STATUS['ERROR']})")
-
+        
         # 카운터 초기화
         self.sent_count = 0
         self.error_count = 0
@@ -597,9 +596,9 @@ class EmailSender:
                 """
                 SELECT COUNT(*) as total FROM websites 
                 WHERE email IS NOT NULL AND email != '' 
-                AND (email_status = ? OR email_status = ? OR email_status = ?)
+                AND (email_status = ? OR email_status = ?)
                 """,
-                (config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"], config.EMAIL_STATUS["ERROR"])
+                (config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"])
             )
             row = cursor.fetchone()
             already_sent_count = row["total"] if row else 0
@@ -610,9 +609,9 @@ class EmailSender:
                 SELECT url, keyword, title, phone_number, email, crawled_date
                 FROM websites
                 WHERE email IS NOT NULL AND email != ''
-                AND (email_status IS NULL OR (email_status != ? AND email_status != ? AND email_status != ?))
+                AND (email_status IS NULL OR (email_status != ? AND email_status != ?))
             """
-            params = [config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"], config.EMAIL_STATUS["ERROR"]]
+            params = [config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"]]
             
             # 날짜 필터 추가
             if min_date:
@@ -672,15 +671,25 @@ class EmailSender:
                 
             logger.info("개인화된 이메일 발송을 시작합니다.")
             
-            # 배치 처리를 위한 URL 상태 맵 (전역 변수)
-            url_status_map = {}
+            # SMTP 서버 연결
+            if not self.connect():
+                logger.error("SMTP 서버 연결 실패로 이메일을 전송할 수 없습니다.")
+                return (0, 0, len(email_details))
+
+            # 이메일 발송 시작 (tqdm 적용)
+            logger.info(f"총 {len(email_details)}개의 개인화된 이메일을 전송합니다 (연결 재사용)...")
+            url_status_map = {}  # 배치 업데이트용
             
-            # 변수 추출 함수
-            def get_variables_from_detail(detail, _):
+            for i, detail in enumerate(tqdm(email_details, desc="Sending Emails", unit="email"), 1):
+                if self.terminate_requested:
+                    logger.info("종료 요청으로 인해 남은 이메일 처리를 중단합니다.")
+                    break
+
                 url = detail["url"]
                 email = detail["email"]
-                title = detail.get("title", "N/A")
-                
+                title = detail.get("title", "N/A")  # title이 없을 경우 대비
+
+                # 변수 딕셔너리 구성
                 variables = {
                     "TITLE": title,
                     "URL": url,
@@ -688,382 +697,173 @@ class EmailSender:
                     "PHONE": detail.get("phone_number", ""),
                     "DATE": detail.get("crawled_date", "")
                 }
-                
-                return email, variables, {"url": url}
-            
-            # 성공 후처리 함수
-            def on_success(_, __, extra_data):
-                nonlocal url_status_map
-                url = extra_data["url"]
-                url_status_map[url] = config.EMAIL_STATUS["SENT"]
-                
-                # 주기적 배치 업데이트 (예: 50개마다)
-                if len(url_status_map) >= 50:
-                    self.update_batch_email_status(conn, url_status_map)
-                    url_status_map.clear()
-            
-            # 오류 후처리 함수
-            def on_error(_, __, extra_data, ___):
-                nonlocal url_status_map
-                url = extra_data["url"]
-                url_status_map[url] = config.EMAIL_STATUS["ERROR"]
-                
-                # 주기적 배치 업데이트 (예: 50개마다)
-                if len(url_status_map) >= 50:
-                    self.update_batch_email_status(conn, url_status_map)
-                    url_status_map.clear()
-            
-            # 내부 발송 메소드 호출
-            sent_count, error_count = self._send_batch_internal(
-                items=email_details,
-                get_variables_func=get_variables_from_detail,
-                on_success_func=on_success,
-                on_error_func=on_error,
-                description="Sending DB Emails"
-            )
-            
+
+                try:
+                    # 개인화된 이메일 전송
+                    success = self._send_single_email(
+                        recipient_email=email,
+                        variables=variables
+                    )
+
+                    # 상태 업데이트 (배치 처리를 위해 맵에 추가)
+                    if success:
+                        url_status_map[url] = config.EMAIL_STATUS["SENT"]
+                        with self._lock:
+                            self.sent_count += 1
+                        logger.info(f"이메일 전송 성공 ({i}/{len(email_details)}): {email}")
+                    else:
+                        url_status_map[url] = config.EMAIL_STATUS["ERROR"]
+                        with self._lock:
+                            self.error_count += 1
+                        # 로깅은 _send_single_email에서 수행됨
+
+                    # 다음 이메일 전송 전에 지연
+                    if i < len(email_details) and not self.terminate_requested:
+                        time.sleep(config.EMAIL_SEND_DELAY_SECONDS)
+                        
+                    # 주기적 배치 업데이트 (예: 50개마다)
+                    if len(url_status_map) >= 50:
+                        self.update_batch_email_status(conn, url_status_map)
+                        url_status_map = {}  # 맵 초기화
+
+                except Exception as e:
+                    logger.error(f"URL {url} ({email}) 처리 중 예기치 않은 오류 발생: {e}", exc_info=True)
+                    url_status_map[url] = config.EMAIL_STATUS["ERROR"]
+                    with self._lock:
+                        self.error_count += 1
+
             # 남은 상태 업데이트 처리
             if url_status_map:
                 self.update_batch_email_status(conn, url_status_map)
-                
+
             # 종료 시간 및 통계 출력
             end_time = datetime.now()
             elapsed = end_time - start_time
             logger.info(f"이메일 전송 작업 완료: {end_time} (소요 시간: {elapsed})")
-            logger.info(f"총 시도: {len(email_details)}, 전송 성공: {sent_count}, 오류: {error_count}")
+            logger.info(f"총 시도: {len(email_details)}, 전송 성공: {self.sent_count}, 오류: {self.error_count}")
             
-            return (sent_count, error_count, len(email_details))
+            return (self.sent_count, self.error_count, len(email_details))
 
         except Exception as e:
             logger.error(f"이메일 전송 작업 중 주요 오류 발생: {e}", exc_info=True)
             return (self.sent_count, self.error_count, self.total_count)
             
         finally:
+            # SMTP 연결 종료
+            self.disconnect()
+            
             # 데이터베이스 연결 종료
             if conn:
                 conn.close()
                 logger.info("Database connection closed.")
 
-    def send_test_batch(self, 
-                       recipients: List[str], 
-                       test_variables: Dict,
-                       subject_override: str = None,
-                       html_template_override: str = None,
-                       text_template_override: str = None,
-                       items: List[Dict] = None,
-                       get_variables_func: callable = None) -> Tuple[int, int]:
+    def send_test_batch(self,
+                       test_emails: List[str],
+                       test_titles: List[str] = None,
+                       subject: str = None,
+                       html_template: str = None,
+                       text_template: str = None) -> Tuple[int, int]:
         """
-        테스트 목적으로 동일한 내용의 이메일을 여러 수신자에게 전송합니다.
+        테스트 이메일을 여러 수신자에게 일괄 전송합니다.
         
         Args:
-            recipients: 테스트 이메일 수신자 목록
-            test_variables: 이메일 템플릿에 사용할 테스트 변수
-            subject_override: 이메일 제목 재정의 (None인 경우 기본값 사용)
-            html_template_override: HTML 템플릿 재정의 (None인 경우 기본값 사용)
-            text_template_override: 텍스트 템플릿 재정의 (None인 경우 기본값 사용)
-            items: 개별 항목 처리를 위한 사용자 정의 목록 (None인 경우 recipients에서 생성)
-            get_variables_func: 사용자 정의 변수 추출 함수 (None인 경우 기본 함수 사용)
-            
-        Returns:
-            (성공 수, 실패 수) 튜플
-        """
-        # start_time = datetime.now()
-        logger.info(f"테스트 이메일 발송 작업 시작: {datetime.now()}")
-
-        logger.info(f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']}), ERROR({config.EMAIL_STATUS['ERROR']})")
-
-        # 카운터 초기화
-        self.sent_count = 0
-        self.error_count = 0
-        
-        # 빈 수신자 리스트 체크
-        if not recipients:
-            logger.warning("테스트 이메일 수신자가 지정되지 않았습니다.")
-            return (0, 0)
-            
-        logger.info(f"테스트 이메일을 {len(recipients)}명의 수신자에게 전송합니다.")
-        
-        # 변수 사용 확인 및 변수 출력
-        if not test_variables and not get_variables_func:
-            logger.warning("테스트 변수가 지정되지 않았습니다. 기본 변수만 사용합니다.")
-            test_variables = {}
-            
-        logger.debug(f"테스트 이메일에 사용되는 변수: {test_variables}")
-        
-        # 항목 목록 준비 (수신자 정보)
-        if items is None:
-            items = [{"email": email} for email in recipients]
-        
-        # 변수 추출 함수
-        if get_variables_func is None:
-            def get_variables_for_test(item, _):
-                email = item["email"]
-                return email, test_variables, {"email": email}
-            get_variables_func = get_variables_for_test
-        
-        # 성공 처리 함수
-        def on_success(_, __, ___):
-            pass  # 테스트 발송에서는 별도 처리 필요 없음
-        
-        # 오류 처리 함수
-        def on_error(_, __, ___, ____):
-            pass  # 테스트 발송에서는 별도 처리 필요 없음
-        
-        # 주제 및 템플릿 설정
-        subject = subject_override if subject_override else self.subject
-        html_template = html_template_override if html_template_override else self.html_template
-        text_template = text_template_override if text_template_override else self.text_template
-        
-        # 내부 발송 메소드 호출
-        sent_count, error_count = self._send_batch_internal(
-            items=items,
-            get_variables_func=get_variables_func,
-            on_success_func=on_success,
-            on_error_func=on_error,
-            subject=subject,
-            html_template=html_template,
-            text_template=text_template,
-            description="Sending Test Emails"
-        )
-        
-        # 종료 시간 및 통계 출력
-        end_time = datetime.now()
-        elapsed = end_time - start_time
-        logger.info(f"테스트 이메일 전송 작업 완료: {end_time} (소요 시간: {elapsed})")
-        logger.info(f"총 시도: {len(items)}, 전송 성공: {sent_count}, 오류: {error_count}")
-        
-        return (sent_count, error_count)
-
-    def _send_batch_internal(self,
-                           items: List[Any],
-                           get_variables_func: callable,
-                           on_success_func: callable = None,
-                           on_error_func: callable = None,
-                           subject: str = None,
-                           html_template: str = None,
-                           text_template: str = None,
-                           description: str = "Sending Emails") -> Tuple[int, int]:
-        """
-        내부 헬퍼 메소드: 이메일 배치 발송 공통 로직을 처리합니다.
-        
-        Args:
-            items: 처리할 항목 목록 (이메일 상세 정보 또는 (이메일, 제목) 튜플 등)
-            get_variables_func: 각 항목에서 변수 딕셔너리를 추출하는 함수
-                                signature: (item, index) -> (email, variables, extra_data)
-            on_success_func: 성공 시 호출할 함수 (선택적)
-                              signature: (email, variables, extra_data) -> None
-            on_error_func: 오류 시 호출할 함수 (선택적)
-                            signature: (email, variables, extra_data, exception) -> None
+            test_emails: 테스트 이메일 주소 목록
+            test_titles: 테스트 제목 목록 (None인 경우 기본값 자동 생성)
             subject: 이메일 제목 템플릿 (None인 경우 self.subject 사용)
             html_template: HTML 템플릿 내용 (None인 경우 self.html_template 사용)
             text_template: 텍스트 템플릿 내용 (None인 경우 self.text_template 사용)
-            description: tqdm 진행 표시줄 설명
             
         Returns:
             (성공 수, 실패 수) 튜플
         """
-        if not items:
-            logger.warning("처리할 항목이 없습니다.")
+        if not test_emails:
+            logger.error("테스트 이메일 주소가 지정되지 않았습니다.")
             return (0, 0)
+            
+        # 제목 목록 준비
+        if not test_titles or len(test_titles) < len(test_emails):
+            if not test_titles:
+                test_titles = []
+            # 제목이 부족하면 기본 제목 추가
+            default_title_start_index = len(test_titles) + 1
+            test_titles.extend([f"테스트 제목 {i}" for i in range(default_title_start_index, len(test_emails) + 1)])
             
         # 템플릿 및 제목 설정
         subject_template = subject or self.subject
         html_content = html_template or self.html_template
         text_content = text_template or self.text_template
         
-        # 로컬 카운터 (반환값용)
+        logger.info(f"테스트 모드: {len(test_emails)}개의 이메일 주소로 개인화된 메일을 전송합니다.")
+        
+        # 카운터 초기화
         sent_count = 0
         error_count = 0
         
-        # 네이버 SMTP 서버 제한 대응을 위한 설정
-        emails_per_connection = 25  # 한 연결당 처리할 이메일 수
-        consecutive_errors = 0      # 연속 오류 발생 횟수
-        max_consecutive_errors = 3  # 최대 연속 오류 허용 횟수
-        
+        # SMTP 서버 연결
+        if not self.connect():
+            logger.error("SMTP 서버 연결 실패로 테스트 이메일을 전송할 수 없습니다.")
+            return (0, 0)
+            
         try:
-            # 이메일 발송 루프 (tqdm 적용)
-            with tqdm(items, total=len(items), desc=description, unit="email") as pbar:
-                for i, item in enumerate(pbar, 1):
+            # 이메일 발송 루프
+            with tqdm(zip(test_emails, test_titles), total=len(test_emails), desc="Sending Test Emails", unit="email") as pbar:
+                for i, (email, title) in enumerate(pbar, 1):
                     if self.terminate_requested:
-                        logger.info("종료 요청으로 인해 남은 이메일 처리를 중단합니다.")
+                        logger.info("종료 요청으로 인해 남은 테스트 이메일 처리를 중단합니다.")
                         break
                         
-                    # 일정 개수마다 SMTP 서버 연결 초기화 
-                    # (네이버 SMTP 서버 명령어 제한 대응)
-                    if i % emails_per_connection == 1 or not self.server:
-                        if self.server:
-                            # 기존 연결 종료
-                            try:
-                                self.disconnect()
-                                logger.debug(f"{emails_per_connection}개 이메일 처리 후 SMTP 연결 재설정")
-                            except Exception as e:
-                                logger.warning(f"SMTP 연결 종료 중 오류 (무시됨): {e}")
-                        
-                        # 새 연결 시도
-                        connect_attempts = 0
-                        while connect_attempts < 3:  # 최대 3번 시도
-                            connect_success = self.connect()
-                            if connect_success:
-                                consecutive_errors = 0  # 연결 성공 시 오류 카운터 초기화
-                                break
-                            
-                            connect_attempts += 1
-                            if connect_attempts < 3:
-                                logger.warning(f"SMTP 연결 실패 ({connect_attempts}/3), 5초 후 재시도...")
-                                time.sleep(5)  # 연결 실패 시 5초 대기 후 재시도
-                        
-                        if not connect_success:
-                            logger.error("SMTP 서버 연결에 3번 실패했습니다. 15분 대기 후 계속...")
-                            time.sleep(900)  # 15분 대기
-                            connect_success = self.connect()  # 마지막 시도
-                            
-                            if not connect_success:
-                                logger.error("SMTP 서버 연결 재시도 실패. 이메일 발송을 중단합니다.")
-                                break
-                        
-                    # 변수 추출 (이메일, 변수 딕셔너리, 추가 데이터)
-                    try:
-                        email, variables, extra_data = get_variables_func(item, i)
-                    except Exception as e:
-                        logger.error(f"항목 {i} 처리 중 변수 추출 오류: {e}", exc_info=True)
-                        error_count += 1
-                        continue
-                        
-                    # 현재 처리 정보 표시 (제목은 변수에서 추출)
-                    title = variables.get("TITLE", "N/A")
-                    pbar.set_postfix_str(f"(성공:{sent_count:02d}|실패:{error_count:02d}|전체:{len(items):02d}) email={email} title=\'{title}\'", refresh=False)
+                    # 초기 상태 표시 (현재 처리 중인 이메일)
+                    pbar.set_postfix(email=email, status='Sending...')
+                    
+                    # 변수 딕셔너리 구성 (테스트용)
+                    variables = {
+                        "TITLE": title,
+                        "URL": "https://example.com/test",
+                        "KEYWORD": "테스트 키워드",
+                        "PHONE": "010-1234-5678",
+                        "DATE": datetime.now().strftime("%Y-%m-%d")
+                    }
                     
                     # 이메일 발송
-                    try:
-                        success = self._send_single_email(
-                            recipient_email=email,
-                            variables=variables,
-                            subject=subject_template,
-                            html_template=html_content,
-                            text_template=text_content
-                        )
-                        
-                        if success:
-                            sent_count += 1
-                            consecutive_errors = 0  # 성공 시 연속 오류 카운터 초기화
-                            # logger.info(f"이메일 전송 성공 ({i}/{len(items)}): {email}")
-                            
-                            # 성공 후처리 (제공된 경우)
-                            if on_success_func:
-                                try:
-                                    on_success_func(email, variables, extra_data)
-                                except Exception as e:
-                                    logger.error(f"성공 후처리 중 오류 발생: {e}", exc_info=True)
-                        else:
-                            error_count += 1
-                            consecutive_errors += 1
-                            logger.error(f"이메일 전송 실패 ({i}/{len(items)}): {email}")
-                            
-                            # 실패 후처리 (제공된 경우)
-                            if on_error_func:
-                                try:
-                                    on_error_func(email, variables, extra_data, None)
-                                except Exception as e:
-                                    logger.error(f"실패 후처리 중 오류 발생: {e}", exc_info=True)
-                                    
-                        # 진행 상황 표시 업데이트
-                        pbar.set_postfix_str(f"(성공:{sent_count:02d}|실패:{error_count:02d}|전체:{len(items):02d}) email={email} title=\'{title}\'", refresh=True)
-                        
-                    except smtplib.SMTPSenderRefused as e:
-                        error_count += 1
-                        consecutive_errors += 1
-                        logger.error(f"이메일 {email} 전송 중 발신자 거부 오류: {e}")
-                        
-                        # 발신자 거부는 속도 제한일 가능성 높음 - 연결 재설정
-                        logger.info("SMTP 발신자 거부 오류 발생, 연결 재설정 및 60초 대기...")
-                        try:
-                            self.disconnect()
-                        except Exception:
-                            pass  # 연결 종료 오류는 무시
-                            
-                        time.sleep(60)  # 1분 대기
-                        
-                        # 예외 후처리 (제공된 경우)
-                        if on_error_func:
-                            try:
-                                on_error_func(email, variables, extra_data, e)
-                            except Exception as e2:
-                                logger.error(f"예외 후처리 중 추가 오류 발생: {e2}", exc_info=True)
+                    success = self._send_single_email(
+                        recipient_email=email,
+                        variables=variables,
+                        subject=subject_template,
+                        html_template=html_content,
+                        text_template=text_content
+                    )
                     
-                    except smtplib.SMTPServerDisconnected as e:
+                    # 결과에 따라 후행 텍스트 업데이트
+                    if success:
+                        sent_count += 1
+                        logger.info(f"테스트 이메일 {i}/{len(test_emails)} 전송 성공: {email} (제목: {title})")
+                        pbar.set_postfix(email=email, status='Success ✅')
+                    else:
                         error_count += 1
-                        consecutive_errors += 1
-                        logger.error(f"이메일 {email} 전송 중 서버 연결 끊김: {e}")
-                        
-                        # 연결이 끊겼으므로 다음 반복에서 재연결 시도
-                        self.server = None
-                        
-                        # 예외 후처리 (제공된 경우)
-                        if on_error_func:
-                            try:
-                                on_error_func(email, variables, extra_data, e)
-                            except Exception as e2:
-                                logger.error(f"예외 후처리 중 추가 오류 발생: {e2}", exc_info=True)
-                                
-                    except Exception as e:
-                        error_count += 1
-                        consecutive_errors += 1
-                        logger.error(f"이메일 {email} 전송 중 예외 발생: {e}", exc_info=True)
-                        
-                        # 예외 후처리 (제공된 경우)
-                        if on_error_func:
-                            try:
-                                on_error_func(email, variables, extra_data, e)
-                            except Exception as e2:
-                                logger.error(f"예외 후처리 중 추가 오류 발생: {e2}", exc_info=True)
-                                
-                        # 오류 발생 시 진행 상황 업데이트
-                        pbar.set_postfix_str(f"(성공:{sent_count:02d}|실패:{error_count:02d}|전체:{len(items):02d}) email={email} title=\'{title}\' Error!", refresh=True)
+                        logger.error(f"테스트 이메일 {i}/{len(test_emails)} 전송 실패: {email} (제목: {title})")
+                        pbar.set_postfix(email=email, status='Failed ❌')
                     
-                    # 연속 오류가 임계값 초과하면 대기 및 연결 재설정
-                    if consecutive_errors >= max_consecutive_errors:
-                        logger.warning(f"연속 {consecutive_errors}회 오류 발생, 2분 대기 후 연결 재설정...")
-                        try:
-                            self.disconnect()
-                        except Exception:
-                            pass  # 연결 종료 오류는 무시
-                            
-                        time.sleep(120)  # 2분 대기
-                        consecutive_errors = 0  # 카운터 초기화
-                        self.server = None  # 다음 반복에서 재연결 시도
-                        
                     # 다음 이메일 전송 전에 지연
-                    if i < len(items) and not self.terminate_requested:
-                        # 성공한 경우는 정상 지연, 오류가 발생한 경우는 추가 지연
-                        delay = config.EMAIL_SEND_DELAY_SECONDS
-                        if consecutive_errors > 0:
-                            delay = max(delay, 5)  # 최소 5초
-                        time.sleep(delay)
+                    if i < len(test_emails) and not self.terminate_requested:
+                        time.sleep(config.EMAIL_SEND_DELAY_SECONDS)
                         
-            # 루프 종료 후 최종 상태 표시
-            final_postfix_str = f"(성공:{sent_count:02d}|실패:{error_count:02d}|전체:{len(items):02d}) Done."
-            if 'pbar' in locals(): # pbar 객체가 생성되었는지 확인
-                pbar.set_postfix_str(final_postfix_str, refresh=True)
+            logger.info(f"테스트 이메일 전송 완료. 성공: {sent_count}, 실패: {error_count}")
             
             # 전체 카운터 업데이트
             with self._lock:
                 self.sent_count += sent_count
                 self.error_count += error_count
-                self.total_count += len(items)
+                self.total_count += len(test_emails)
                 
             return (sent_count, error_count)
             
         except Exception as e:
-            logger.error(f"배치 이메일 처리 중 심각한 오류 발생: {e}", exc_info=True)
+            logger.error(f"테스트 이메일 전송 중 오류 발생: {e}", exc_info=True)
             return (sent_count, error_count)
             
         finally:
             # SMTP 연결 종료
-            try:
-                self.disconnect()
-            except Exception as e:
-                logger.error(f"SMTP 서버 연결 종료 중 오류 발생: {e}")
-                self.server = None  # 서버 객체 초기화
+            self.disconnect()
 
 
 def update_email_status(
@@ -1224,7 +1024,7 @@ def send_test_personalized_emails(
     Args:
         test_emails: 테스트 이메일 주소 목록
         test_titles: 테스트 제목 목록 (None인 경우 기본값 사용)
-        subject: 이메일 제목 (테스트 이메일 전송 시 사용됩니다)
+        subject: 이메일 제목 (None인 경우 config에서 가져옴)
         html_content: HTML 내용 (None인 경우 config에서 가져옴)
         text_content: 텍스트 내용 (None인 경우 config에서 가져옴)
     """
@@ -1242,64 +1042,10 @@ def send_test_personalized_emails(
     )
     
     # 테스트 이메일 배치 전송
-    logger.info("사용자 확인 완료. 테스트 이메일 발송을 시작합니다.")
-    
-    # 각 이메일별로 다른 제목을 사용하기 위한 준비
-    if test_titles and len(test_titles) > 0:
-        # 이메일마다 다른 제목 적용을 위해 items 리스트 생성
-        test_items = []
-        for i, email in enumerate(test_emails):
-            # 가능한 범위 내에서 제목 할당
-            title = test_titles[i] if i < len(test_titles) else f"테스트 제목 {i+1}"
-            test_items.append({
-                "email": email,
-                "title": title
-            })
-            
-        # 다양한 제목을 사용하는 변수 추출 함수
-        def get_variables_for_test_with_titles(item, _):
-            email = item["email"]
-            title = item["title"]
-            
-            # 기본 테스트 변수 복사 후 개별 제목 적용
-            variables = {
-                "TITLE": title,
-                "URL": "https://example.com/test",
-                "KEYWORD": "테스트 키워드",
-                "PHONE": "010-1234-5678",
-                "DATE": datetime.now().strftime("%Y-%m-%d")
-            }
-            
-            return email, variables, {"email": email}
-            
-        # 개별 제목이 있는 항목으로 발송
-        sent_count, error_count = _email_sender.send_test_batch(
-            recipients=[item["email"] for item in test_items],
-            test_variables={},  # 실제 변수는 get_variables_for_test_with_titles에서 생성
-            subject_override=subject,
-            html_template_override=html_content,
-            text_template_override=text_content,
-            items=test_items,
-            get_variables_func=get_variables_for_test_with_titles
-        )
-    else:
-        # 테스트 변수 딕셔너리 생성 (모든 이메일에 동일 변수 적용)
-        test_variables = {
-            "TITLE": "테스트 제목",
-            "URL": "https://example.com/test",
-            "KEYWORD": "테스트 키워드",
-            "PHONE": "010-1234-5678",
-            "DATE": datetime.now().strftime("%Y-%m-%d")
-        }
-        
-        # 기본 방식으로 발송
-        sent_count, error_count = _email_sender.send_test_batch(
-            recipients=test_emails,
-            test_variables=test_variables,
-            subject_override=subject,
-            html_template_override=html_content,
-            text_template_override=text_content
-        )
+    _email_sender.send_test_batch(
+        test_emails=test_emails,
+        test_titles=test_titles
+    )
 
 
 # 전역 이메일 발송기 인스턴스 (시그널 핸들러용)
@@ -1377,17 +1123,36 @@ def main():
 
     # 로그 레벨 설정
     logging.getLogger().setLevel(getattr(logging, args.log_level))
-    start_time = datetime.now() 
 
-    logger.info(f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']}), ERROR({config.EMAIL_STATUS['ERROR']})")
+    logger.info("이미 성공적으로 전송된 이메일은 항상 건너뛰는 모드로 실행합니다.")
+    logger.info(f"제외 대상 상태 코드: SENT({config.EMAIL_STATUS['SENT']}), ALREADY_SENT({config.EMAIL_STATUS['ALREADY_SENT']})")
 
-    # 카운터 초기화
-    _sent_count = 0
-    _error_count = 0
-    _no_email_count = 0
-    _already_sent_count = 0
-    _total_count = 0
+    # HTML 및 텍스트 내용 읽기
+    html_content = None
+    text_content = None
 
+    # HTML 파일에서 내용 읽기
+    if args.html_file:
+        try:
+            with open(args.html_file, "r", encoding="utf-8") as f:
+                html_content = f.read()
+            logger.info(f"HTML 내용을 파일 {args.html_file}에서 읽었습니다.")
+        except Exception as e:
+            logger.error(f"HTML 파일 {args.html_file} 읽기 실패: {e}")
+    elif args.html_content:
+        html_content = args.html_content
+
+    # 텍스트 파일에서 내용 읽기
+    if args.text_file:
+        try:
+            with open(args.text_file, "r", encoding="utf-8") as f:
+                text_content = f.read()
+            logger.info(f"텍스트 내용을 파일 {args.text_file}에서 읽었습니다.")
+        except Exception as e:
+            logger.error(f"텍스트 파일 {args.text_file} 읽기 실패: {e}")
+    elif args.text_content:
+        text_content = args.text_content
+        
     # 시그널 핸들러 등록 (Ctrl+C 및 종료 신호 처리)
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -1400,8 +1165,8 @@ def main():
         password=config.EMAIL_PASSWORD,
         use_ssl=config.EMAIL_SSL,
         subject=args.subject,
-        html_template=args.html_content,
-        text_template=args.text_content,
+        html_template=html_content,
+        text_template=text_content,
         db_filename=args.db
     )
 
@@ -1411,108 +1176,118 @@ def main():
         test_titles = None
         if args.test_titles:
             test_titles = [title.strip() for title in args.test_titles.split(",")]
+        
+        sent_count, error_count = _email_sender.send_test_batch(
+            test_emails=test_emails,
+            test_titles=test_titles
+        )
+        
+        logger.info(f"테스트 이메일 발송 결과: 성공 {sent_count}, 실패 {error_count}")
+        return
+
+    # 필터 설정
+    email_filter = {}
+    if args.include:
+        email_filter["include"] = args.include
+    if args.exclude:
+        email_filter["exclude"] = args.exclude
+        
+    # DB 발송 모드 (주 기능)
+    # 이메일 발송 전 확인 단계 처리
+    if not args.skip_confirm:
+        # EmailSender 인스턴스를 생성하여 요약 정보만 가져옴
+        temp_sender = EmailSender(db_filename=args.db)
+        conn = get_db_connection(args.db)
+        
+        try:
+            # 필요한 DB 쿼리와 요약 정보 생성
+            # (실제 이메일을 보내지 않고 요약 정보만 생성)
             
-        # 제목 목록 준비 (test_batch 메소드 내 로직과 유사하게)
-        if not test_titles or len(test_titles) < len(test_emails):
-            if not test_titles:
-                test_titles = []
-            default_title_start_index = len(test_titles) + 1
-            test_titles.extend([f"테스트 제목 {i}" for i in range(default_title_start_index, len(test_emails) + 1)])
-        
-        # 테스트용 email_details 생성
-        test_email_details = []
-        for email, title in zip(test_emails, test_titles):
-            test_email_details.append({
-                "url": f"test://{email}", # 가짜 URL
-                "email": email,
-                "title": title,
-                "keyword": "테스트",
-                "phone_number": "N/A",
-                "crawled_date": "N/A"
-            })
+            # 이미 전송된 이메일 카운트
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT COUNT(*) as total FROM websites 
+                WHERE email IS NOT NULL AND email != '' 
+                AND (email_status = ? OR email_status = ?)
+                """,
+                (config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"])
+            )
+            row = cursor.fetchone()
+            already_sent_count = row["total"] if row else 0
+
+            # 처리할 대상 쿼리 작성
+            base_query = """
+                SELECT url, keyword, title, phone_number, email, crawled_date
+                FROM websites
+                WHERE email IS NOT NULL AND email != ''
+                AND (email_status IS NULL OR (email_status != ? AND email_status != ?))
+            """
+            params = [config.EMAIL_STATUS["SENT"], config.EMAIL_STATUS["ALREADY_SENT"]]
             
-        # 요약 정보 표시 및 사용자 확인
-        summary_text, _ = _email_sender.display_email_summary(test_email_details, 0) # already_sent_count는 0
-        print(summary_text)
-        
-        confirm = input("\n위 정보로 테스트 이메일을 발송하시겠습니까? (y/n): ")
-        if confirm.lower() not in ("y", "yes"):
-            logger.info("사용자가 테스트 이메일 발송을 취소했습니다. 프로그램을 종료합니다.")
-            return
-        
-        logger.info("사용자 확인 완료. 테스트 이메일 발송을 시작합니다.")
-        
-        # 각 이메일별로 다른 제목을 사용하기 위한 준비
-        if test_titles and len(test_titles) > 0:
-            # 이메일마다 다른 제목 적용을 위해 items 리스트 생성
-            test_items = []
-            for i, email in enumerate(test_emails):
-                # 가능한 범위 내에서 제목 할당
-                title = test_titles[i] if i < len(test_titles) else f"테스트 제목 {i+1}"
-                test_items.append({
-                    "email": email,
-                    "title": title
+            # 날짜 필터 추가
+            if args.date:
+                base_query += " AND crawled_date >= ?"
+                params.append(args.date)
+                
+            # 키워드 필터 추가
+            if email_filter and "include" in email_filter:
+                include_conditions = []
+                for keyword in email_filter["include"]:
+                    include_conditions.append("url LIKE ?")
+                    params.append(f"%{keyword}%")
+                if include_conditions:
+                    base_query += f" AND ({' OR '.join(include_conditions)})"
+                    
+            if email_filter and "exclude" in email_filter:
+                for keyword in email_filter["exclude"]:
+                    base_query += " AND url NOT LIKE ?"
+                    params.append(f"%{keyword}%")
+            
+            base_query += " ORDER BY url"
+            
+            # 쿼리 실행
+            cursor.execute(base_query, params)
+            rows = cursor.fetchall()
+            
+            # 이메일 상세 정보 준비
+            email_details = []
+            for row in rows:
+                email_details.append({
+                    "url": row["url"],
+                    "email": row["email"],
+                    "title": row["title"],
+                    "keyword": row["keyword"],
+                    "phone_number": row["phone_number"],
+                    "crawled_date": row["crawled_date"]
                 })
                 
-            # 다양한 제목을 사용하는 변수 추출 함수
-            def get_variables_for_test_with_titles(item, _):
-                email = item["email"]
-                title = item["title"]
+            if not email_details:
+                logger.warning("처리할 이메일이 없습니다. 모든 이메일이 이미 성공적으로 전송되었거나 이메일 주소가 없습니다.")
+                return
                 
-                # 기본 테스트 변수 복사 후 개별 제목 적용
-                variables = {
-                    "TITLE": title,
-                    "URL": "https://example.com/test",
-                    "KEYWORD": "테스트 키워드",
-                    "PHONE": "010-1234-5678",
-                    "DATE": datetime.now().strftime("%Y-%m-%d")
-                }
-                
-                return email, variables, {"email": email}
-                
-            # 개별 제목이 있는 항목으로 발송
-            sent_count, error_count = _email_sender.send_test_batch(
-                recipients=[item["email"] for item in test_items],
-                test_variables={},  # 실제 변수는 get_variables_for_test_with_titles에서 생성
-                subject_override=args.subject,
-                html_template_override=args.html_content,
-                text_template_override=args.text_content,
-                items=test_items,
-                get_variables_func=get_variables_for_test_with_titles
-            )
-        else:
-            # 테스트 변수 딕셔너리 생성 (모든 이메일에 동일 변수 적용)
-            test_variables = {
-                "TITLE": "테스트 제목",
-                "URL": "https://example.com/test",
-                "KEYWORD": "테스트 키워드",
-                "PHONE": "010-1234-5678",
-                "DATE": datetime.now().strftime("%Y-%m-%d")
-            }
+            # 요약 정보 생성 및 표시
+            summary_text, _ = temp_sender.display_email_summary(email_details, already_sent_count)
+            print(summary_text)
             
-            # 기본 방식으로 발송
-            sent_count, error_count = _email_sender.send_test_batch(
-                recipients=test_emails,
-                test_variables=test_variables,
-                subject_override=args.subject,
-                html_template_override=args.html_content,
-                text_template_override=args.text_content
-            )
+            # 사용자 확인 요청
+            confirm = input("\n위 정보로 개인화된 이메일을 발송하시겠습니까? (y/n): ")
+            if confirm.lower() not in ("y", "yes"):
+                logger.info("사용자가 이메일 발송을 취소했습니다. 프로그램을 종료합니다.")
+                return
+                
+        finally:
+            if conn:
+                conn.close()
 
-    # 테스트 이메일 전송 모드가 종료되면 일반 배치 전송 모드로 전환
-    else:
-        # 일반 배치 전송 모드
-        sent_count, error_count, total_count = _email_sender.send_batch_from_db(
-            min_date=args.date,
-            email_filter=dict(include=args.include, exclude=args.exclude) if args.include or args.exclude else None,
-            skip_confirm=args.skip_confirm
-        )
-
-    # 종료 시간 및 통계 출력
-    end_time = datetime.now()
-    elapsed = end_time - start_time
-    logger.info(f"이메일 전송 작업 완료: {end_time} (소요 시간: {elapsed})")
-    logger.info(f"총 시도: {total_count}, 전송 성공: {sent_count}, 오류: {error_count}")
+    # 실제 이메일 발송 실행 
+    sent_count, error_count, total_count = _email_sender.send_batch_from_db(
+        min_date=args.date,
+        email_filter=email_filter if email_filter else None,
+        skip_confirm=True  # 이미 위에서 확인했으므로 중복 확인 방지
+    )
+    
+    logger.info(f"이메일 발송 결과: 총 대상 {total_count}, 성공 {sent_count}, 실패 {error_count}")
 
 
 if __name__ == "__main__":

@@ -935,7 +935,7 @@ SEARCH_KEYWORD_TYPES = {
     # "지역": 광역자치단체 + 기초자치단체,
     "지역": 구,
     # "지역": ["부산", "서울", "대구", "인천"],  # 지역 리스트 (선택 사항)
-    "키워드": keywords040900 + keywords040818,
+    "키워드": food_keywords + service_keywords + lodging_keywords + association_keywords,
     # "키워드": 센터 + 마케팅 + 기관,
     # "키워드": 업종,
     # "키워드": 키워드 + 업종,
@@ -956,7 +956,7 @@ SEARCH_JOINER = ""
 START_PAGE = 2
 END_PAGE = 10
 
-SEARCH_PARALLEL_COUNT = 6
+SEARCH_PARALLEL_COUNT = 10
 
 # URLs and selectors
 BASE_URL = "https://search.naver.com/search.naver"
@@ -1062,16 +1062,32 @@ TEMPLATES_DIR = os.path.join(
 EMAIL_HTML_TEMPLATE_PATH = os.path.join(TEMPLATES_DIR, "email_template.html")
 EMAIL_TEXT_TEMPLATE_PATH = os.path.join(TEMPLATES_DIR, "email_template.txt")
 
-# SMTP 서버 설정
-EMAIL_SMTP_SERVER = "smtp.naver.com"
-EMAIL_SMTP_PORT = 587  # TLS 사용 시 587, SSL 사용 시 465
+# Email configuration
+# EMAIL_SMTP_SERVER = os.getenv("EMAIL_SMTP_SERVER", "smtp.daum.net")  # Daum SMTP server
+# EMAIL_SMTP_PORT = os.getenv("EMAIL_SMTP_PORT", 465)  # Daum uses port 465 with SSL
+# EMAIL_SENDER = os.environ.get("EMAIL_SENDER", "")  # your Daum email
+# EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")  # your Daum password
+# EMAIL_SSL = True  # Daum requires SSL (not TLS)
+
+EMAIL_SMTP_SERVER = os.getenv("EMAIL_SMTP_SERVER", "smtp.naver.com")
+EMAIL_SMTP_PORT = os.getenv("EMAIL_SMTP_PORT", 587)  # TLS 사용 시 587, SSL 사용 시 465
 EMAIL_SENDER = os.getenv("EMAIL_SENDER", "발신자ID@naver.com")  # 네이버 이메일 아이디
 EMAIL_PASSWORD = os.getenv(
     "EMAIL_PASSWORD", "비밀번호"
 )  # 네이버 이메일 비밀번호 또는 앱 비밀번호
+EMAIL_SSL = False  # Naver requires SSL (not TLS)
+
+
+
+# Email tracking settings
+ENABLE_READ_RECEIPT = True  # Enable read receipt headers
+ENABLE_TRACKING_PIXEL = False  # Enable tracking pixel (requires web server)
+TRACKING_SERVER_URL = "https://your-tracking-server.com/pixel/"  # URL for tracking pixel
 
 # 이메일 제목
-EMAIL_SUBJECT = "(광고) 모두 홈페이지 종료... ⏰ D-2 ⏰ 무료 홈페이지 지원 종료 임박!"
+EMAIL_SUBJECT = """🚀[위븐] "modoo!모두" 서비스 종료 및 무료 이전 제안드립니다❗️"""
+# EMAIL_SUBJECT = "[테스트] [위븐] 안녕하세요. 위븐 CCO 이효남입니다. 네이버 모두 홈페이지 무료 이전 제안드립니다."
+# EMAIL_SUBJECT = "(광고) 모두 홈페이지 종료... ⏰ D-2 ⏰ 무료 홈페이지 지원 종료 임박!"
 # EMAIL_SUBJECT = "(광고)네이버 모두홈페이지 종료...🤢 무료 홈페이지 제작 및 이관 지원 안내💚 (3/21 마감)"
 
 # 이메일 병렬 처리 수 (개별 발송 시 사용, 배치 발송 시에는 사용되지 않음)
@@ -1080,16 +1096,21 @@ EMAIL_PARALLEL_COUNT = 4
 # 이메일 전송 간 딜레이 (초)
 EMAIL_BETWEEN_DELAY = 5
 
+# 테스트 이메일 전송 간 딜레이 (초)
+EMAIL_SEND_DELAY_SECONDS = 1
+
 # 이메일 BCC 발송 배치 크기
 EMAIL_BCC_BATCH_SIZE = 50
 
 # 이메일 상태 코드
 EMAIL_STATUS = {
-    "NOT_SENT": 0,  # 이메일 전송 안됨
-    "SENT": 1,  # 이메일 전송 완료
-    "ERROR": 2,  # 에러 발생
-    "NO_EMAIL": 3,  # 이메일 주소 없음
-    "ALREADY_SENT": 4,  # 이미 전송됨
+    "NEW": 0,             # 새 이메일 (전송 전)
+    "SENT": 1,            # 성공적으로 전송됨
+    "OPENED": 2,          # 열람 확인됨 (트래킹 픽셀)
+    "READ_RECEIPT": 3,    # 읽음 확인 응답 받음
+    "ERROR": -1,          # 전송 오류
+    "NO_EMAIL": -2,       # 이메일 없음
+    "ALREADY_SENT": -3    # 이미 전송됨
 }
 
 # 기본 HTML 및 텍스트 템플릿 내용
