@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # 기본 설정값
 # DEFAULT_DB_FILENAME = "crawler_data.db" # config에서 가져오므로 주석 처리
-DEFAULT_TARGET_DATE = "2025-04-16" # 이 날짜는 예시이며, 실제 필요에 맞게 변경해야 합니다.
+DEFAULT_TARGET_DATE = "2025-02-16" # 이 날짜는 예시이며, 실제 필요에 맞게 변경해야 합니다.
 DEFAULT_DATE_COLUMN = "crawled_date" # 실제 DB 스키마에 맞게 확인 필요 (db_storage의 스키마 참조)
 DEFAULT_PARALLEL_COUNT = 4
 REQUESTS_TIMEOUT = 15 # 웹사이트 요청 타임아웃 (초)

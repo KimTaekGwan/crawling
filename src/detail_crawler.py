@@ -496,18 +496,18 @@ def crawl_detail_page(url: str) -> Dict[str, str]:
         # 페이지 로딩 대기
         page.wait_for_load_state("networkidle", timeout=10000)
 
-        # 404 또는 "페이지를 찾을 수 없습니다" 확인
-        # page_content = page.content()
-        # if "요청하신 페이지를 찾을 수 없습니다" in page_content or "404" in page_content:
-        #     logger.warning(f"404 또는 페이지를 찾을 수 없음: {url}")
-        #     # DB에서 URL 삭제
-        #     conn = get_db_connection(config.DEFAULT_DB_FILENAME)
-        #     if conn:
-        #         try:
-        #             delete_url_from_db(conn, url)
-        #         finally:
-        #             conn.close()
-        #     return None
+        # 404 페이지 확인 (dsc_area 요소 체크)
+        dsc_area = page.query_selector(".dsc_area")
+        if dsc_area:
+            logger.warning(f"404 페이지 발견: {url}")
+            # DB에서 URL 삭제
+            conn = get_db_connection(config.DEFAULT_DB_FILENAME)
+            if conn:
+                try:
+                    delete_url_from_db(conn, url)
+                finally:
+                    conn.close()
+            return None
 
         # 푸터 정보 추출 (title 포함)
         footer_info = extract_footer_info(page)

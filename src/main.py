@@ -29,6 +29,7 @@ _force_run = False
 
 # 기존 키워드 건너뛰기 여부 플래그
 _skip_existing = True
+# _skip_existing = True
 
 # 병렬 처리 수 설정
 _parallel_count = config.SEARCH_PARALLEL_COUNT
